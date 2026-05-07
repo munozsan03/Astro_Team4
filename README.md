@@ -1,5 +1,5 @@
 # Astro_Team4
 Torchlight Summit
 
-Teams:
+Team mates:
 Santiago Munoz, Vy Tran, Giovanni Victorio
