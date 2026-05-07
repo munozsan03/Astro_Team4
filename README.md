@@ -35,6 +35,12 @@ Using the current dataset, we will author a tool that displays a dashboard of ea
 
 **Expected Output**
 
+There will be 3 categories for the outputs, each targeting the three aforementioned risks related to bones, muscles, and the brain.
+
+Within each category are two types of graphics
+Safety graphics will calculate the current risk of each subject based on normal biomarker indications.
+Efficacy graphics will show quantitative results of biomarkers indicative of effective or ineffective treatments.
+
 Safety: Low Risk, Moderate Risk, High Risk
 Sample Visual:
 <img width="1895" height="519" alt="image" src="https://github.com/user-attachments/assets/4e30a35f-527e-4da5-b5c1-0f6d451522ed" />
