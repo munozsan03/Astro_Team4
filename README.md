@@ -11,17 +11,16 @@ Santiago Munoz, Vy Tran, Giovanni Victorio
 **Problem Background**
 
 Long-term human spaceflight can expose astronauts to extreme conditions such as microgravity, radiation, and confined environments which can disrupt multiple biological systems. 
-
 These disruptions can lead to increased risk of:
 Bone Density Loss
-Muscle Atrophy and Metabolic Dysfunction
+Muscle Atrophy
 Neurobiological Degeneration
 
-Terrestrial solutions to these risks include drug therapeutics that require clinical trials to be approved. Evaluating potential drug therapeutics during space travel for these risks is challenging due to the lack of clinical trials in these extreme environments. Our proposal targets future drug discovery in space missions that tackle issues of bone density loss, muscle atrophy, and neurodegeneration.
+Terrestrial solutions to these risks include drug therapeutics that require clinical trials for safety and efficacy to be approved for human use. Evaluating potential drug therapeutics during long-term space travel for these risks will be challenging due to the lack of clinical trials in these extreme environments. Our tool targets future drug discovery in space missions that tackle issues of bone density loss, muscle atrophy, and neurodegeneration.
 
 **Problem Statement**
 
-We need to address the lack of clinical trials to test the safety and efficacy of potential therapeutics during space travel.
+Drug discovery for long-term space travel requires tests for the safety and efficacy of potential therapeutics.
 
 **Approach**
 
@@ -34,7 +33,7 @@ Safety: Low Risk, Moderate Risk, High Risk
 Sample Visual:
 <img width="1895" height="519" alt="image" src="https://github.com/user-attachments/assets/4e30a35f-527e-4da5-b5c1-0f6d451522ed" />
 
-
+Efficacy: Biomarker Concentrations
 Table Explaining Biomarkers To Be Measured
 <img width="1734" height="864" alt="image" src="https://github.com/user-attachments/assets/988a6aae-44e1-44c5-87ed-77cefd024e1d" />
 
