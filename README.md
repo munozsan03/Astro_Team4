@@ -25,7 +25,8 @@ Terrestrial solutions to these risks include drug therapeutics that require clin
 
 **Problem Statement**
 
-Drug discovery for long-term space travel requires tests for the safety and efficacy of potential therapeutics.
+There are no validated frameworks for assessing drug safety and efficacy in microgravity environments, leaving astronauts on long-duration missions without evidence-based therapeutic options for progressive bone loss, muscle atrophy, and neurodegeneration.
+
 
 **Approach**
 
