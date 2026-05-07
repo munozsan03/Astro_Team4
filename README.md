@@ -23,3 +23,8 @@ Expected Output
 Safety: Low Risk, Moderate Risk, High Risk
 Sample Visual:
 <img width="1895" height="519" alt="image" src="https://github.com/user-attachments/assets/4e30a35f-527e-4da5-b5c1-0f6d451522ed" />
+
+
+
+<img width="1734" height="864" alt="image" src="https://github.com/user-attachments/assets/988a6aae-44e1-44c5-87ed-77cefd024e1d" />
+
