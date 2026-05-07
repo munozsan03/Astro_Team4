@@ -1,3 +1,5 @@
 # Astro_Team4
-Torchlight Summit:
+Torchlight Summit
+
+Teams:
 Santiago Munoz, Vy Tran, Giovanni Victorio
