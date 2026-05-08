@@ -32,114 +32,94 @@ except Exception as e:
 
 
 # ============================================================
+# CREW MEMBER SELECTION — SESSION STATE
+# ============================================================
+CREW_CONFIG = {
+    "C001": {"label": "Crew Member 1", "color": "#3b82f6", "hover": "#2563eb", "text": "#ffffff"},
+    "C002": {"label": "Crew Member 2", "color": "#10b981", "hover": "#059669", "text": "#ffffff"},
+    "C003": {"label": "Crew Member 3", "color": "#f59e0b", "hover": "#d97706", "text": "#ffffff"},
+    "C004": {"label": "Crew Member 4", "color": "#ef4444", "hover": "#dc2626", "text": "#ffffff"},
+}
+
+if "selected_crew" not in st.session_state:
+    st.session_state.selected_crew = "C001"
+
+
+# ============================================================
 # ╔══════════════════════════════════════════════════════════╗
 # ║   BONE EFFICACY — EDITABLE PARAMETERS & WEIGHTS         ║
 # ╚══════════════════════════════════════════════════════════╝
-#
-# HOW TO EDIT:
-#   Each biomarker entry has:
-#     "low"            : lower bound of the acceptable/good range
-#     "high"           : upper bound of the acceptable/good range
-#     "weight"         : relative contribution to the Total Efficacy Score
-#                        (weights are auto-normalized, so only relative size matters)
-#     "higher_is_better": True  → high value is a GOOD sign (bone formation)
-#                         False → high value is a BAD sign (bone resorption)
-#     "threshold_type" : controls which end(s) of the scale are penalized —
-#                        "low"  → only penalize values that fall BELOW "low"
-#                                 (values above "low" score 100; no upper penalty)
-#                        "high" → only penalize values that rise ABOVE "high"
-#                                 (values below "high" score 100; no lower penalty)
-#                        "both" → penalize values outside the [low, high] window
-#                                 (optimal range scores 100; both extremes → 0)
-#     "note"           : justification for the chosen thresholds
-#
-# For proteomics/metabolomics: values are logFC (log2 flight vs. pre-flight).
-#   Positive logFC = upregulated in flight.
-# For CMP: values are post-flight / pre-flight ratio.
-#   1.0 = no change; >1 = elevated post-flight.
-# For urine: values are post-flight / pre-flight ratio of npq concentrations.
-#
-# THRESHOLD TYPE QUICK-REFERENCE:
-#   "low"  — used when only being too LOW is harmful (e.g. protective protein dropping)
-#   "high" — used when only being too HIGH is harmful (e.g. resorption cytokine rising)
-#   "both" — used when both extremes are harmful (e.g. calcium, alkaline phosphatase)
-# ============================================================
-
 BONE_BIOMARKER_PARAMS = {
 
     # ── PROTEOMICS (logFC, flight vs. pre-flight) ───────────────────────────
-    # Bone matrix / formation proteins — upregulation is protective.
-    # logFC range reference: typical plasma proteomics spans roughly −3 to +3.
-    # We use ±2 as meaningful signal boundaries.
 
     "BGLAP (Osteocalcin)": {
-        "low": -2.0, "high": 2.0, "weight": 8, "higher_is_better": True,
+        "low": -0.5, "high": 2.0, "weight": 8, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Primary osteoblast-secreted bone matrix protein. Upregulation signals active bone formation. logFC > 0 is protective. Only penalized when too low."
+        "note": "Primary osteoblast-secreted bone matrix protein. Upregulation signals active bone formation. Only penalized when logFC drops below -0.5."
     },
     "SPARC (Osteonectin)": {
-        "low": -2.0, "high": 2.0, "weight": 6, "higher_is_better": True,
+        "low": -0.5, "high": 2.0, "weight": 6, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Bone mineralization scaffolding protein. Higher expression supports matrix deposition. Only penalized when too low."
+        "note": "Bone mineralization scaffolding protein. Higher expression supports matrix deposition. Only penalized when logFC drops below -0.5."
     },
     "SPP1 (Osteopontin — proteomics)": {
-        "low": -2.0, "high": 2.0, "weight": 4, "higher_is_better": False,
+        "low": -2.0, "high": 0.75, "weight": 4, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "Osteopontin promotes osteoclast activity. Upregulation signals resorption risk. Only penalized when too high."
+        "note": "Osteopontin promotes osteoclast activity. Only penalized when logFC rises above +0.75."
     },
     "SOST (Sclerostin)": {
-        "low": -2.0, "high": 2.0, "weight": 8, "higher_is_better": False,
+        "low": -2.0, "high": 0.5, "weight": 8, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "Sclerostin inhibits Wnt signaling and suppresses bone formation. Only penalized when too high."
+        "note": "Sclerostin inhibits Wnt signaling and suppresses bone formation. Only penalized when logFC rises above +0.5."
     },
     "POSTN (Periostin)": {
-        "low": -2.0, "high": 2.0, "weight": 5, "higher_is_better": True,
+        "low": -0.5, "high": 2.0, "weight": 5, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Periosteal bone formation marker. Upregulation indicates drug is stimulating new bone deposition. Only penalized when too low."
+        "note": "Periosteal bone formation marker. Only penalized when logFC drops below -0.5."
     },
     "BGN (Biglycan)": {
-        "low": -2.0, "high": 2.0, "weight": 4, "higher_is_better": True,
+        "low": -0.75, "high": 2.0, "weight": 4, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Bone matrix proteoglycan that regulates collagen fibrillogenesis. Higher = better matrix integrity. Only penalized when too low."
+        "note": "Bone matrix proteoglycan regulating collagen fibrillogenesis. Only penalized when logFC drops below -0.75."
     },
     "DCN (Decorin)": {
-        "low": -2.0, "high": 2.0, "weight": 3, "higher_is_better": True,
+        "low": -0.75, "high": 2.0, "weight": 3, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Collagen-binding proteoglycan. Supports structural bone matrix. Only penalized when too low."
+        "note": "Collagen-binding proteoglycan supporting structural bone matrix. Only penalized when logFC drops below -0.75."
     },
     "COL1A1 (Collagen I α1)": {
-        "low": -2.0, "high": 2.0, "weight": 7, "higher_is_better": True,
+        "low": -0.5, "high": 2.0, "weight": 7, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Primary structural collagen of bone. Upregulation directly reflects bone matrix synthesis. Only penalized when too low."
+        "note": "Primary structural collagen of bone. Only penalized when logFC drops below -0.5."
     },
     "COL1A2 (Collagen I α2)": {
-        "low": -2.0, "high": 2.0, "weight": 5, "higher_is_better": True,
+        "low": -0.5, "high": 2.0, "weight": 5, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Partners with COL1A1 to form mature type-I collagen triple helix. Only penalized when too low."
+        "note": "Partners with COL1A1 to form mature type-I collagen triple helix. Only penalized when logFC drops below -0.5."
     },
     "SFRP2 (Wnt modulator)": {
-        "low": -2.0, "high": 2.0, "weight": 4, "higher_is_better": True,
+        "low": -1.0, "high": 1.5, "weight": 4, "higher_is_better": True,
         "threshold_type": "both",
-        "note": "SFRP2 can act as a Wnt pathway facilitator in bone context; mild upregulation is supportive but excessive dysregulation may become inhibitory. Penalized at both extremes."
+        "note": "SFRP2 facilitates Wnt signaling in bone; mild upregulation is supportive but excessive dysregulation becomes inhibitory. Penalized below -1.0 and above +1.5."
     },
     "SFRP4 (Wnt modulator)": {
-        "low": -2.0, "high": 2.0, "weight": 3, "higher_is_better": False,
+        "low": -2.0, "high": 0.5, "weight": 3, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "SFRP4 inhibits Wnt signaling and is associated with osteoporosis. Only penalized when too high."
+        "note": "SFRP4 inhibits Wnt signaling and is associated with osteoporosis. Only penalized when logFC rises above +0.5."
     },
     "MGP (Matrix Gla Protein)": {
-        "low": -2.0, "high": 2.0, "weight": 3, "higher_is_better": False,
+        "low": -2.0, "high": 0.75, "weight": 3, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "MGP inhibits mineralization when elevated. Only penalized when too high."
+        "note": "MGP inhibits mineralization when elevated. Only penalized when logFC rises above +0.75."
     },
     "ADIPOQ (Adiponectin)": {
-        "low": -2.0, "high": 2.0, "weight": 3, "higher_is_better": True,
-        "threshold_type": "low",
-        "note": "Adiponectin promotes osteoblast differentiation and inhibits osteoclast activity. Only penalized when too low."
+        "low": -1.0, "high": 2.0, "weight": 3, "higher_is_better": True,
+        "threshold_type": "both",
+        "note": "Adiponectin promotes osteoblast differentiation. Moderate elevation is protective; penalized below -1.0 and above +2.0."
     },
 
     # ── CMP — SERUM CHEMISTRY (post-flight / pre-flight ratio) ──────────────
-    # Ratio = 1.0 means no change. Thresholds set around clinically meaningful shifts.
 
     "Calcium (CMP ratio)": {
         "low": 0.90, "high": 1.10, "weight": 6, "higher_is_better": True,
@@ -149,83 +129,83 @@ BONE_BIOMARKER_PARAMS = {
     "Alkaline Phosphatase (CMP ratio)": {
         "low": 0.80, "high": 1.40, "weight": 5, "higher_is_better": True,
         "threshold_type": "both",
-        "note": "Alk Phos reflects osteoblast activity. Modest elevation (1.0–1.4) is favorable; ratio > 1.4 may indicate liver stress or excessive turnover; ratio < 0.80 suggests suppressed osteoblasts. Penalized at both extremes."
+        "note": "Alk Phos reflects osteoblast activity. Modest elevation is favorable; ratio > 1.4 may indicate liver stress or excessive turnover; ratio < 0.80 suggests suppressed osteoblasts."
     },
 
     # ── URINE INFLAMMATION PANEL (post-flight / pre-flight ratio, npq) ──────
 
     "RANKL (urine ratio)": {
-        "low": 0.80, "high": 2.0, "weight": 7, "higher_is_better": False,
+        "low": 0.80, "high": 1.25, "weight": 7, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "RANKL drives osteoclastogenesis. Elevated post-flight ratio signals continued bone resorption stimulus. Only penalized when too high."
+        "note": "RANKL drives osteoclastogenesis. Elevated post-flight ratio signals continued bone resorption stimulus. Only penalized when ratio rises above 1.25."
     },
     "RANK (urine ratio)": {
-        "low": 0.80, "high": 2.0, "weight": 4, "higher_is_better": False,
+        "low": 0.80, "high": 1.25, "weight": 4, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "RANK receptor expression on osteoclast precursors. Elevated post-flight ratio indicates increased osteoclast priming. Only penalized when too high."
+        "note": "RANK receptor expression on osteoclast precursors. Only penalized when ratio rises above 1.25."
     },
     "BMP7 (urine ratio)": {
-        "low": 0.80, "high": 2.0, "weight": 5, "higher_is_better": True,
+        "low": 0.90, "high": 2.0, "weight": 5, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "BMP7 is osteogenic; promotes osteoblast differentiation. Higher post-flight ratio is protective. Only penalized when too low."
+        "note": "BMP7 promotes osteoblast differentiation. Higher post-flight ratio is protective. Only penalized when ratio drops below 0.90."
     },
     "WNT16 (urine ratio)": {
-        "low": 0.80, "high": 2.0, "weight": 5, "higher_is_better": True,
+        "low": 0.90, "high": 2.0, "weight": 5, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "WNT16 is a key bone formation signal that suppresses osteoclastogenesis. Higher ratio is beneficial. Only penalized when too low."
+        "note": "WNT16 suppresses osteoclastogenesis and supports cortical bone integrity. Only penalized when ratio drops below 0.90."
     },
     "FGF23 (urine ratio)": {
-        "low": 0.80, "high": 2.0, "weight": 4, "higher_is_better": False,
+        "low": 0.80, "high": 1.20, "weight": 4, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "FGF23 inhibits Vitamin D activation and phosphate reabsorption. Elevated FGF23 post-flight compromises bone mineral metabolism. Only penalized when too high."
+        "note": "FGF23 inhibits Vitamin D activation and phosphate reabsorption. Only penalized when ratio rises above 1.20."
     },
     "IL-6 (urine ratio)": {
-        "low": 0.80, "high": 2.0, "weight": 5, "higher_is_better": False,
+        "low": 0.80, "high": 1.30, "weight": 5, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "IL-6 activates osteoclasts and drives bone loss. Elevated post-flight IL-6 is a direct bone-resorption signal. Only penalized when too high."
+        "note": "IL-6 activates osteoclasts and drives bone loss. Only penalized when ratio rises above 1.30."
     },
     "IL-17A (urine ratio)": {
-        "low": 0.80, "high": 2.0, "weight": 4, "higher_is_better": False,
+        "low": 0.80, "high": 1.25, "weight": 4, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "IL-17A stimulates osteoclast differentiation and is linked to inflammatory bone loss. Only penalized when too high."
+        "note": "IL-17A stimulates osteoclast differentiation and inflammatory bone loss. Only penalized when ratio rises above 1.25."
     },
     "TGF-β1 (urine ratio)": {
         "low": 0.80, "high": 1.60, "weight": 3, "higher_is_better": True,
         "threshold_type": "both",
-        "note": "TGF-β1 is pleiotropic: modest elevation supports bone formation coupling, but very high levels can promote resorption/fibrosis imbalance. Penalized at both extremes."
+        "note": "TGF-β1 is pleiotropic: modest elevation supports bone formation coupling, but very high levels can promote resorption/fibrosis imbalance. Penalized below 0.80 and above 1.60."
     },
 
     # ── METABOLOMICS (logFC, flight vs. pre-flight) ──────────────────────────
 
     "Vitamin D2 (Ergocalciferol)": {
-        "low": -2.0, "high": 2.0, "weight": 6, "higher_is_better": True,
+        "low": -0.5, "high": 2.0, "weight": 6, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Vitamin D is essential for calcium absorption and bone mineralization. Only penalized when too low."
+        "note": "Vitamin D is essential for calcium absorption and bone mineralization. Only penalized when logFC drops below -0.5."
     },
     "Cortisol (metabolomics)": {
-        "low": -2.0, "high": 2.0, "weight": 5, "higher_is_better": False,
+        "low": -2.0, "high": 0.75, "weight": 5, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "Chronic cortisol elevation suppresses osteoblasts and promotes bone loss. Only penalized when too high."
+        "note": "Chronic cortisol elevation suppresses osteoblasts and promotes bone loss. Only penalized when logFC rises above +0.75."
     },
     "Proline": {
-        "low": -2.0, "high": 2.0, "weight": 3, "higher_is_better": True,
+        "low": -1.0, "high": 2.0, "weight": 3, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Proline is a primary amino acid in collagen. Higher availability supports bone matrix synthesis. Only penalized when too low."
+        "note": "Proline is a primary amino acid in collagen. Only penalized when logFC drops below -1.0."
     },
     "Glycine": {
-        "low": -2.0, "high": 2.0, "weight": 3, "higher_is_better": True,
+        "low": -1.0, "high": 2.0, "weight": 3, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Glycine is the most abundant amino acid in collagen. Higher availability supports matrix production. Only penalized when too low."
+        "note": "Glycine is the most abundant amino acid in collagen. Only penalized when logFC drops below -1.0."
     },
     "Lysine": {
-        "low": -2.0, "high": 2.0, "weight": 3, "higher_is_better": True,
+        "low": -1.0, "high": 2.0, "weight": 3, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Lysine is essential for collagen cross-linking, determining bone mechanical strength. Only penalized when too low."
+        "note": "Lysine is essential for collagen cross-linking. Only penalized when logFC drops below -1.0."
     },
     "Citric Acid": {
-        "low": -2.0, "high": 2.0, "weight": 2, "higher_is_better": True,
+        "low": -1.0, "high": 2.0, "weight": 2, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Citrate is incorporated into bone mineral crystals. Higher citrate supports bone mineral integrity. Only penalized when too low."
+        "note": "Citrate is incorporated into bone mineral crystals. Only penalized when logFC drops below -1.0."
     },
 }
 
@@ -235,101 +215,43 @@ BONE_BIOMARKER_PARAMS = {
 # ============================================================
 
 def score_biomarker(value, low, high, higher_is_better, threshold_type="both"):
-    """
-    Map a raw biomarker value to a 0–100 score.
-
-    threshold_type controls which end(s) of the scale are penalized:
-
-      "low"  — only penalize values BELOW `low`.
-               Values at or above `low` → score 100.
-               Values below `low` → linearly scored down to 0 at (low - span).
-               Use when only being too low is harmful.
-
-      "high" — only penalize values ABOVE `high`.
-               Values at or below `high` → score 100.
-               Values above `high` → linearly scored down to 0 at (high + span).
-               Use when only being too high is harmful.
-
-      "both" — penalize values outside [low, high].
-               Values in [low, high] → score 100.
-               Values outside → linearly scored toward 0 at the far boundary.
-               Use when both extremes are harmful (e.g. calcium, alkaline phosphatase).
-
-    In all modes, `higher_is_better` flips which direction of the
-    out-of-range region maps to 0 vs 100 — it is used only when the
-    boundary logic produces an intermediate score, ensuring 100 always
-    means "maximally protective" and 0 means "maximally harmful".
-
-    Args:
-        value (float): The raw biomarker value (logFC, ratio, etc.)
-        low (float): Lower threshold.
-        high (float): Upper threshold.
-        higher_is_better (bool): True if higher raw value → better outcome.
-        threshold_type (str): "low", "high", or "both".
-
-    Returns:
-        float: Score in [0, 100].
-    """
     if value is None:
         return None
 
-    span = high - low  # distance between the two thresholds
+    span = high - low
 
     if threshold_type == "low":
-        # Only being too LOW is penalized.
-        # At or above `low` → 100. Falls linearly to 0 at (low - span).
         if higher_is_better:
             if value >= low:
                 return 100.0
             score = (value - (low - span)) / span * 100
         else:
-            # "higher_is_better=False, threshold_type=low" is unusual but supported:
-            # penalize when value drops below low (i.e. too little of a bad thing removed).
             if value >= low:
                 return 100.0
             score = (value - (low - span)) / span * 100
 
     elif threshold_type == "high":
-        # Only being too HIGH is penalized.
-        # At or below `high` → 100. Falls linearly to 0 at (high + span).
         if not higher_is_better:
             if value <= high:
                 return 100.0
             score = ((high + span) - value) / span * 100
         else:
-            # "higher_is_better=True, threshold_type=high" is unusual but supported:
-            # penalize when value rises above high.
             if value <= high:
                 return 100.0
             score = ((high + span) - value) / span * 100
 
     else:  # "both"
-        # Penalize at both extremes. Values in [low, high] score 100.
         if low <= value <= high:
             return 100.0
         elif value < low:
-            # Below the low threshold — score falls toward 0 at (low - span).
             score = (value - (low - span)) / span * 100
         else:
-            # Above the high threshold — score falls toward 0 at (high + span).
             score = ((high + span) - value) / span * 100
 
     return float(np.clip(score, 0, 100))
 
 
 def render_score_bar(label, score, note, threshold_type="both", data_value=None, data_label="value"):
-    """
-    Render a single biomarker row: label, colored bar (green/amber/red), numeric score,
-    raw data value, active threshold indicator, and justification note.
-
-    Args:
-        label (str): Biomarker display name.
-        score (float | None): 0–100 score, or None if data unavailable.
-        note (str): Justification for the parameter thresholds.
-        threshold_type (str): "low", "high", or "both" — displayed as a badge.
-        data_value: Raw value to display alongside the score.
-        data_label (str): Label for the raw value (e.g., 'logFC', 'ratio').
-    """
     if score is None:
         st.markdown(f"**{label}** — *data not available*")
         return
@@ -350,7 +272,6 @@ def render_score_bar(label, score, note, threshold_type="both", data_value=None,
     if data_value is not None:
         raw_display = f"<span style='font-size:12px; color:#888;'>({data_label}: {data_value:+.3f})</span>"
 
-    # Badge for threshold_type
     badge_styles = {
         "low":  ("⬇ low threshold",  "#d4edff", "#0066aa"),
         "high": ("⬆ high threshold", "#fde8e8", "#aa0000"),
@@ -385,12 +306,6 @@ def render_score_bar(label, score, note, threshold_type="both", data_value=None,
 
 
 def render_total_score_bar(score):
-    """
-    Render a large, prominent total efficacy score bar at the top of the Bone tab.
-
-    Args:
-        score (float): Total weighted score 0–100.
-    """
     if score >= 60:
         bar_color = "#27ae60"
         label_color = "#1a5e35"
@@ -429,7 +344,7 @@ def render_total_score_bar(score):
 
 
 # ============================================================
-# HELPER FUNCTIONS (unchanged from original)
+# HELPER FUNCTIONS
 # ============================================================
 
 def get_logfc(pp_df, gene):
@@ -485,14 +400,10 @@ def get_met_logfc(met_df, name):
 
 
 # ============================================================
-# MODULE 1 — BONE TAB (rewritten for 0–100 per-biomarker scoring)
+# MODULE 1 — BONE TAB
 # ============================================================
 
 def render_bone_tab(crew_id):
-    """
-    Render the full Bone Density Loss Inhibitor Efficacy tab.
-    Computes a 0–100 score for each biomarker and a weighted total.
-    """
     st.title("🦴 Bone Density Loss Inhibitor Efficacy")
     st.write(
         "Each biomarker is scored 0–100 based on calibrated thresholds. "
@@ -502,8 +413,6 @@ def render_bone_tab(crew_id):
         "Threshold badges show whether each biomarker is penalized at its low end, "
         "high end, or both extremes."
     )
-
-    # ── Gather raw data ──────────────────────────────────────────────────────
 
     # PROTEOMICS
     prot_map = {
@@ -522,7 +431,7 @@ def render_bone_tab(crew_id):
         "ADIPOQ (Adiponectin)":            get_logfc(pp, 'ADIPOQ'),
     }
 
-    # CMP — compute post/pre ratios
+    # CMP
     ca = get_cmp_per_crew(cmp, 'calcium_value_milligram_per_deciliter', crew_id)
     ap = get_cmp_per_crew(cmp, 'alkaline_phosphatase_value_units_per_liter', crew_id)
 
@@ -534,11 +443,11 @@ def render_bone_tab(crew_id):
         return None
 
     cmp_map = {
-        "Calcium (CMP ratio)":             post_pre_ratio(ca),
+        "Calcium (CMP ratio)":              post_pre_ratio(ca),
         "Alkaline Phosphatase (CMP ratio)": post_pre_ratio(ap),
     }
 
-    # URINE — post/pre ratios
+    # URINE
     urine_col_map = {
         "RANKL (urine ratio)":  'tnfsf11_concentration_npq',
         "RANK (urine ratio)":   'tnfrsf11a_concentration_npq',
@@ -564,10 +473,7 @@ def render_bone_tab(crew_id):
         "Citric Acid":                  get_met_logfc(met, 'Citric Acid'),
     }
 
-    # Merge all raw values into one lookup
     all_raw = {**prot_map, **cmp_map, **urine_map, **met_map}
-
-    # ── Compute per-biomarker scores and weighted total ──────────────────────
 
     scores = {}
     for name, params in BONE_BIOMARKER_PARAMS.items():
@@ -577,10 +483,9 @@ def render_bone_tab(crew_id):
             params["low"],
             params["high"],
             params["higher_is_better"],
-            params.get("threshold_type", "both"),  # default "both" for safety
+            params.get("threshold_type", "both"),
         )
 
-    # Weighted average (only over biomarkers with available data)
     total_weight = 0.0
     weighted_sum = 0.0
     for name, params in BONE_BIOMARKER_PARAMS.items():
@@ -591,10 +496,8 @@ def render_bone_tab(crew_id):
 
     total_score = (weighted_sum / total_weight) if total_weight > 0 else 50.0
 
-    # ── Render total score ───────────────────────────────────────────────────
     render_total_score_bar(total_score)
 
-    # ── Per-biomarker breakdown ──────────────────────────────────────────────
     sections = [
         ("🔬 Proteomics (logFC — flight vs. pre-flight)", prot_map, "logFC"),
         ("🧪 CMP Serum Chemistry (post/pre ratio)", cmp_map, "ratio"),
@@ -624,7 +527,7 @@ def render_bone_tab(crew_id):
 
 
 # ============================================================
-# MODULE 2 — CARDIOTOXICITY SAFETY (unchanged logic, score kept 0–1)
+# MODULE 2 — CARDIOTOXICITY SAFETY
 # ============================================================
 
 def compute_cardio_score(crew_id):
@@ -680,7 +583,7 @@ def compute_cardio_score(crew_id):
 
 
 # ============================================================
-# MODULE 3 — NEUROLOGICAL RESILIENCE (unchanged)
+# MODULE 3 — NEUROLOGICAL RESILIENCE
 # ============================================================
 
 def compute_neuro_score(crew_id):
@@ -741,7 +644,7 @@ def compute_neuro_score(crew_id):
 
 
 # ============================================================
-# UI HELPERS (for Cardio + Neuro tabs — unchanged)
+# UI HELPERS
 # ============================================================
 
 def get_color(category, score):
@@ -769,15 +672,122 @@ def render_circle(color, score):
 
 
 # ============================================================
-# SIDEBAR
+# SIDEBAR — CREW MEMBER SELECTOR (colored buttons)
 # ============================================================
-st.sidebar.title("Controls")
+st.sidebar.title("Torchlight Health")
+st.sidebar.markdown("---")
+st.sidebar.markdown("### Select Crew Member")
+
+# Inject CSS for the colored crew buttons
+st.sidebar.markdown(
+    """
+    <style>
+    div[data-testid="stSidebar"] .crew-btn-row {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 8px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# Render one button per crew member; highlight the active one with a border/opacity change
+for crew_id, cfg in CREW_CONFIG.items():
+    is_active = st.session_state.selected_crew == crew_id
+    border = "3px solid #fff" if is_active else "3px solid transparent"
+    opacity = "1.0" if is_active else "0.65"
+    checkmark = " ✓" if is_active else ""
+
+    # Use st.button but wrap in styled HTML via markdown before it for spacing
+    btn_label = f"{cfg['label']}{checkmark}"
+
+    # We style the Streamlit button by injecting a scoped CSS class keyed to the crew id
+    btn_key = f"crew_btn_{crew_id}"
+    st.sidebar.markdown(
+        f"""
+        <style>
+        div[data-testid="stSidebar"] div:has(> div > button[kind="secondary"]#btn_{crew_id}) button {{
+            background-color: {cfg['color']} !important;
+            color: {cfg['text']} !important;
+            border: {border} !important;
+            opacity: {opacity};
+            font-weight: {'800' if is_active else '500'};
+            width: 100%;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    clicked = st.sidebar.button(
+        btn_label,
+        key=btn_key,
+        use_container_width=True,
+        type="secondary",
+    )
+    if clicked:
+        st.session_state.selected_crew = crew_id
+        st.rerun()
+
+# Apply per-button color via nth-child targeting (more reliable across Streamlit versions)
+# Build one combined style block for all 4 buttons
+button_styles = ""
+for i, (crew_id, cfg) in enumerate(CREW_CONFIG.items(), start=1):
+    is_active = st.session_state.selected_crew == crew_id
+    border = "3px solid #ffffff" if is_active else "3px solid rgba(255,255,255,0.3)"
+    opacity = "1.0" if is_active else "0.7"
+    font_weight = "800" if is_active else "500"
+    button_styles += f"""
+    div[data-testid="stSidebar"] div[data-testid="stVerticalBlock"]
+      > div:nth-child({i}) button {{
+        background-color: {cfg['color']} !important;
+        color: {cfg['text']} !important;
+        border: {border} !important;
+        opacity: {opacity} !important;
+        font-weight: {font_weight} !important;
+        border-radius: 8px !important;
+        transition: all 0.15s ease !important;
+    }}
+    div[data-testid="stSidebar"] div[data-testid="stVerticalBlock"]
+      > div:nth-child({i}) button:hover {{
+        background-color: {cfg['hover']} !important;
+        opacity: 1.0 !important;
+    }}
+    """
+
+st.sidebar.markdown(f"<style>{button_styles}</style>", unsafe_allow_html=True)
+
+# Show currently selected crew info
+selected_cfg = CREW_CONFIG[st.session_state.selected_crew]
+st.sidebar.markdown("---")
+st.sidebar.markdown(
+    f"""
+    <div style="
+        background-color: {selected_cfg['color']};
+        color: {selected_cfg['text']};
+        padding: 10px 14px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 15px;
+        text-align: center;
+        margin-top: 4px;
+    ">
+        📡 Viewing: {selected_cfg['label']}<br>
+        <span style="font-size:12px; font-weight:400; opacity:0.9;">ID: {st.session_state.selected_crew}</span>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 if not DATA_LOADED:
+    st.sidebar.markdown("---")
     st.sidebar.error(f"⚠️ Could not load CSV data from:\n`{DATA_DIR}`\n\nError: {DATA_ERROR}")
     st.sidebar.info("Adjust `DATA_DIR` at the top of `app.py` to point to your `data/processed/` folder.")
 
-crew = st.sidebar.selectbox("Crew Member", ["C001", "C002", "C003", "C004"])
+# Active crew for this render cycle
+crew = st.session_state.selected_crew
 
 
 # ============================================================
@@ -821,7 +831,7 @@ with tabs[1]:
             "proteomics signals (VWF, SERPINE1/PAI-1, PF4)."
         )
         if DATA_LOADED:
-            st.caption(f"Data source: 9 cardiac cytokine markers (Eve) · 3 proteomics targets — Crew {crew}")
+            st.caption(f"Data source: 9 cardiac cytokine markers (Eve) · 3 proteomics targets — {selected_cfg['label']} ({crew})")
 
     for section, vals in biomarkers.items():
         with st.expander(section):
@@ -851,7 +861,7 @@ with tabs[2]:
         if DATA_LOADED:
             st.caption(
                 f"Data source: 5 proteomics targets · 4 urine neuro markers · "
-                f"6 metabolomics targets — Crew {crew}"
+                f"6 metabolomics targets — {selected_cfg['label']} ({crew})"
             )
 
     for section, vals in biomarkers.items():
