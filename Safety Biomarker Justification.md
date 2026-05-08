@@ -1,0 +1,13 @@
+# Astronaut Wellbeing: Vascular & Inflammatory Biomarker Thresholds
+
+| Biomarker | Desired Direction | Threshold Type Needed | Suggested Weight | Literature-Based Justification |
+| :--- | :--- | :--- | :--- | :--- |
+| **CRP (C-Reactive Protein)** | Lower is better | High threshold mainly | 15 | Canonical systemic inflammation marker associated with endothelial dysfunction. [Source](https://pubmed.ncbi.nlm.nih.gov/19047567/) |
+| **Fibrinogen** | Lower is better | High threshold mainly | 12 | Coagulation-associated acute phase protein. Elevated levels increase thrombosis risk. [Source](https://pubmed.ncbi.nlm.nih.gov/22527940/) |
+| **Haptoglobin** | Lower is better | High threshold mainly | 10 | Involved in hemoglobin scavenging; reflects oxidative vascular stress and radiation response. [Source](https://pubmed.ncbi.nlm.nih.gov/24858715/) |
+| **Alpha-2-Macroglobulin (A2M)** | Balanced | Both low and high | 8 | Regulates protease activity; dysregulation affects vascular homeostasis. [Source](https://pubmed.ncbi.nlm.nih.gov/15183785/) |
+| **AGP (Alpha-1-Acid Glycoprotein)** | Lower is better | High threshold mainly | 8 | Correlates with chronic systemic inflammation and cardiovascular risk. [Source](https://pubmed.ncbi.nlm.nih.gov/15576483/) |
+| **PF4 (Platelet Factor 4)** | Lower is better | High threshold mainly | 15 | Platelet activation marker linked to thrombotic activity and clotting potential. [Source](https://pubmed.ncbi.nlm.nih.gov/17627478/) |
+| **L-Selectin (CD62L)** | Balanced | Both low and high | 10 | Regulates leukocyte adhesion; indicates immune-endothelial activation. [Source](https://pubmed.ncbi.nlm.nih.gov/10739650/) |
+| **Fetuin-A** | Balanced | Both low and high | 12 | Modulates vascular calcification and metabolic regulation. [Source](https://pubmed.ncbi.nlm.nih.gov/20360910/) |
+| **SAP (Serum Amyloid P Component)** | Lower is better | High threshold mainly | 10 | Reflects persistent systemic inflammatory burden and tissue remodeling. [Source](https://pubmed.ncbi.nlm.nih.gov/11895757/) |
