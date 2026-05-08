@@ -1,4 +1,4 @@
-| Biomarker | Desired Direction | Threshold Type | Suggested Threshold(s) | Suggested Weight | Literature-Based Justification |
+| Biomarker | Desired Direction | Threshold Type | Thresholds | Suggested Weight | Literature-Based Justification |
 |-----------|------------------|----------------|------------------------|-----------------|-------------------------------|
 | BGLAP (Osteocalcin) | Higher is better | Low threshold mainly | Low = -0.5 log2FC | 8 | Osteocalcin is a classical osteoblast activity marker and increases with bone formation. Suppressed osteocalcin indicates reduced bone formation. Excessively high levels can also reflect turnover, but for therapeutic efficacy the key concern is avoiding low levels. https://endocrinology.testcatalog.org/show/OSCAL |
 | SPARC (Osteonectin) | Higher is better | Low threshold mainly | Low = -0.5 log2FC | 6 | SPARC supports mineralization and extracellular matrix organization. Reduced expression is associated with impaired matrix deposition. Moderate increases are generally beneficial. https://www.endocrine.org/journals/endocrine-reviews/bone-turnover-markers |

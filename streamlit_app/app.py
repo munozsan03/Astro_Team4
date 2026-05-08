@@ -12,10 +12,18 @@ st.set_page_config(page_title="Torchlight Health Dashboard", layout="wide")
 # ============================================================
 # DATA LOADING
 # ============================================================
+# Build a path to the processed data directory, relative to this file's location.
+# Expected files (all CSVs):
+#   - plasma_proteomics.csv         → columns: Gene, logFC (+ others)
+#   - plasma_metabolomics.csv       → columns: ID, logFC (+ others)
+#   - cmp_metabolic_panel.csv       → row-indexed by metric name; columns like C001_T_L1, C001_T_R1, ...
+#   - cardiac_cytokines_eve.csv     → same row/column layout as CMP
+#   - urine_inflammation_panel.csv  → columns: crew_id, timepoint, + marker columns
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "processed")
 
 @st.cache_data
 def load_data():
+    """Load all five processed data files and return as DataFrames."""
     pp   = pd.read_csv(os.path.join(DATA_DIR, "plasma_proteomics.csv"))
     met  = pd.read_csv(os.path.join(DATA_DIR, "plasma_metabolomics.csv"))
     cmp  = pd.read_csv(os.path.join(DATA_DIR, "cmp_metabolic_panel.csv"))
@@ -23,6 +31,7 @@ def load_data():
     urine= pd.read_csv(os.path.join(DATA_DIR, "urine_inflammation_panel.csv"))
     return pp, met, cmp, card, urine
 
+# Attempt data load; flag failure so the app degrades gracefully instead of crashing.
 try:
     pp, met, cmp, card, urine = load_data()
     DATA_LOADED = True
@@ -32,300 +41,21 @@ except Exception as e:
 
 
 # ============================================================
-# ╔══════════════════════════════════════════════════════════╗
-# ║   BONE EFFICACY — EDITABLE PARAMETERS & WEIGHTS         ║
-# ╚══════════════════════════════════════════════════════════╝
-#
-# HOW TO EDIT:
-#   Each biomarker entry has:
-#     "low"    : logFC (or ratio/npq) threshold → maps to score = 0
-#     "high"   : logFC (or ratio/npq) threshold → maps to score = 100
-#     "weight" : relative contribution to the Total Efficacy Score
-#                (weights are auto-normalized, so only relative size matters)
-#     "note"   : justification for the chosen thresholds
-#
-# For proteomics/metabolomics: values are logFC (log2 flight vs. pre-flight).
-#   Positive logFC = upregulated in flight.
-# For CMP: values are post-flight / pre-flight ratio.
-#   1.0 = no change; >1 = elevated post-flight.
-# For urine: values are post-flight / pre-flight ratio of npq concentrations.
-#
-# DIRECTION FLAGS:
-#   "higher_is_better" = True  → high logFC/ratio is a GOOD sign (bone formation)
-#   "higher_is_better" = False → high logFC/ratio is a BAD sign (bone resorption)
-#   The scoring function uses this to flip the scale when needed.
-# ============================================================
-
-BONE_BIOMARKER_PARAMS = {
-
-    # ── PROTEOMICS (logFC, flight vs. pre-flight) ───────────────────────────
-    # Bone matrix / formation proteins — upregulation is protective.
-    # logFC range reference: typical plasma proteomics spans roughly −3 to +3.
-    # We use ±2 as meaningful signal boundaries.
-
-    "BGLAP (Osteocalcin)": {
-        "low": -2.0, "high": 2.0, "weight": 8, "higher_is_better": True,
-        "note": "Primary osteoblast-secreted bone matrix protein. Upregulation signals active bone formation. logFC > 0 is protective."
-    },
-    "SPARC (Osteonectin)": {
-        "low": -2.0, "high": 2.0, "weight": 6, "higher_is_better": True,
-        "note": "Bone mineralization scaffolding protein. Higher expression supports matrix deposition."
-    },
-    "SPP1 (Osteopontin — proteomics)": {
-        "low": -2.0, "high": 2.0, "weight": 4, "higher_is_better": False,
-        "note": "Osteopontin also promotes osteoclast activity. Upregulation here signals resorption risk. Lower is better."
-    },
-    "SOST (Sclerostin)": {
-        "low": -2.0, "high": 2.0, "weight": 8, "higher_is_better": False,
-        "note": "Sclerostin inhibits Wnt signaling and suppresses bone formation. Downregulation (negative logFC) is the goal of most bone-protective drugs."
-    },
-    "POSTN (Periostin)": {
-        "low": -2.0, "high": 2.0, "weight": 5, "higher_is_better": True,
-        "note": "Periosteal bone formation marker. Upregulation indicates drug is stimulating new bone deposition."
-    },
-    "BGN (Biglycan)": {
-        "low": -2.0, "high": 2.0, "weight": 4, "higher_is_better": True,
-        "note": "Bone matrix proteoglycan that regulates collagen fibrillogenesis. Higher = better matrix integrity."
-    },
-    "DCN (Decorin)": {
-        "low": -2.0, "high": 2.0, "weight": 3, "higher_is_better": True,
-        "note": "Collagen-binding proteoglycan. Supports structural bone matrix."
-    },
-    "COL1A1 (Collagen I α1)": {
-        "low": -2.0, "high": 2.0, "weight": 7, "higher_is_better": True,
-        "note": "Primary structural collagen of bone. Upregulation directly reflects bone matrix synthesis."
-    },
-    "COL1A2 (Collagen I α2)": {
-        "low": -2.0, "high": 2.0, "weight": 5, "higher_is_better": True,
-        "note": "Partners with COL1A1 to form mature type-I collagen triple helix."
-    },
-    "SFRP2 (Wnt modulator)": {
-        "low": -2.0, "high": 2.0, "weight": 4, "higher_is_better": True,
-        "note": "SFRP2 can act as a Wnt pathway facilitator in bone context; mild upregulation is generally supportive."
-    },
-    "SFRP4 (Wnt modulator)": {
-        "low": -2.0, "high": 2.0, "weight": 3, "higher_is_better": False,
-        "note": "SFRP4 inhibits Wnt signaling and is associated with osteoporosis. Downregulation is favorable."
-    },
-    "MGP (Matrix Gla Protein)": {
-        "low": -2.0, "high": 2.0, "weight": 3, "higher_is_better": False,
-        "note": "MGP inhibits mineralization when elevated. Some downregulation may support mineral deposition."
-    },
-    "ADIPOQ (Adiponectin)": {
-        "low": -2.0, "high": 2.0, "weight": 3, "higher_is_better": True,
-        "note": "Adiponectin promotes osteoblast differentiation and inhibits osteoclast activity."
-    },
-
-    # ── CMP — SERUM CHEMISTRY (post-flight / pre-flight ratio) ──────────────
-    # Ratio = 1.0 means no change. Thresholds set around clinically meaningful shifts.
-
-    "Calcium (CMP ratio)": {
-        "low": 0.90, "high": 1.10, "weight": 6, "higher_is_better": True,
-        "note": "Serum calcium supports bone mineral density. A post/pre ratio below 0.90 suggests hypocalcemia / bone resorption mobilizing calcium out of bone faster than dietary intake replaces it. Ratio above 1.10 may indicate hypercalcemia from excess bone breakdown or supplementation."
-    },
-    "Alkaline Phosphatase (CMP ratio)": {
-        "low": 0.80, "high": 1.40, "weight": 5, "higher_is_better": True,
-        "note": "Alk Phos is a marker of osteoblast activity. Modest elevation (ratio 1.0–1.4) indicates active bone formation — a positive drug response. Ratio > 1.4 may reflect liver stress or excessive turnover. Ratio < 0.80 suggests suppressed osteoblast activity."
-    },
-
-    # ── URINE INFLAMMATION PANEL (post-flight / pre-flight ratio, npq) ──────
-    # These are cytokines that drive or suppress osteoclast activity.
-
-    "RANKL (urine ratio)": {
-        "low": 0.80, "high": 2.0, "weight": 7, "higher_is_better": False,
-        "note": "RANKL drives osteoclastogenesis. Elevated post-flight ratio signals continued bone resorption stimulus. Anti-RANKL drugs (e.g. denosumab) should suppress this; ratio < 1.0 is the therapeutic goal."
-    },
-    "RANK (urine ratio)": {
-        "low": 0.80, "high": 2.0, "weight": 4, "higher_is_better": False,
-        "note": "RANK receptor expression on osteoclast precursors. Elevated post-flight ratio indicates increased osteoclast priming."
-    },
-    "BMP7 (urine ratio)": {
-        "low": 0.80, "high": 2.0, "weight": 5, "higher_is_better": True,
-        "note": "BMP7 is osteogenic; promotes osteoblast differentiation. Higher post-flight ratio is a protective sign."
-    },
-    "WNT16 (urine ratio)": {
-        "low": 0.80, "high": 2.0, "weight": 5, "higher_is_better": True,
-        "note": "WNT16 is a key bone formation signal that suppresses osteoclastogenesis. Higher ratio is beneficial."
-    },
-    "FGF23 (urine ratio)": {
-        "low": 0.80, "high": 2.0, "weight": 4, "higher_is_better": False,
-        "note": "FGF23 inhibits Vitamin D activation and phosphate reabsorption. Elevated FGF23 post-flight compromises bone mineral metabolism."
-    },
-    "IL-6 (urine ratio)": {
-        "low": 0.80, "high": 2.0, "weight": 5, "higher_is_better": False,
-        "note": "IL-6 activates osteoclasts and drives bone loss. Elevated post-flight IL-6 is a direct bone-resorption signal."
-    },
-    "IL-17A (urine ratio)": {
-        "low": 0.80, "high": 2.0, "weight": 4, "higher_is_better": False,
-        "note": "IL-17A stimulates osteoclast differentiation and is linked to inflammatory bone loss."
-    },
-    "TGF-β1 (urine ratio)": {
-        "low": 0.80, "high": 1.60, "weight": 3, "higher_is_better": True,
-        "note": "TGF-β1 is pleiotropic: modest elevation supports bone formation coupling, but very high levels can promote resorption. Moderate post-flight elevation is a positive sign."
-    },
-
-    # ── METABOLOMICS (logFC, flight vs. pre-flight) ──────────────────────────
-
-    "Vitamin D2 (Ergocalciferol)": {
-        "low": -2.0, "high": 2.0, "weight": 6, "higher_is_better": True,
-        "note": "Vitamin D is essential for calcium absorption and bone mineralization. Upregulation strongly supports bone health intervention efficacy."
-    },
-    "Cortisol (metabolomics)": {
-        "low": -2.0, "high": 2.0, "weight": 5, "higher_is_better": False,
-        "note": "Chronic cortisol elevation suppresses osteoblasts and promotes bone loss (glucocorticoid-induced osteoporosis). Downregulation is protective."
-    },
-    "Proline": {
-        "low": -2.0, "high": 2.0, "weight": 3, "higher_is_better": True,
-        "note": "Proline is a primary amino acid in collagen. Higher availability supports bone matrix synthesis."
-    },
-    "Glycine": {
-        "low": -2.0, "high": 2.0, "weight": 3, "higher_is_better": True,
-        "note": "Glycine is the most abundant amino acid in collagen (every third residue). Higher availability supports bone matrix production."
-    },
-    "Lysine": {
-        "low": -2.0, "high": 2.0, "weight": 3, "higher_is_better": True,
-        "note": "Lysine is essential for collagen cross-linking, which determines bone mechanical strength."
-    },
-    "Citric Acid": {
-        "low": -2.0, "high": 2.0, "weight": 2, "higher_is_better": True,
-        "note": "Citrate is incorporated into bone mineral crystals. Higher citrate supports bone mineral integrity."
-    },
-}
-
-
-# ============================================================
-# BONE SCORE ENGINE
-# ============================================================
-
-def score_biomarker(value, low, high, higher_is_better):
-    """
-    Map a raw biomarker value to a 0–100 score.
-
-    The range [low, high] defines the full scale.
-    Values outside this range are clipped to [0, 100].
-    'higher_is_better' flips the direction so the score always means:
-        100 = maximally protective / efficacious
-          0 = maximally harmful / no efficacy
-
-    Args:
-        value (float): The raw biomarker value (logFC, ratio, etc.)
-        low (float): Value that maps to score 0 (worst)
-        high (float): Value that maps to score 100 (best)
-        higher_is_better (bool): If True, higher raw value → higher score.
-
-    Returns:
-        float: Score in [0, 100].
-    """
-    if value is None:
-        return None
-    if higher_is_better:
-        score = (value - low) / (high - low) * 100
-    else:
-        score = (high - value) / (high - low) * 100
-    return float(np.clip(score, 0, 100))
-
-
-def render_score_bar(label, score, note, data_value=None, data_label="value"):
-    """
-    Render a single biomarker row: label, colored bar (green/red), numeric score,
-    raw data value, and justification note — all inside the Streamlit app.
-
-    Args:
-        label (str): Biomarker display name.
-        score (float | None): 0–100 score, or None if data unavailable.
-        note (str): Justification for the parameter thresholds.
-        data_value: Raw value to display alongside the score.
-        data_label (str): Label for the raw value (e.g., 'logFC', 'ratio').
-    """
-    if score is None:
-        st.markdown(f"**{label}** — *data not available*")
-        return
-
-    # Color: green above 50, red below, with an orange midzone
-    if score >= 60:
-        bar_color = "#2ecc71"       # green
-        text_color = "#1a5e35"
-    elif score >= 40:
-        bar_color = "#f39c12"       # amber
-        text_color = "#7d4e00"
-    else:
-        bar_color = "#e74c3c"       # red
-        text_color = "#6e1a1a"
-
-    bar_pct = score  # 0–100
-
-    raw_display = ""
-    if data_value is not None:
-        raw_display = f"<span style='font-size:12px; color:#888;'>({data_label}: {data_value:+.3f})</span>"
-
-    st.markdown(
-        f"""
-        <div style="margin-bottom: 10px;">
-          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px;">
-            <span style="font-weight:600; font-size:14px;">{label}</span>
-            <span style="font-weight:700; color:{text_color}; font-size:15px;">
-              {score:.1f}/100 &nbsp; {raw_display}
-            </span>
-          </div>
-          <div style="background:#e0e0e0; border-radius:6px; height:14px; width:100%;">
-            <div style="background:{bar_color}; width:{bar_pct}%; height:14px; border-radius:6px; transition: width 0.4s;"></div>
-          </div>
-          <div style="font-size:11px; color:#777; margin-top:2px; font-style:italic;">{note}</div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-def render_total_score_bar(score):
-    """
-    Render a large, prominent total efficacy score bar at the top of the Bone tab.
-
-    Args:
-        score (float): Total weighted score 0–100.
-    """
-    if score >= 60:
-        bar_color = "#27ae60"
-        label_color = "#1a5e35"
-        verdict = "✅ Drug Efficacy Signal: POSITIVE"
-        verdict_color = "#1a5e35"
-    elif score >= 40:
-        bar_color = "#e67e22"
-        label_color = "#7d4e00"
-        verdict = "⚠️ Drug Efficacy Signal: UNCERTAIN"
-        verdict_color = "#7d4e00"
-    else:
-        bar_color = "#c0392b"
-        label_color = "#6e1a1a"
-        verdict = "🚨 Drug Efficacy Signal: INSUFFICIENT"
-        verdict_color = "#6e1a1a"
-
-    st.markdown(
-        f"""
-        <div style="border:2px solid {bar_color}; border-radius:12px; padding:18px 22px; margin-bottom:24px; background:#fafafa;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-size:18px; font-weight:700; color:#333;">Total Bone Efficacy Score</span>
-            <span style="font-size:28px; font-weight:900; color:{label_color};">{score:.1f} / 100</span>
-          </div>
-          <div style="background:#e0e0e0; border-radius:8px; height:22px; width:100%; margin-bottom:10px;">
-            <div style="background:{bar_color}; width:{score}%; height:22px; border-radius:8px;"></div>
-          </div>
-          <div style="font-size:16px; font-weight:700; color:{verdict_color};">{verdict}</div>
-          <div style="font-size:12px; color:#888; margin-top:4px;">
-            Weighted composite across {len(BONE_BIOMARKER_PARAMS)} biomarkers (proteomics, CMP, urine panel, metabolomics).
-            Score ≥ 60 = positive efficacy signal &nbsp;|&nbsp; 40–59 = uncertain &nbsp;|&nbsp; &lt; 40 = insufficient evidence of efficacy.
-          </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-# ============================================================
-# HELPER FUNCTIONS (unchanged from original)
+# HELPER FUNCTIONS
+# These are shared utilities called by all three score modules.
 # ============================================================
 
 def get_logfc(pp_df, gene):
+    """
+    Look up the log-fold-change (logFC) for a single gene in the plasma proteomics table.
+
+    Args:
+        pp_df (DataFrame): Plasma proteomics data. Must have 'Gene' and 'logFC' columns.
+        gene (str): Gene symbol to look up (case-insensitive).
+
+    Returns:
+        float | None: The logFC value, or None if the gene isn't found.
+    """
     row = pp_df[pp_df['Gene'].str.upper() == gene.upper()]
     if row.empty:
         return None
@@ -333,19 +63,49 @@ def get_logfc(pp_df, gene):
 
 
 def get_cmp_per_crew(cmp_df, metric_row_name, crew_id):
+    """
+    Retrieve all time-point values for a single CMP metric for one crew member.
+
+    The CMP CSV uses row-indexed metrics (first column = metric name) and
+    column names formatted as: {crew_id}_{session}_{timepoint}  e.g. C001_T_L1
+
+    Args:
+        cmp_df (DataFrame): CMP metabolic panel data.
+        metric_row_name (str): Exact string in the first ('Unnamed: 0') column.
+        crew_id (str): Crew member ID, e.g. 'C001'.
+
+    Returns:
+        dict: { timepoint_str: float_or_None }
+              Timepoints prefixed with 'L' = pre-flight/launch phase.
+              Timepoints prefixed with 'R' = post-flight/return phase.
+    """
     row = cmp_df[cmp_df['Unnamed: 0'] == metric_row_name]
     if row.empty:
         return {}
+    # Filter to columns that belong to this crew member
     cols = [c for c in cmp_df.columns if c.startswith(crew_id + '_')]
     result = {}
     for col in cols:
-        tp = col.split('_')[2]
+        tp = col.split('_')[2]   # Extract timepoint token (e.g. 'L1', 'R2')
         val = row[col].values[0]
         result[tp] = float(val) if not pd.isna(val) else None
     return result
 
 
 def get_cardiac_per_crew(card_df, metric_row_name, crew_id):
+    """
+    Retrieve all time-point values for a single cardiac cytokine marker for one crew member.
+
+    Identical column layout to CMP: {crew_id}_{session}_{timepoint}.
+
+    Args:
+        card_df (DataFrame): Cardiac cytokines (Eve) data.
+        metric_row_name (str): Row label in the first column.
+        crew_id (str): Crew member ID.
+
+    Returns:
+        dict: { timepoint_str: float_or_None }
+    """
     row = card_df[card_df['Unnamed: 0'] == metric_row_name]
     if row.empty:
         return {}
@@ -359,6 +119,20 @@ def get_cardiac_per_crew(card_df, metric_row_name, crew_id):
 
 
 def get_urine_per_crew(urine_df, col_name, crew_id):
+    """
+    Retrieve all time-point values for a single urine marker for one crew member.
+
+    The urine CSV is in 'long' format: one row per (crew_id, timepoint) combination.
+
+    Args:
+        urine_df (DataFrame): Urine inflammation panel data.
+                              Must have 'crew_id' and 'timepoint' columns.
+        col_name (str): Column name for the desired marker.
+        crew_id (str): Crew member ID.
+
+    Returns:
+        dict: { timepoint_str: float_or_None }
+    """
     crew_rows = urine_df[urine_df['crew_id'] == crew_id]
     result = {}
     for _, r in crew_rows.iterrows():
@@ -369,8 +143,21 @@ def get_urine_per_crew(urine_df, col_name, crew_id):
 
 
 def get_met_logfc(met_df, name):
+    """
+    Look up the logFC for a metabolite in the plasma metabolomics table.
+    First tries an exact (case-insensitive) match on the 'ID' column;
+    falls back to a partial/contains match if nothing is found.
+
+    Args:
+        met_df (DataFrame): Plasma metabolomics data. Must have 'ID' and 'logFC' columns.
+        name (str): Metabolite name or partial name.
+
+    Returns:
+        float | None: The logFC value, or None if not found.
+    """
     row = met_df[met_df['ID'].str.lower() == name.lower()]
     if row.empty:
+        # Attempt partial string match as a fallback
         row = met_df[met_df['ID'].str.lower().str.contains(name.lower(), na=False)]
     if row.empty:
         return None
@@ -378,55 +165,204 @@ def get_met_logfc(met_df, name):
 
 
 # ============================================================
-# MODULE 1 — BONE TAB (rewritten for 0–100 per-biomarker scoring)
+# SCORE COMPUTATION — SHARED CONVENTIONS
+#
+# Two data formats feed into scores:
+#
+#   1. logFC data (proteomics & metabolomics):
+#      - Represents flight vs. pre-flight fold change on a log2 scale.
+#      - Positive  = upregulated during flight.
+#      - Negative  = downregulated during flight.
+#      - Used as-is; no per-crew variability (cohort-level aggregate).
+#
+#   2. Absolute time-series data (CMP, cardiac cytokines, urine panel):
+#      - Raw concentration/value per crew member per timepoint.
+#      - Preflight timepoints are labeled starting with 'L' (launch phase).
+#      - Postflight timepoints are labeled starting with 'R' (return phase).
+#      - Scores derived from postflight/preflight ratios or deviations.
+#
+# Final scores are clipped to [0, 1] throughout.
 # ============================================================
 
-def render_bone_tab(crew_id):
+
+# ============================================================
+# MODULE 1 — BONE DENSITY LOSS INHIBITOR EFFICACY
+# ============================================================
+# PURPOSE: Estimate how effectively the bone-protective intervention is working.
+#
+# SCORE DIRECTION: Higher score = better efficacy.
+#   - Green  (> 0.70): Treatment appears effective.
+#   - Yellow (0.40–0.70): Uncertain / moderate signal.
+#   - Red    (< 0.40): Weak or counter-productive signal.
+#
+# ALGORITHM OVERVIEW:
+#   1. Pull logFC values for 20 bone-related proteomics markers.
+#   2. Compute mean logFC across those markers.
+#      - Positive mean → markers trending up → interpreted as beneficial
+#        (e.g. bone matrix proteins, Wnt pathway components being upregulated).
+#      - Negative mean → markers trending down → possible bone loss signal.
+#   3. Map mean logFC to [0.05, 0.95] via:
+#        score = 0.5 + clip(mean_logFC / 4.0, -0.45, 0.45)
+#      The divisor (4.0) sets the sensitivity — tweak this to widen/narrow the range.
+#   4. CMP, urine panel, and metabolomics are collected and displayed for context
+#      but do NOT currently feed into the numeric score.
+#      → TO ADD THEM: compute post/pre ratios or z-scores and blend into step 3.
+# ============================================================
+
+def compute_bone_score(crew_id):
     """
-    Render the full Bone Density Loss Inhibitor Efficacy tab.
-    Computes a 0–100 score for each biomarker and a weighted total.
+    Compute the Bone Density Loss Inhibitor Efficacy score for a crew member.
+
+    Returns:
+        score (float): Efficacy score in [0, 1]. Higher = more effective.
+        biomarkers (dict): Structured data for the expander display.
     """
-    st.title("🦴 Bone Density Loss Inhibitor Efficacy")
-    st.write(
-        "Each biomarker is scored 0–100 based on calibrated thresholds. "
-        "The **Total Efficacy Score** is a weighted average across all biomarkers. "
-        "**Green bars** indicate a protective/efficacious signal; "
-        "**red bars** indicate bone-loss risk or insufficient drug effect."
-    )
+    if not DATA_LOADED:
+        return 0.5, {}   # Neutral fallback when data is unavailable
 
-    # ── Gather raw data ──────────────────────────────────────────────────────
+    # ----------------------------------------------------------
+    # 1. PROTEOMICS — bone marker panel
+    # 20 proteins associated with bone remodeling, matrix maintenance,
+    # and Wnt/BMP signaling pathways.
+    # logFC = flight vs. pre-flight (positive = upregulated in-flight).
+    # ----------------------------------------------------------
+    prot_genes = [
+        'BGLAP',   # Osteocalcin — bone matrix protein, osteoblast marker
+        'SPARC',   # Osteonectin — bone mineralization
+        'SPP1',    # Osteopontin — bone resorption / osteoclast activity
+        'SOST',    # Sclerostin — inhibits Wnt signaling (downreg = good)
+        'POSTN',   # Periostin — bone formation
+        'BGN',     # Biglycan — bone matrix proteoglycan
+        'DCN',     # Decorin — collagen binding
+        'LUM',     # Lumican — ECM regulation
+        'OGN',     # Osteoglycin
+        'MGP',     # Matrix Gla Protein — mineralization inhibitor
+        'COL1A1',  # Collagen I alpha-1 — primary bone matrix collagen
+        'COL1A2',  # Collagen I alpha-2
+        'COMP',    # Cartilage oligomeric matrix protein
+        'CILP',    # Cartilage intermediate layer protein
+        'CILP2',
+        'FBN1',    # Fibrillin-1 — ECM/connective tissue
+        'FBN2',    # Fibrillin-2
+        'SFRP2',   # Secreted frizzled-related protein 2 — Wnt modulator
+        'SFRP4',   # Secreted frizzled-related protein 4 — Wnt modulator
+        'ADIPOQ',  # Adiponectin — bone/fat crosstalk
+    ]
+    prot_vals = {}
+    for g in prot_genes:
+        v = get_logfc(pp, g)
+        if v is not None:
+            prot_vals[g] = round(v, 3)
 
-    # PROTEOMICS
-    prot_map = {
-        "BGLAP (Osteocalcin)":       get_logfc(pp, 'BGLAP'),
-        "SPARC (Osteonectin)":        get_logfc(pp, 'SPARC'),
-        "SPP1 (Osteopontin — proteomics)": get_logfc(pp, 'SPP1'),
-        "SOST (Sclerostin)":          get_logfc(pp, 'SOST'),
-        "POSTN (Periostin)":          get_logfc(pp, 'POSTN'),
-        "BGN (Biglycan)":             get_logfc(pp, 'BGN'),
-        "DCN (Decorin)":              get_logfc(pp, 'DCN'),
-        "COL1A1 (Collagen I α1)":     get_logfc(pp, 'COL1A1'),
-        "COL1A2 (Collagen I α2)":     get_logfc(pp, 'COL1A2'),
-        "SFRP2 (Wnt modulator)":      get_logfc(pp, 'SFRP2'),
-        "SFRP4 (Wnt modulator)":      get_logfc(pp, 'SFRP4'),
-        "MGP (Matrix Gla Protein)":   get_logfc(pp, 'MGP'),
-        "ADIPOQ (Adiponectin)":       get_logfc(pp, 'ADIPOQ'),
-    }
-
-    # CMP — compute post/pre ratios
+    # ----------------------------------------------------------
+    # 2. CMP — serum chemistry (calcium and alkaline phosphatase)
+    # Calcium: low = bone resorption signal.
+    # Alk Phos: elevated = osteoblast activity (bone formation or damage).
+    # Summarized as preflight avg vs. postflight avg per crew member.
+    # NOTE: Not yet integrated into the numeric score.
+    # ----------------------------------------------------------
+    cmp_vals = {}
     ca = get_cmp_per_crew(cmp, 'calcium_value_milligram_per_deciliter', crew_id)
     ap = get_cmp_per_crew(cmp, 'alkaline_phosphatase_value_units_per_liter', crew_id)
 
-    def post_pre_ratio(tps_dict):
-        pre  = [v for k, v in tps_dict.items() if k.startswith('L') and v is not None]
-        post = [v for k, v in tps_dict.items() if k.startswith('R') and v is not None]
-        if pre and post and np.mean(pre) != 0:
-            return np.mean(post) / np.mean(pre)
-        return None
+    preflight_tps  = [k for k in ca if k.startswith('L')]
+    postflight_tps = [k for k in ca if k.startswith('R')]
 
-    cmp_map = {
-        "Calcium (CMP ratio)":               post_pre_ratio(ca),
-        "Alkaline Phosphatase (CMP ratio)":   post_pre_ratio(ap),
+    ca_pre  = np.mean([ca[t] for t in preflight_tps  if ca[t] is not None]) if preflight_tps  else None
+    ca_post = np.mean([ca[t] for t in postflight_tps if ca[t] is not None]) if postflight_tps else None
+    ap_pre  = np.mean([ap[t] for t in preflight_tps  if ap[t] is not None]) if preflight_tps  else None
+    ap_post = np.mean([ap[t] for t in postflight_tps if ap[t] is not None]) if postflight_tps else None
+
+    cmp_vals['Calcium (mg/dL)'] = {
+        'preflight_avg':  round(ca_pre, 2)  if ca_pre  else None,
+        'postflight_avg': round(ca_post, 2) if ca_post else None,
+        'all_timepoints': {k: round(v, 2) for k, v in ca.items()},
+    }
+    cmp_vals['Alkaline Phosphatase (U/L)'] = {
+        'preflight_avg':  round(ap_pre, 2)  if ap_pre  else None,
+        'postflight_avg': round(ap_post, 2) if ap_post else None,
+        'all_timepoints': {k: round(v, 2) for k, v in ap.items()},
+    }
+
+    # ----------------------------------------------------------
+    # 3. URINE PANEL — cytokines and bone signaling molecules
+    # Absolute concentrations (npq units) per timepoint per crew.
+    # Covers RANK/RANKL axis, BMPs, Wnts, FGF23, and inflammatory cytokines
+    # that influence bone turnover.
+    # NOTE: Not yet integrated into the numeric score.
+    # ----------------------------------------------------------
+    urine_markers = {
+        'TNFRSF11A (RANK)':  'tnfrsf11a_concentration_npq',   # Osteoclast differentiation receptor
+        'TNFSF11 (RANKL)':   'tnfsf11_concentration_npq',     # RANK ligand — drives osteoclastogenesis
+        'BMP7':              'bmp7_concentration_npq',         # Bone morphogenetic protein 7 — osteogenic
+        'BMP10':             'bmp10_concentration_npq',
+        'WNT16':             'wnt16_concentration_npq',        # Wnt16 — bone formation signal
+        'WNT7A':             'wnt7a_concentration_npq',
+        'GDF2':              'gdf2_concentration_npq',         # Growth differentiation factor 2
+        'FGF23':             'fgf23_concentration_npq',        # Fibroblast growth factor 23 — phosphate/D3 axis
+        'SPP1':              'spp1_concentration_npq',         # Osteopontin (urine)
+        'IL-6':              'il6_concentration_npq',          # Pro-inflammatory; promotes bone resorption
+        'IL-17A':            'il17a_concentration_npq',        # Inflammatory; linked to osteoclast activation
+        'IL-1β':             'il1b_concentration_npq',         # Pro-resorptive cytokine
+        'TGF-β1':            'tgfb1_concentration_npq',        # Pleiotropic bone regulator
+    }
+    urine_vals = {}
+    for label, col in urine_markers.items():
+        tps = get_urine_per_crew(urine, col, crew_id)
+        if tps:
+            urine_vals[label] = {k: round(v, 2) if v is not None else None for k, v in tps.items()}
+
+    # ----------------------------------------------------------
+    # 4. METABOLOMICS — metabolites relevant to bone biology
+    # Vitamin D (ergocalciferol) supports calcium absorption.
+    # Cortisol/corticosterone at high levels suppress bone formation.
+    # Amino acids (proline, glycine, lysine, arginine) are collagen precursors.
+    # Citric acid participates in bone mineral metabolism.
+    # NOTE: Not yet integrated into the numeric score.
+    # ----------------------------------------------------------
+    met_targets = [
+        'Ergocalciferol (Vit D2)',   # Vitamin D — calcium absorption
+        'Cortisol',                  # Glucocorticoid — high = bone loss
+        'Corticosterone',            # Rodent/human stress hormone
+        'Proline',                   # Collagen precursor amino acid
+        'Glycine',                   # Collagen precursor amino acid
+        'Lysine',                    # Collagen cross-linking amino acid
+        'Arginine',                  # Bone cell signaling amino acid
+        'Citric Acid',               # TCA cycle / bone mineralization link
+    ]
+    met_vals = {}
+    for m in met_targets:
+        v = get_met_logfc(met, m)
+        if v is not None:
+            met_vals[m] = round(v, 3)
+
+    # ----------------------------------------------------------
+    # 5. SCORE CALCULATION
+    #
+    # Current formula uses proteomics mean logFC only:
+    #   score = 0.5 + clip(mean_logFC / 4.0, -0.45, 0.45)
+    #
+    # Rationale:
+    #   - Positive mean logFC across bone matrix proteins → markers upregulated
+    #     in flight → treatment may be preserving/stimulating bone formation.
+    #   - The divisor 4.0 means a mean logFC of +4.0 maps to the max score (~0.95).
+    #   - Adjust the divisor to change sensitivity to logFC magnitude.
+    #
+    # To incorporate CMP or urine data, compute a post/pre ratio, normalize it
+    # to a [-0.45, 0.45] contribution, and add it to the sum before clipping.
+    # ----------------------------------------------------------
+    prot_logfcs = list(prot_vals.values())
+    mean_logfc  = np.mean(prot_logfcs) if prot_logfcs else 0   # Signed mean (direction matters)
+
+    score = 0.5 + np.clip(mean_logfc / 4.0, -0.45, 0.45)
+    score = round(float(score), 3)
+
+    # Package all collected data for the UI expanders
+    biomarkers = {
+        'Proteomics (logFC flight vs. preflight)': prot_vals,
+        'CMP (serum values)':                      cmp_vals,
+        'Urine Inflammation Panel (npq)':          urine_vals,
+        'Metabolomics (logFC)':                    met_vals,
     }
 
     # URINE — post/pre ratios
@@ -513,34 +449,82 @@ def render_bone_tab(crew_id):
 # MODULE 2 — CARDIOTOXICITY SAFETY (unchanged logic, score kept 0–1)
 # ============================================================
 
+# ============================================================
+# MODULE 2 — CARDIOTOXICITY SAFETY
+# ============================================================
+# PURPOSE: Flag cardiac stress and inflammation risk from the intervention.
+#
+# SCORE DIRECTION: Lower score = safer. (Inverted from bone/neuro!)
+#   - Green  (< 0.35): Low cardiac risk.
+#   - Yellow (0.35–0.65): Moderate / watch-list.
+#   - Red    (> 0.65): Elevated cardiac concern.
+#
+# ALGORITHM OVERVIEW:
+#   1. For each of 9 cardiac cytokine markers, compute the ratio:
+#        postflight_mean / preflight_mean
+#      Ratio > 1 means the marker rose during/after flight — concerning.
+#   2. Average the ratios across all available markers.
+#   3. Map to [0.05, 0.95] via:
+#        score = clip((mean_ratio - 0.5) / 1.5, 0.05, 0.95)
+#      A ratio of 1.0 (no change) maps to ≈0.33 (green zone).
+#      A ratio of 2.0 (doubled) maps to ≈1.0 (red zone).
+#   4. Add a small PF4 proteomics penalty:
+#        score += PF4_logFC * 0.05
+#      PF4 upregulation signals platelet activation / thrombosis risk.
+#      Coefficient (0.05) can be increased to give PF4 more weight.
+# ============================================================
+
 def compute_cardio_score(crew_id):
+    """
+    Compute the Cardiotoxicity Safety score for a crew member.
+
+    Returns:
+        score (float): Risk score in [0, 1]. Lower = safer.
+        biomarkers (dict): Structured data for the expander display.
+    """
     if not DATA_LOADED:
         return 0.5, {}
 
+    # ----------------------------------------------------------
+    # 1. CARDIAC CYTOKINE ARRAY (Eve platform) — per crew, per timepoint
+    # These are acute-phase and inflammatory proteins measured in plasma.
+    # High post-flight elevation vs. pre-flight baseline signals cardiac stress.
+    # ----------------------------------------------------------
     cardiac_markers = {
-        'CRP':                  'crp_concentration_picogram_per_milliliter',
-        'Fibrinogen':           'fibrinogen_concentration_nanogram_per_milliliter',
-        'Haptoglobin':          'haptoglobin_concentration_nanogram_per_milliliter',
-        'Alpha-2-Macroglobulin':'a2_macroglobulin_concentration_nanogram_per_milliliter',
-        'AGP':                  'agp_concentration_nanogram_per_milliliter',
-        'PF4':                  'pf4_concentration_nanogram_per_milliliter',
-        'L-Selectin':           'l_selectin_concentration_picogram_per_milliliter',
-        'Fetuin-A':             'fetuin_a36_concentration_nanogram_per_milliliter',
-        'SAP':                  'sap_concentration_picogram_per_milliliter',
+        'CRP':                 'crp_concentration_picogram_per_milliliter',       # C-reactive protein — systemic inflammation
+        'Fibrinogen':          'fibrinogen_concentration_nanogram_per_milliliter', # Clotting / acute phase
+        'Haptoglobin':         'haptoglobin_concentration_nanogram_per_milliliter',# Hemolysis marker
+        'Alpha-2-Macroglobulin':'a2_macroglobulin_concentration_nanogram_per_milliliter', # Protease inhibitor / acute phase
+        'AGP':                 'agp_concentration_nanogram_per_milliliter',        # Alpha-1-acid glycoprotein — inflammation
+        'PF4':                 'pf4_concentration_nanogram_per_milliliter',        # Platelet factor 4 — platelet activation
+        'L-Selectin':          'l_selectin_concentration_picogram_per_milliliter', # Leukocyte adhesion / endothelial stress
+        'Fetuin-A':            'fetuin_a36_concentration_nanogram_per_milliliter', # Vascular calcification inhibitor
+        'SAP':                 'sap_concentration_picogram_per_milliliter',        # Serum amyloid P — acute phase
     }
-    cardiac_vals = {}
-    score_components = []
+    cardiac_vals    = {}
+    score_components = []   # Will hold postflight/preflight ratios for each marker
 
     for label, row_name in cardiac_markers.items():
         tps = get_cardiac_per_crew(card, row_name, crew_id)
         if tps:
             cardiac_vals[label] = {k: round(v, 1) if v is not None else None for k, v in tps.items()}
+
+            # Split into pre- and post-flight windows
             preflight  = [v for k, v in tps.items() if k.startswith('L') and v is not None]
             postflight = [v for k, v in tps.items() if k.startswith('R') and v is not None]
+
             if preflight and postflight:
+                # Post/pre ratio: >1 means the marker rose after flight (concerning)
                 ratio = np.mean(postflight) / np.mean(preflight)
                 score_components.append(ratio)
 
+    # ----------------------------------------------------------
+    # 2. PROTEOMICS — thrombosis and endothelial damage markers
+    # These are flight vs. pre-flight logFC values (cohort level).
+    # VWF: von Willebrand factor — endothelial injury / thrombosis
+    # SERPINE1 (PAI-1): plasminogen activator inhibitor — clot resolution impaired
+    # PF4: platelet factor 4 — platelet activation (also in cytokine array above)
+    # ----------------------------------------------------------
     prot_markers = {
         'VWF':              get_logfc(pp, 'VWF'),
         'SERPINE1 (PAI-1)': get_logfc(pp, 'SERPINE1'),
@@ -548,12 +532,30 @@ def compute_cardio_score(crew_id):
     }
     prot_vals = {k: round(v, 3) for k, v in prot_markers.items() if v is not None}
 
+    # ----------------------------------------------------------
+    # 3. SCORE CALCULATION
+    #
+    # Base score from cardiac cytokine post/pre ratios:
+    #   score = clip((mean_ratio - 0.5) / 1.5, 0.05, 0.95)
+    #
+    # Calibration reference points:
+    #   mean_ratio = 0.5  → score ≈ 0.0  (markers dropped — very safe)
+    #   mean_ratio = 1.0  → score ≈ 0.33 (no change — healthy baseline)
+    #   mean_ratio = 1.5  → score ≈ 0.67 (50% elevation — borderline)
+    #   mean_ratio = 2.0  → score ≈ 1.0  (doubled — high risk)
+    #
+    # PF4 adjustment:
+    #   Each unit of PF4 logFC adds 0.05 to the score.
+    #   Increase the coefficient (e.g., 0.10) to weight PF4 more heavily.
+    #   This can be expanded to include VWF and SERPINE1 similarly.
+    # ----------------------------------------------------------
     if score_components:
         mean_ratio = np.mean(score_components)
         score = np.clip((mean_ratio - 0.5) / 1.5, 0.05, 0.95)
     else:
-        score = 0.5
+        score = 0.5   # Neutral fallback if no time-series data available
 
+    # Add PF4 proteomics penalty (positive logFC = more platelet activation = more risk)
     pf4_logfc = prot_vals.get('PF4', 0)
     score = np.clip(score + pf4_logfc * 0.05, 0.05, 0.95)
     score = round(float(score), 3)
@@ -566,10 +568,42 @@ def compute_cardio_score(crew_id):
 
 
 # ============================================================
-# MODULE 3 — NEUROLOGICAL RESILIENCE (unchanged)
+# MODULE 3 — NEUROLOGICAL RESILIENCE
+# ============================================================
+# PURPOSE: Assess the brain's capacity to withstand and recover from
+#          space-flight stressors (microgravity, radiation, isolation, CO2).
+#
+# SCORE DIRECTION: Higher score = more resilient.
+#   - Green  (> 0.60): Good neuroprotective signal.
+#   - Yellow (0.35–0.60): Mixed or uncertain.
+#   - Red    (< 0.35): Concerning neuro-inflammatory signal.
+#
+# ALGORITHM OVERVIEW:
+#   1. BDNF logFC (proteomics): brain-derived neurotrophic factor.
+#      Positive = upregulated → neuroprotective → increases score.
+#   2. S100B logFC (proteomics): glial/astrocyte injury marker.
+#      Positive = upregulated → glial activation/damage → decreases score.
+#   3. Kynurenine logFC (metabolomics): tryptophan catabolism byproduct.
+#      Elevated kynurenine diverts tryptophan away from serotonin synthesis
+#      and can produce neurotoxic quinolinic acid → decreases score.
+#
+#   Formula:
+#     score = 0.5 + (BDNF × 0.08) − (S100B × 0.05) − (Kynurenine × 0.03)
+#
+#   Coefficients to tune:
+#     BDNF    × 0.08 — increase to give neuroprotection more weight
+#     S100B   × 0.05 — increase to penalize glial damage more
+#     Kynurenine × 0.03 — increase to penalize neuroinflammation more
 # ============================================================
 
 def compute_neuro_score(crew_id):
+    """
+    Compute the Neurological Resilience score for a crew member.
+
+    Returns:
+        score (float): Resilience score in [0, 1]. Higher = more resilient.
+        biomarkers (dict): Structured data for the expander display.
+    """
     if not DATA_LOADED:
         return 0.5, {}
 
@@ -580,6 +614,14 @@ def compute_neuro_score(crew_id):
         if v is not None:
             prot_vals[g] = round(v, 3)
 
+    # ----------------------------------------------------------
+    # 2. URINE PANEL — neuro-specific markers (per crew, per timepoint)
+    # BDNF:   Brain-derived neurotrophic factor (urine proxy)
+    # GFAP:   Glial fibrillary acidic protein — astrocyte damage marker
+    # NGF:    Nerve growth factor — neuronal survival signal
+    # CXCL10: Interferon-γ-induced chemokine — neuroinflammation signal
+    # NOTE: Not yet integrated into the numeric score.
+    # ----------------------------------------------------------
     urine_neuro = {
         'BDNF':   'bdnf_concentration_npq',
         'GFAP':   'gfap_concentration_npq',
@@ -592,13 +634,22 @@ def compute_neuro_score(crew_id):
         if tps:
             urine_vals[label] = {k: round(v, 2) if v is not None else None for k, v in tps.items()}
 
+    # ----------------------------------------------------------
+    # 3. METABOLOMICS — neuro-relevant metabolites
+    # Kynurenine:  Tryptophan catabolite — high = serotonin diversion, potential neurotoxicity
+    # Tryptophan:  Serotonin precursor — depletion = mood/cognition risk
+    # 5-HIAA:      Serotonin metabolite (5-hydroxyindoleacetic acid) — serotonin turnover proxy
+    # N-Acetylaspartic Acid: Neuron-specific marker — decline = neuronal loss
+    # Cortisol:    Stress hormone — high = hippocampal volume reduction risk
+    # Nicotinamide: NAD+ precursor — neuroprotective at sufficient levels
+    # ----------------------------------------------------------
     met_neuro = {
-        'Kynurenine':                    'Kynurenine',
-        'Tryptophan':                    'Tryptophan',
-        '5-HIAA (Serotonin Metabolite)': '5-Hydroxyindoleacetic Acid',
-        'N-Acetylaspartic Acid':         'N-Acetylaspartic Acid',
-        'Cortisol':                      'Cortisol',
-        'Nicotinamide':                  'Nicotinamide',
+        'Kynurenine':                        'Kynurenine',
+        'Tryptophan':                        'Tryptophan',
+        '5-HIAA (Serotonin Metabolite)':     '5-Hydroxyindoleacetic Acid',
+        'N-Acetylaspartic Acid':             'N-Acetylaspartic Acid',
+        'Cortisol':                          'Cortisol',
+        'Nicotinamide':                      'Nicotinamide',
     }
     met_vals = {}
     for label, name in met_neuro.items():
@@ -606,11 +657,36 @@ def compute_neuro_score(crew_id):
         if v is not None:
             met_vals[label] = round(v, 3)
 
+    # Kynurenine:Tryptophan ratio (logFC-based proxy)
+    # A rising ratio indicates increased tryptophan diversion toward kynurenine
+    # and away from serotonin synthesis — a neuroinflammation signal.
+    # NOTE: This ratio uses logFCs, not absolute concentrations, so interpret cautiously.
     kyn = get_met_logfc(met, 'Kynurenine')
     trp = get_met_logfc(met, 'Tryptophan')
     if kyn is not None and trp is not None and trp != 0:
-        met_vals['Kynurenine:Tryptophan Ratio (logFC-based)'] = round(kyn / trp, 3)
+        kyn_trp_ratio = round(kyn / trp, 3)
+        met_vals['Kynurenine:Tryptophan Ratio (logFC-based)'] = kyn_trp_ratio
 
+    # ----------------------------------------------------------
+    # 4. SCORE CALCULATION
+    #
+    # Pulls three signals from the data above:
+    #   bdnf       — proteomics logFC for BDNF
+    #   s100b      — proteomics logFC for S100B
+    #   kyn_logfc  — metabolomics logFC for Kynurenine
+    #
+    # Formula:
+    #   score = 0.5 + (BDNF × 0.08) − (S100B × 0.05) − (Kynurenine × 0.03)
+    #
+    # Positive BDNF → neuroprotective upregulation → raises score.
+    # Positive S100B → glial/injury signal → lowers score.
+    # Positive Kynurenine → neuroinflammation / serotonin depletion → lowers score.
+    #
+    # To extend:
+    #   - Add GFAP urine post/pre ratio as another penalty term.
+    #   - Incorporate Cortisol logFC (positive = more stress = penalty).
+    #   - Weight 5-HIAA: low serotonin metabolite = another penalty.
+    # ----------------------------------------------------------
     bdnf      = prot_vals.get('BDNF', 0)
     s100b     = prot_vals.get('S100B', 0)
     kyn_logfc = met_vals.get('Kynurenine', 0) or 0
@@ -619,18 +695,32 @@ def compute_neuro_score(crew_id):
     score = round(float(np.clip(score, 0.05, 0.95)), 3)
 
     biomarkers = {
-        'Proteomics (logFC flight vs. preflight)':                      prot_vals,
-        'Urine Inflammation Panel — neuro markers (npq by timepoint)': urine_vals,
-        'Metabolomics (logFC)':                                         met_vals,
+        'Proteomics (logFC flight vs. preflight)':                        prot_vals,
+        'Urine Inflammation Panel — neuro markers (npq by timepoint)':   urine_vals,
+        'Metabolomics (logFC)':                                           met_vals,
     }
     return score, biomarkers
 
 
 # ============================================================
-# UI HELPERS (for Cardio + Neuro tabs — unchanged)
+# UI HELPERS
 # ============================================================
 
 def get_color(category, score):
+    """
+    Map a score to a traffic-light color based on the category's direction.
+
+    Note the asymmetry:
+      - Bone Efficacy and Neuro Resilience: high score = good = green.
+      - Cardiotoxicity Safety:              low score  = good = green.
+
+    Args:
+        category (str): One of the three tab category names.
+        score (float): Score in [0, 1].
+
+    Returns:
+        str: 'green', 'yellow', or 'red'.
+    """
     if category == "Bone Density Loss Inhibitor Efficacy":
         return "green" if score > 0.7 else "yellow" if score > 0.4 else "red"
     if category == "Cardiotoxicity Safety":
@@ -640,6 +730,13 @@ def get_color(category, score):
 
 
 def render_circle(color, score):
+    """
+    Render a large colored circle with the score value in the center.
+
+    Args:
+        color (str): CSS color string ('green', 'yellow', 'red', or hex).
+        score (float): Numeric score to display inside the circle.
+    """
     st.markdown(
         f"""
         <div style="
@@ -659,15 +756,19 @@ def render_circle(color, score):
 # ============================================================
 st.sidebar.title("Controls")
 
+# Show a data-load error in the sidebar so the app stays usable for UI testing
+# even when CSV files are missing.
 if not DATA_LOADED:
     st.sidebar.error(f"⚠️ Could not load CSV data from:\n`{DATA_DIR}`\n\nError: {DATA_ERROR}")
     st.sidebar.info("Adjust `DATA_DIR` at the top of `app.py` to point to your `data/processed/` folder.")
 
+# Crew member selector — passed into all three score functions
 crew = st.sidebar.selectbox("Crew Member", ["C001", "C002", "C003", "C004"])
 
 
 # ============================================================
 # TAB LAYOUT
+# Three tabs, one per health domain.
 # ============================================================
 tabs = st.tabs([
     "🦴 Bone Density Loss Inhibitor Efficacy",
@@ -680,10 +781,31 @@ tabs = st.tabs([
 # TAB 1 — BONE DENSITY LOSS INHIBITOR EFFICACY
 # ============================================================
 with tabs[0]:
-    if DATA_LOADED:
-        render_bone_tab(crew)
-    else:
-        st.warning("Data not loaded. Check the sidebar for details.")
+    category = "Bone Density Loss Inhibitor Efficacy"
+    score, biomarkers = compute_bone_score(crew)
+    color = get_color(category, score)
+
+    st.title(category)
+
+    col1, col2 = st.columns([1, 3])
+    with col1:
+        render_circle(color, score)
+    with col2:
+        st.write(
+            "Therapeutic effectiveness in preventing bone density loss in microgravity. "
+            "Score derived from plasma proteomics logFC (flight vs. preflight), "
+            "serum CMP values, urine inflammation panel, and plasma metabolomics."
+        )
+        if DATA_LOADED:
+            st.caption(
+                f"Data source: 20 proteomics markers · Calcium & Alk Phos (CMP) · "
+                f"13 urine panel markers · 8 metabolomics targets — Crew {crew}"
+            )
+
+    # Expandable sections showing the raw biomarker data
+    for section, vals in biomarkers.items():
+        with st.expander(section):
+            st.json(vals)
 
 
 # ============================================================
