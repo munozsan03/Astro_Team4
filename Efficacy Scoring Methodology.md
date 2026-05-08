@@ -1,0 +1,114 @@
+# Bone Efficacy Scoring Methodology
+
+## What Is This Score?
+
+The **Total Bone Efficacy Score** is a single number between 0 and 100 that summarizes how well a drug appears to be protecting bone density based on biological data collected from astronauts before and after spaceflight. A higher score means the biological evidence points toward the drug working. A lower score means the evidence is weak or pointing in the wrong direction.
+
+- **≥ 60** → Positive efficacy signal (the drug appears to be working)
+- **40–59** → Uncertain (the data is mixed or inconclusive)
+- **< 40** → Insufficient evidence of efficacy (the drug does not appear to be working)
+
+---
+
+## Where Does the Data Come From?
+
+We look at four types of biological measurements, each collected from the same astronaut at multiple timepoints:
+
+- **Proteomics** (measuring the abundance of specific proteins in blood plasma) — values are expressed as **logFC** (log2 fold change, meaning how many times more or less of a protein was present during flight compared to before flight). A logFC of +1 means roughly twice as much; a logFC of −1 means roughly half as much.
+- **CMP / Serum Chemistry** (a standard blood panel measuring things like calcium and liver enzymes) — values are expressed as a **post/pre ratio** (post-flight average divided by pre-flight average). A ratio of 1.0 means no change; 1.2 means 20% higher after flight.
+- **Urine Inflammation Panel** (measuring proteins secreted into urine that signal immune and bone activity) — also expressed as a **post/pre ratio**.
+- **Metabolomics** (measuring small molecules in the blood, like amino acids and vitamins) — also expressed as **logFC**.
+
+---
+
+## How Is Each Biomarker Scored?
+
+Every biomarker (individual biological measurement) gets its own score from **0 to 100**, where 100 means the measurement is in a range that strongly supports bone protection, and 0 means it is in a range that suggests bone loss or no drug effect.
+
+### Step 1 — Define the Thresholds
+
+Each biomarker has two thresholds (cutoff values):
+
+- **`low`** — the lower boundary of a meaningful range
+- **`high`** — the upper boundary of a meaningful range
+
+For proteomics and metabolomics, these are set at **−2.0 and +2.0** (logFC), which captures the range of biologically meaningful change seen in plasma proteomics studies. For CMP and urine ratios, thresholds are set around values that reflect clinically relevant shifts from baseline (e.g. 0.80 to 2.0 for most urine markers, tighter for serum calcium).
+
+### Step 2 — Determine Which Direction Is "Good"
+
+Each biomarker is marked with a direction:
+
+- **Higher is better** — we want to see this biomarker go up (e.g. collagen proteins that build bone)
+- **Lower is better** — we want to see this biomarker go down (e.g. proteins that drive bone breakdown)
+
+### Step 3 — Apply the Threshold Type
+
+Not every biomarker is dangerous in both directions. We assign each biomarker one of three **threshold types** that determine how the score reacts to extreme values:
+
+#### `low` — Only penalized when too low
+The score is 100 as long as the value is at or above the lower threshold. It only drops if the value falls below that threshold, meaning the beneficial signal has weakened or disappeared. Used for markers where we only care about the signal not disappearing (e.g. bone-building proteins like osteocalcin or collagen).
+
+#### `high` — Only penalized when too high
+The score is 100 as long as the value stays at or below the upper threshold. It only drops if the value rises too high, meaning a harmful process is amplifying. Used for markers where elevation is the danger (e.g. RANKL, which activates cells that break down bone; or sclerostin, which suppresses bone formation).
+
+#### `both` — Penalized at both extremes
+The score is 100 when the value falls within the window between `low` and `high`. It drops toward 0 if the value is either too low or too high. Used for markers that need to stay balanced — for example, serum calcium, where both too little (hypocalcemia) and too much (hypercalcemia) are clinically problematic.
+
+### Step 4 — Calculate the Score
+
+Once we know which direction is penalized, the math works as follows:
+
+- If the value is in the "safe" zone (defined by the threshold type), the score is **100**.
+- If the value is outside the safe zone, the score drops **linearly** (in a straight line) toward **0** as the value moves further in the harmful direction.
+- The distance over which the score travels from 100 to 0 is equal to the width of the `[low, high]` window (called the **span**). This ensures the scale is always proportional to the defined range.
+- Scores are always clipped (bounded) to stay within **[0, 100]** — no negative scores, no scores above 100.
+
+As a simple example: if a bone-building protein has `low = −2.0`, `high = 2.0`, and threshold type `"low"`, then:
+- A logFC of **+1.5** → score = **100** (above the low threshold, so no penalty)
+- A logFC of **−1.0** → score = **75** (halfway between −2.0 and 0, so 75% of the way from worst to best)
+- A logFC of **−2.0** → score = **50**
+- A logFC of **−4.0** → score = **0** (at or below the floor, clipped to 0)
+
+---
+
+## How Is the Total Score Calculated?
+
+The individual biomarker scores are combined into a single **weighted average** (an average where some values count more than others). Each biomarker is assigned a weight (from 2 to 8) based on how directly it reflects bone formation or resorption (breakdown) according to published literature.
+
+The formula is:
+
+```
+Total Score = Σ (biomarker_score × weight) / Σ (weight)
+```
+
+Where Σ means "sum of all." Biomarkers with missing data are excluded from both the numerator and denominator, so gaps in the data do not artificially drag the score down.
+
+Weights at a glance:
+
+| Weight | Examples |
+|--------|----------|
+| 8 | Osteocalcin (BGLAP), Sclerostin (SOST) — core bone formation/inhibition markers |
+| 7 | Collagen Iα1 (COL1A1), RANKL — direct structural and resorption signals |
+| 5–6 | Calcium, Alkaline Phosphatase, Vitamin D2, Periostin — important supporting markers |
+| 2–4 | Amino acids, Wnt pathway modulators, secondary cytokines — contributing context |
+
+---
+
+## Why This Approach?
+
+A few design decisions worth noting:
+
+- **Threshold types avoid false penalties.** A bone-building protein that is extremely elevated is not penalized (it just stays at 100) because there is no biological reason to worry about it being too high. Only the thresholds that matter for each specific biomarker are active.
+- **Missing data is handled gracefully.** If a particular measurement was not collected or failed quality control, that biomarker is simply excluded from the weighted average. The score reflects only what was actually measured.
+- **Weights are relative, not absolute.** Only the ratio between weights matters. A biomarker with weight 8 contributes exactly twice as much as one with weight 4.
+- **The score is not a clinical diagnosis.** It is a decision-support signal designed to summarize a large, multi-modal (coming from multiple data sources) dataset into a single interpretable number for research review.
+
+---
+
+## Summary Table of Threshold Types by Biomarker Category
+
+| Category | Typical Threshold Type | Rationale |
+|---|---|---|
+| Bone-building proteins (e.g. collagen, osteocalcin) | `low` | Only dangerous when suppressed |
+| Bone-resorption drivers (e.g. RANKL, sclerostin, IL-6) | `high` | Only dangerous when elevated |
+| Balanced markers (e.g. calcium, alkaline phosphatase, TGF-β1) | `both` | Harmful at both extremes |
