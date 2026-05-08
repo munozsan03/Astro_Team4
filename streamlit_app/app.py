@@ -686,56 +686,373 @@ def render_bone_tab(crew_id):
 # MODULE 2 — CARDIOTOXICITY SAFETY
 # ============================================================
 
-def compute_cardio_score(crew_id):
-    if not DATA_LOADED:
-        return 0.5, {}
+# ============================================================
+# ╔══════════════════════════════════════════════════════════╗
+# ║   CARDIOTOXICITY — EDITABLE PARAMETERS & WEIGHTS        ║
+# ║                                                          ║
+# ║   RISK SCORE: higher score = MORE concern.              ║
+# ║   Score 0–34 = Nominal · 35–64 = Caution · 65–100 = Critical ║
+# ║                                                          ║
+# ║   Cytokine panel: values are post/pre ratios.           ║
+# ║   Proteomics: values are logFC (flight vs. pre-flight). ║
+# ║                                                          ║
+# ║   threshold_type:                                        ║
+# ║     "high"  → only elevated values drive risk up        ║
+# ║     "low"   → only suppressed values drive risk up      ║
+# ║     "both"  → deviations in either direction add risk   ║
+# ║                                                          ║
+# ║   Thresholds are intentionally conservative starting    ║
+# ║   points. Refine with cohort data as available.         ║
+# ╚══════════════════════════════════════════════════════════╝
+CARDIO_BIOMARKER_PARAMS = {
 
-    cardiac_markers = {
-        'CRP':                  'crp_concentration_picogram_per_milliliter',
-        'Fibrinogen':           'fibrinogen_concentration_nanogram_per_milliliter',
-        'Haptoglobin':          'haptoglobin_concentration_nanogram_per_milliliter',
-        'Alpha-2-Macroglobulin':'a2_macroglobulin_concentration_nanogram_per_milliliter',
-        'AGP':                  'agp_concentration_nanogram_per_milliliter',
-        'PF4':                  'pf4_concentration_nanogram_per_milliliter',
-        'L-Selectin':           'l_selectin_concentration_picogram_per_milliliter',
-        'Fetuin-A':             'fetuin_a36_concentration_nanogram_per_milliliter',
-        'SAP':                  'sap_concentration_picogram_per_milliliter',
-    }
-    cardiac_vals = {}
-    score_components = []
+    # ── CARDIAC CYTOKINE / PLASMA PANEL (post/pre ratio) ───────────────────
+    # Ratio = postflight mean / preflight mean.
+    # 1.0 = no change · >1 = elevated postflight · <1 = suppressed postflight
 
-    for label, row_name in cardiac_markers.items():
-        tps = get_cardiac_per_crew(card, row_name, crew_id)
-        if tps:
-            cardiac_vals[label] = {k: round(v, 1) if v is not None else None for k, v in tps.items()}
-            preflight  = [v for k, v in tps.items() if k.startswith('L') and v is not None]
-            postflight = [v for k, v in tps.items() if k.startswith('R') and v is not None]
-            if preflight and postflight:
-                ratio = np.mean(postflight) / np.mean(preflight)
-                score_components.append(ratio)
+    "CRP (C-Reactive Protein)": {
+        "low": 1.0, "high": 1.5, "weight": 15,
+        "threshold_type": "high",
+        "note": (
+            "Canonical systemic inflammation marker directly linked to endothelial dysfunction "
+            "and cardiovascular risk. A post/pre ratio above 1.5 (50% elevation) represents "
+            "clinically meaningful persistent inflammation. Weight 15 — highest priority marker."
+        ),
+    },
+    "PF4 (Platelet Factor 4)": {
+        "low": 1.0, "high": 1.5, "weight": 15,
+        "threshold_type": "high",
+        "note": (
+            "Platelet activation marker directly linked to thrombotic activity and clotting potential. "
+            "PF4 elevation during spaceflight indicates platelet hyper-reactivity and elevated "
+            "thromboembolism risk. Weight 15 — co-primary marker alongside CRP."
+        ),
+    },
+    "Fibrinogen": {
+        "low": 1.0, "high": 1.5, "weight": 12,
+        "threshold_type": "high",
+        "note": (
+            "Coagulation-associated acute phase protein. Elevated fibrinogen increases blood viscosity "
+            "and thrombosis risk, compounding cardiovascular strain in microgravity. "
+            "Ratio above 1.5 reflects sustained coagulation activation."
+        ),
+    },
+    "Fetuin-A": {
+        "low": 0.75, "high": 1.30, "weight": 12,
+        "threshold_type": "both",
+        "note": (
+            "Modulates vascular calcification and metabolic regulation. Both depletion (loss of "
+            "calcification inhibition, risk of vascular mineralization) and elevation (impaired "
+            "insulin signaling, metabolic cardiovascular stress) are concerning. "
+            "Penalized when ratio falls below 0.75 or rises above 1.30."
+        ),
+    },
+    "Haptoglobin": {
+        "low": 1.0, "high": 1.5, "weight": 10,
+        "threshold_type": "high",
+        "note": (
+            "Hemoglobin scavenging protein reflecting oxidative vascular stress and radiation "
+            "response. Elevated haptoglobin post-flight indicates increased hemolysis and "
+            "oxidative burden on the vascular endothelium."
+        ),
+    },
+    "L-Selectin (CD62L)": {
+        "low": 0.70, "high": 1.40, "weight": 10,
+        "threshold_type": "both",
+        "note": (
+            "Regulates leukocyte adhesion and immune-endothelial activation. Both shedding "
+            "(loss of immune surveillance, ratio < 0.70) and excessive upregulation "
+            "(systemic endothelial activation, ratio > 1.40) indicate vascular dysfunction. "
+            "Penalized at both extremes."
+        ),
+    },
+    "SAP (Serum Amyloid P Component)": {
+        "low": 1.0, "high": 1.5, "weight": 10,
+        "threshold_type": "high",
+        "note": (
+            "Reflects persistent systemic inflammatory burden and tissue remodeling activity. "
+            "Elevated SAP is associated with chronic inflammation and extracellular matrix "
+            "pathology relevant to vascular wall integrity."
+        ),
+    },
+    "Alpha-2-Macroglobulin (A2M)": {
+        "low": 0.75, "high": 1.40, "weight": 8,
+        "threshold_type": "both",
+        "note": (
+            "Regulates protease activity across multiple vascular and inflammatory cascades. "
+            "Both suppression (unregulated protease activity, endothelial degradation) and "
+            "excessive elevation (impaired protease clearance, chronic signaling dysregulation) "
+            "negatively affect vascular homeostasis. Penalized at both extremes."
+        ),
+    },
+    "AGP (Alpha-1-Acid Glycoprotein)": {
+        "low": 1.0, "high": 1.5, "weight": 8,
+        "threshold_type": "high",
+        "note": (
+            "Correlates with chronic systemic inflammation and cardiovascular risk. AGP is an "
+            "acute phase reactant that rises with sustained inflammatory activation, indicating "
+            "ongoing vascular and immune stress."
+        ),
+    },
 
-    prot_markers = {
-        'VWF':              get_logfc(pp, 'VWF'),
-        'SERPINE1 (PAI-1)': get_logfc(pp, 'SERPINE1'),
-        'PF4':              get_logfc(pp, 'PF4'),
-    }
-    prot_vals = {k: round(v, 3) for k, v in prot_markers.items() if v is not None}
+    # ── PROTEOMICS (logFC, flight vs. pre-flight) ───────────────────────────
+    # logFC > 0 = upregulated during flight · logFC < 0 = downregulated
 
-    if score_components:
-        mean_ratio = np.mean(score_components)
-        score = np.clip((mean_ratio - 0.5) / 1.5, 0.05, 0.95)
+    "VWF (Von Willebrand Factor — proteomics)": {
+        "low": -2.0, "high": 0.75, "weight": 9,
+        "threshold_type": "high",
+        "note": (
+            "VWF is a key mediator of platelet adhesion and endothelial stress response. "
+            "Elevated VWF logFC reflects endothelial activation and dysfunction, directly "
+            "increasing thrombosis risk. Only penalized when logFC rises above +0.75."
+        ),
+    },
+    "SERPINE1 / PAI-1 (Fibrinolysis Inhibitor — proteomics)": {
+        "low": -2.0, "high": 0.75, "weight": 7,
+        "threshold_type": "high",
+        "note": (
+            "PAI-1 is the primary inhibitor of fibrinolysis (clot dissolution). Elevated "
+            "SERPINE1 logFC means clots are less efficiently cleared, increasing risk of "
+            "sustained thrombosis and cardiovascular events. Only penalized when logFC rises above +0.75."
+        ),
+    },
+}
+
+
+# ============================================================
+# CARDIOTOXICITY RISK SCORE ENGINE
+# ============================================================
+# This is a RISK score (0 = no concern, 100 = maximum concern),
+# which is the inverse of the bone/neuro efficacy scores.
+# The score_cardio_biomarker function maps values onto 0–100
+# where 0 is safest and 100 is most alarming.
+
+def score_cardio_biomarker(value, low, high, threshold_type="high"):
+    """
+    Returns a 0–100 RISK score (higher = more concerning).
+
+    high  : value penalized when it rises above `high`
+    low   : value penalized when it falls below `low`
+    both  : value penalized when outside [low, high]
+    """
+    if value is None:
+        return None
+
+    span = high - low
+    if span <= 0:
+        span = 1.0  # guard against misconfigured thresholds
+
+    if threshold_type == "high":
+        if value <= low:
+            return 0.0                                   # below lower bound → no concern
+        elif value >= high:
+            return 100.0                                 # at/above upper bound → max concern
+        else:
+            return float((value - low) / span * 100)    # linear rise
+
+    elif threshold_type == "low":
+        if value >= high:
+            return 0.0                                   # at/above upper bound → no concern
+        elif value <= low:
+            return 100.0                                 # at/below lower bound → max concern
+        else:
+            return float((high - value) / span * 100)   # linear rise as value drops
+
+    else:  # "both"
+        if low <= value <= high:
+            return 0.0                                   # inside window → no concern
+        elif value < low:
+            # how far below the window?
+            return float(np.clip((low - value) / span * 100, 0, 100))
+        else:
+            # how far above the window?
+            return float(np.clip((value - high) / span * 100, 0, 100))
+
+
+def render_cardio_score_bar(label, score, note, threshold_type, data_value, data_label):
+    """
+    Risk-oriented score bar. Color scheme is INVERTED vs bone/neuro:
+      green  → low risk  (score < 35)
+      yellow → moderate  (35–64)
+      red    → high risk (≥ 65)
+    """
+    if score is None:
+        st.markdown(f"**{label}** — *data not available*")
+        return
+
+    if score < 35:
+        bar_color  = "#2ecc71"
+        text_color = "#1a5e35"
+    elif score < 65:
+        bar_color  = "#f39c12"
+        text_color = "#7d4e00"
     else:
-        score = 0.5
+        bar_color  = "#e74c3c"
+        text_color = "#6e1a1a"
 
-    pf4_logfc = prot_vals.get('PF4', 0)
-    score = np.clip(score + pf4_logfc * 0.05, 0.05, 0.95)
-    score = round(float(score), 3)
+    raw_display = ""
+    if data_value is not None:
+        raw_display = (
+            f"<span style='font-size:12px; color:#888;'>"
+            f"({data_label}: {data_value:+.3f})</span>"
+        )
 
-    biomarkers = {
-        'Cardiac Cytokine Array (Eve) — concentration by timepoint': cardiac_vals,
-        'Proteomics (logFC flight vs. preflight)':                   prot_vals,
+    badge_styles = {
+        "low":  ("⬇ low threshold",   "#d4edff", "#0066aa"),
+        "high": ("⬆ high threshold",  "#fde8e8", "#aa0000"),
+        "both": ("↕ both thresholds", "#f0e8fd", "#6600aa"),
     }
-    return score, biomarkers
+    badge_text, badge_bg, badge_fg = badge_styles.get(
+        threshold_type, ("threshold", "#eee", "#333")
+    )
+    badge_html = (
+        f"<span style='font-size:10px; background:{badge_bg}; color:{badge_fg}; "
+        f"border-radius:4px; padding:1px 5px; margin-left:6px; "
+        f"font-weight:600; vertical-align:middle;'>{badge_text}</span>"
+    )
+
+    st.markdown(
+        f"""
+        <div style="margin-bottom: 10px;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px;">
+            <span style="font-weight:600; font-size:14px;">{label}{badge_html}</span>
+            <span style="font-weight:700; color:{text_color}; font-size:15px;">
+              {score:.1f}/100 risk &nbsp; {raw_display}
+            </span>
+          </div>
+          <div style="background:#e0e0e0; border-radius:6px; height:14px; width:100%;">
+            <div style="background:{bar_color}; width:{score}%; height:14px;
+                        border-radius:6px; transition: width 0.4s;"></div>
+          </div>
+          <div style="font-size:11px; color:#777; margin-top:2px; font-style:italic;">{note}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_cardio_total_score_bar(score):
+    n = len(CARDIO_BIOMARKER_PARAMS)
+    if score < 35:
+        bar_color    = "#27ae60"
+        label_color  = "#1a5e35"
+        verdict      = "✅ Cardiotoxicity Risk: NOMINAL"
+        verdict_color = "#1a5e35"
+    elif score < 65:
+        bar_color    = "#e67e22"
+        label_color  = "#7d4e00"
+        verdict      = "⚠️ Cardiotoxicity Risk: CAUTION"
+        verdict_color = "#7d4e00"
+    else:
+        bar_color    = "#c0392b"
+        label_color  = "#6e1a1a"
+        verdict      = "🚨 Cardiotoxicity Risk: CRITICAL"
+        verdict_color = "#6e1a1a"
+
+    st.markdown(
+        f"""
+        <div style="border:2px solid {bar_color}; border-radius:12px; padding:18px 22px;
+                    margin-bottom:24px; background:#fafafa;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span style="font-size:18px; font-weight:700; color:#333;">Total Cardiotoxicity Risk Score</span>
+            <span style="font-size:28px; font-weight:900; color:{label_color};">{score:.1f} / 100</span>
+          </div>
+          <div style="background:#e0e0e0; border-radius:8px; height:22px; width:100%; margin-bottom:10px;">
+            <div style="background:{bar_color}; width:{score}%; height:22px; border-radius:8px;"></div>
+          </div>
+          <div style="font-size:16px; font-weight:700; color:{verdict_color};">{verdict}</div>
+          <div style="font-size:12px; color:#888; margin-top:4px;">
+            Weighted composite across {n} biomarkers (cytokine panel + proteomics). &nbsp;
+            Score 0–34 = Nominal &nbsp;|&nbsp; 35–64 = Caution &nbsp;|&nbsp; 65–100 = Critical.
+            <br>Higher score = greater cardiovascular concern.
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_cardio_tab(crew_id):
+    st.title("❤️ Cardiotoxicity Safety")
+    st.write(
+        "Each biomarker is scored **0–100 as a risk score** — higher means greater cardiovascular "
+        "concern. The **Total Cardiotoxicity Risk Score** is a weighted average across all markers. "
+        "**Green bars** indicate low concern; **red bars** indicate elevated cardiovascular risk. "
+        "Cytokine panel markers are scored from post/pre ratios; proteomics markers from logFC."
+    )
+
+    # ── CYTOKINE PANEL (post/pre ratios) ────────────────────────────────────
+    cytokine_col_map = {
+        "CRP (C-Reactive Protein)":          'crp_concentration_picogram_per_milliliter',
+        "PF4 (Platelet Factor 4)":           'pf4_concentration_nanogram_per_milliliter',
+        "Fibrinogen":                        'fibrinogen_concentration_nanogram_per_milliliter',
+        "Fetuin-A":                          'fetuin_a36_concentration_nanogram_per_milliliter',
+        "Haptoglobin":                       'haptoglobin_concentration_nanogram_per_milliliter',
+        "L-Selectin (CD62L)":               'l_selectin_concentration_picogram_per_milliliter',
+        "SAP (Serum Amyloid P Component)":   'sap_concentration_picogram_per_milliliter',
+        "Alpha-2-Macroglobulin (A2M)":       'a2_macroglobulin_concentration_nanogram_per_milliliter',
+        "AGP (Alpha-1-Acid Glycoprotein)":   'agp_concentration_nanogram_per_milliliter',
+    }
+    cytokine_map = {}
+    for label, row_name in cytokine_col_map.items():
+        tps = get_cardiac_per_crew(card, row_name, crew_id)
+        cytokine_map[label] = post_pre_ratio(tps)
+
+    # ── PROTEOMICS (logFC) ───────────────────────────────────────────────────
+    prot_map = {
+        "VWF (Von Willebrand Factor — proteomics)":             get_logfc(pp, 'VWF'),
+        "SERPINE1 / PAI-1 (Fibrinolysis Inhibitor — proteomics)": get_logfc(pp, 'SERPINE1'),
+    }
+
+    all_raw = {**cytokine_map, **prot_map}
+
+    # ── SCORE EACH BIOMARKER ─────────────────────────────────────────────────
+    scores = {}
+    for name, params in CARDIO_BIOMARKER_PARAMS.items():
+        raw = all_raw.get(name)
+        scores[name] = score_cardio_biomarker(
+            raw,
+            params["low"],
+            params["high"],
+            params.get("threshold_type", "high"),
+        )
+
+    total_weight = 0.0
+    weighted_sum = 0.0
+    for name, params in CARDIO_BIOMARKER_PARAMS.items():
+        s = scores.get(name)
+        if s is not None:
+            weighted_sum += s * params["weight"]
+            total_weight  += params["weight"]
+
+    total_score = (weighted_sum / total_weight) if total_weight > 0 else 0.0
+    render_cardio_total_score_bar(total_score)
+
+    # ── RENDER SECTIONS ──────────────────────────────────────────────────────
+    sections = [
+        ("🩸 Cardiac Cytokine / Plasma Panel (post/pre ratio)", cytokine_map, "ratio"),
+        ("🔬 Proteomics (logFC — flight vs. pre-flight)",        prot_map,    "logFC"),
+    ]
+
+    for section_title, raw_dict, val_label in sections:
+        with st.expander(section_title, expanded=True):
+            any_data = False
+            for name, raw_val in raw_dict.items():
+                params = CARDIO_BIOMARKER_PARAMS.get(name)
+                if params is None:
+                    continue
+                s = scores.get(name)
+                render_cardio_score_bar(
+                    label=name,
+                    score=s,
+                    note=params["note"],
+                    threshold_type=params.get("threshold_type", "high"),
+                    data_value=raw_val,
+                    data_label=val_label,
+                )
+                any_data = True
+            if not any_data:
+                st.write("*No data available for this section.*")
 
 
 # ============================================================
@@ -1216,28 +1533,10 @@ with tabs[0]:
 # TAB 2 — CARDIOTOXICITY SAFETY
 # ============================================================
 with tabs[1]:
-    category = "Cardiotoxicity Safety"
-    score, biomarkers = compute_cardio_score(crew)
-    color = get_color(category, score)
-
-    st.title(category)
-
-    col1, col2 = st.columns([1, 3])
-    with col1:
-        render_circle(color, score)
-    with col2:
-        st.write(
-            "Assessment of cardiac stress, inflammation, and toxicity risk. "
-            "Score reflects post-flight elevation of cardiac inflammatory markers "
-            "(Cardiac Cytokine Array) relative to pre-flight baseline, combined with "
-            "proteomics signals (VWF, SERPINE1/PAI-1, PF4)."
-        )
-        if DATA_LOADED:
-            st.caption(f"Data source: 9 cardiac cytokine markers (Eve) · 3 proteomics targets — {selected_cfg['label']} ({crew})")
-
-    for section, vals in biomarkers.items():
-        with st.expander(section):
-            st.json(vals)
+    if DATA_LOADED:
+        render_cardio_tab(crew)
+    else:
+        st.warning("Data not loaded. Check the sidebar for details.")
 
 
 # ============================================================
