@@ -278,15 +278,11 @@ st.markdown(
     /* ── Hide sidebar collapse arrow / toggle button ─── */
     [data-testid="collapsedControl"],
     [data-testid="stSidebarCollapseButton"],
-    button[kind="header"] {{
-        display: none !important;
-    }}
+    button[kind="header"]
 
     /* ── Keep sidebar always expanded ────────────────── */
     [data-testid="stSidebar"] {{
-        transform: none !important;
         min-width: 400px !important;
-        visibility: visible !important;
     }}
 
     /* Dark mode sidebar stays dark */
