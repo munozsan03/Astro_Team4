@@ -30,33 +30,23 @@ These disruptions can lead to increased risk of:
 
 Terrestrial solutions to these risks include drug therapeutics that require clinical trials for safety and efficacy to be approved for human use. Evaluating potential drug therapeutics during long-term space travel for these risks will be challenging due to the lack of clinical trials in these extreme environments. Our tool targets future drug discovery validation in space missions that tackle issues of bone density loss, muscle atrophy, and neurodegeneration.
 
-In traditional clinical development:
-
-- **Phase I Clinical Trials** primarily evaluate drug safety, tolerability, and adverse physiological effects.
-- **Phase II Clinical Trials** primarily evaluate therapeutic efficacy and biological effectiveness.
-
-However, evaluating potential therapeutics during long-duration spaceflight presents major challenges due to the lack of validated clinical trial frameworks in microgravity and radiation-exposed environments.
-
 ---
 
 ## Clinical Motivation 
 
-There are no validated frameworks for assessing drug safety and efficacy in microgravity environments, leaving astronauts on long-duration missions without evidence-based therapeutic options for progressive bone loss, muscle atrophy, and neurodegeneration.
 
+Traditional clinical development relies on phased therapeutic evaluation frameworks to assess both safety and efficacy before approval for human use.
 
-**Approach**
+- **Phase I Clinical Trials** primarily evaluate physiological safety, toxicity, tolerability, and adverse biological responses.
+- **Phase II Clinical Trials** focus on therapeutic efficacy and measurable biological improvement within targeted disease pathways.
 
-We plan to create a dashboard that displays different biomarker concentrations that are taken from the samples measured throughout the mission duration. These biomarkers would test both the safety and efficacy of potential therapeutics used to treat the three identified risks of bone density loss, muscle atrophy, and neurobiological degeneration.
-Using the current dataset, we will author a tool that displays a dashboard of each of the three risks, along with important details of biomarker concentrations and the level of severity for safety.
+However, these validation pipelines have not been adapted for long-duration human spaceflight environments.
 
-**Expected Output**
+Microgravity-associated physiological adaptation may alter biomarker trajectories, inflammatory signaling, musculoskeletal remodeling, neurobiological function, and systemic therapeutic response in ways that differ substantially from terrestrial clinical populations.
 
-There will be three categories for the outputs, each targeting the three aforementioned risks related to bones, muscles, and the brain.
+This creates a major translational gap for future astronaut healthcare and therapeutic deployment during deep-space missions.
 
-Within each category are two types of graphics:
-
-Safety graphics will calculate the current risk of each subject based on normal biomarker indications.
-Efficacy graphics will show quantitative results of biomarkers indicative of effective or ineffective treatments.
+Our prototype addresses this challenge by integrating biomarker-based safety monitoring, efficacy scoring, and physiological resilience analysis into a unified visualization platform designed for long-duration spaceflight applications.
 
 ---
 
