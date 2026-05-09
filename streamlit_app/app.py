@@ -12,25 +12,38 @@ FONT_SIZES = {
     "base":                     "16px",   # Root body / default text
 
     # ── Page headings ─────────────────────────────────────
-    "heading_h1":               "28px",   # st.title() / <h1>
-    "heading_h2":               "22px",   # Section headings / <h2>
-    "heading_h3":               "18px",   # Sub-section headings / <h3>
+    "heading_h1":               "72px",   # st.title() / <h1>
+    # Bone Density Loss Inhibitor Efficacy
+    "heading_h2":               "22px",   # Section headings / <h2>4
+    # Unused?
+    "heading_h3":               "64px",   # Sub-section headings / <h3>
+    # Proteomics (logFC)
 
     # ── Sidebar ───────────────────────────────────────────
-    "sidebar_body":             "15px",   # General sidebar text
-    "sidebar_heading":          "18px",   # Sidebar h1/h2/h3
+    "sidebar_body":             "24px",   # General sidebar text
+    # Done Density Loss, Cardiotoxicity Safety selctor
+    "sidebar_heading":          "32px",   # Sidebar h1/h2/h3
+    # View Module
     "sidebar_active_crew":      "15px",   # Active-crew badge label
+    # Unused?
     "sidebar_active_crew_sub":  "12px",   # Active-crew badge sub-line (ID)
+    # Unused?
 
     # ── Crew selector buttons ──────────────────────────────
-    "crew_selector_heading":    "24px",   # "Select Crew Member" label
+    "crew_selector_heading":    "48px",   # "Select Crew Member" label
+    # Select Crew Member label
     "crew_button":              "15px",   # Crew selector button text
+    # Unused?
 
     # ── Crew info card ─────────────────────────────────────
-    "crew_card_name":           "18px",   # Crew member name
-    "crew_card_id":             "13px",   # "(ID: C001)" label
-    "crew_card_demographics":   "14px",   # Age / Sex line
-    "crew_card_bio":            "14px",   # Bio paragraph
+    "crew_card_name":           "24px",   # Crew member name
+    # Crew Member 1
+    "crew_card_id":             "18px",   # "(ID: C001)" label
+    # ID: C001
+    "crew_card_demographics":   "18px",   # Age / Sex line
+    # Age: 43
+    "crew_card_bio":            "18px",   # Bio paragraph
+    # Mission Command.
 
     # ── Tab / radio labels ────────────────────────────────
     "tab_label":                "15px",   # Tab button text
@@ -1327,7 +1340,7 @@ def render_bone_tab(crew_id):
         "⚕️ **Dataset Notice:** The current cohort does not include astronauts taking any "
         "therapeutic medications. Subjects were healthy and not in space long enough to exhibit "
         "massive changes to bone density, muscle atrophy, or brain degradation. Biomarker levels "
-        "should therefore appear relatively normal — extreme signals are not expected."
+        "should therefore appear relatively normal and extreme signals are not expected."
     )
 
     st.write(
