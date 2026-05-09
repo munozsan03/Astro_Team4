@@ -139,3 +139,19 @@ There are 3 ways to access or run the Astro_team4 Streamlit dashboard
 Coming Soon
 Dashboard link
 QR Code
+
+
+---
+
+## Additional Documentation
+
+Expanded biomarker rationale, physiological interpretation, pathway relevance, and supporting literature references are available in the supplementary markdown documentation files included within this repository.
+
+These supporting documents provide additional detail regarding biomarker selection methodology, translational significance, and analytical framework development for safety, efficacy, and resilience modeling during long-duration spaceflight.
+
+Please refer to:
+
+- `Efficacy Biomarker Justifications.md`
+- `Safety Scoring Methodology.md`
+- `Resilience Biomarker Framework.md`
+
