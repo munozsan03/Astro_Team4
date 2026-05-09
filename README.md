@@ -49,7 +49,7 @@ This creates a major translational gap for future astronaut healthcare and thera
 
 ---
 
-## Hackathon Alignment
+## Hackathon Track
 
 This project primarily aligns with **Track 2: Individualized Risk Profiling**, while also incorporating core principles from **Track 3: Communication & Visualization**.
 
