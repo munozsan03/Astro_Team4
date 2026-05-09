@@ -37,6 +37,7 @@ In traditional clinical development:
 
 However, evaluating potential therapeutics during long-duration spaceflight presents major challenges due to the lack of validated clinical trial frameworks in microgravity and radiation-exposed environments.
 
+---
 
 ## Clinical Motivation 
 
@@ -56,6 +57,8 @@ Within each category are two types of graphics:
 
 Safety graphics will calculate the current risk of each subject based on normal biomarker indications.
 Efficacy graphics will show quantitative results of biomarkers indicative of effective or ineffective treatments.
+
+---
 
 ## Prototype Visuals
 
