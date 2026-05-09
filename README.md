@@ -191,6 +191,122 @@ Please refer to:
 
 **Use of AI**
 
-AI-assisted development tools were used for selected documentation, debugging, and interface refinement tasks during development. Additional details are provided in [`Use of AI.md`].
+AI-assisted development tools were used for selected documentation, debugging, and interface refinement tasks during development. 
 
+<details>
+<summary><strong>Use of AI</strong></summary>
+
+<br>
+# 🚀 Use of AI In Astronaut Omics Therapeutic Testing
+
+## Background
+
+Historically, drug discovery has been an **extremely slow, expensive, and high-risk process**. Developing even a single therapeutic often requires years of receptor identification, laboratory testing, large clinical studies, and the evaluation of thousands of molecular candidates before identifying one that is both effective and safe.
+
+As previously mentioned, the complex environments in long-term spaceflight make this challenge even greater due to the **unique physiological changes** that cannot be traditionally accounted for.
+
+---
+
+## AI-Accelerated Drug Discovery
+
+Very recent advances in **artificial intelligence and machine learning** have significantly accelerated this process. Many scientists who study both biochemistry and computer science have integrated large databases of existing proteins and small molecules into contemporary algorithms that can accelerate the drug discovery process by years.
+
+In research papers and labs, a common workflow has been identified:
+
+1. Identify a **G Protein-Coupled Receptor (GPCR)** responsible for the effects to mitigate
+2. Use AI to **generate a peptide backbone** to inhibit the receptor
+3. Use AI to **generate an amino acid sequence** that will fold into that peptide backbone
+4. Use AI to **verify** that the amino acid sequence will actually fold into that structure
+
+---
+
+## Our Workflow — University of Houston
+
+Below is the workflow our labs at the University of Houston adopt, which we plan to utilize to target the inhibition of **bone density loss**, **muscle atrophy**, and **neurodegeneration**.
+
+While this is an example of Giovanni Victorio's work on the Cannabinoid Receptor Type 1, some aspects were changed to avoid revealing intellectual property.
+
+| Tool | Input | Input Example | Output | Output Example |
+|------|-------|--------|--------|--------|
+| [**RFdiffusion**](https://github.com/RosettaCommons/RFdiffusion) | **G Protein-Coupled Receptor** *(3D Structure, .PDB file)* | <img width="500" height="500" alt="image" src="https://github.com/user-attachments/assets/94086785-a47b-49f3-b904-81ad94000ae1" /> | **Generated Peptide Backbone to Antagonize** *(3D Structure, .PDB file)* | <img width="483" height="497" alt="CB1 Peptide" src="https://github.com/user-attachments/assets/e0d1d308-bd18-4364-b428-fd07777b73c6" /> |
+| [**LigandMPNN**](https://github.com/dauparas/LigandMPNN) | **Peptide Backbone** *(3D Structure, .PDB file)* | <img width="483" height="497" alt="CB1 Peptide" src="https://github.com/user-attachments/assets/03ca1daf-d626-4a13-bec8-04c815964e85" /> | **Amino Acid Sequence** *(Text)* | CYFVLWKC |
+| [**AlphaFold**](https://github.com/google-deepmind/alphafold3) | **Amino Acid Sequence** *(Text)* | CYFVLWKC | **Validated Structure Based on Worldwide Protein Structure Databases** *(3D Structure, .CIF and .PDB file)* | <img width="854" height="746" alt="image" src="https://github.com/user-attachments/assets/e616da72-489b-49d6-b638-7b1c145fa9db" /> | 
+
+By utilizing our existing AI drug discovery pipeline for peptides, we can either **agonize** receptors to encourage growth of bones, muscle, and brain matter, or **antagonize** the loss of bones, muscle, and brain matter.
+
+---
+
+## Anticipated GPCR Targets
+
+### ✅ Targets to Agonize (Activate)
+
+| Condition | GPCR Target | Justification | Structure | RCSB ID |
+|-----------|-------------|-------------|-------------|-------------|
+| Bone Density Loss | Parathyroid Hormone 1 Receptor | Activation of PTH1R stimulates osteoblast activity and promotes new bone formation. | <img width="500" height="500" alt="image" src="https://github.com/user-attachments/assets/b3a3d717-b5cc-4ade-94fb-2c11e65f569b" /> | 6FJ3 |
+| Muscle Atrophy | Ghrelin Receptor | Activation increases growth hormone signaling, improves protein synthesis, and may support muscle maintenance. | <img width="500" height="500" alt="image" src="https://github.com/user-attachments/assets/c225a6ab-1131-4a07-8298-71d821f81b62" /> | 7W2Z |
+| Neurodegeneration | Glucagon-Like Peptide-1 Receptor | GLP-1R activation has demonstrated neuroprotective effects, including reduced inflammation and improved neuronal survival. | <img width="500" height="500" alt="image" src="https://github.com/user-attachments/assets/89ce8f75-9357-4f82-92d2-2b701d56cf57" /> | 3C59 |
+
+
+### 🚫 Targets to Antagonize (Inhibit)
+
+| Condition | GPCR Target | Justification | Structure | RCSB ID |
+|-----------|-------------|-------------|-------------|-------------|
+| Bone Density Loss | Cannabinoid Receptor Type 1 | Excess CB1 signaling has been linked to increased bone resorption and reduced bone formation. | <img width="500" height="500" alt="image" src="https://github.com/user-attachments/assets/503aac1a-90f7-479e-94cf-5ea5be57ca5c" /> | 6N4B |
+| Muscle Atrophy | Angiotensin II Type 1 Receptor | Chronic AT1R signaling contributes to oxidative stress, inflammation, and muscle catabolism.  | <img width="500" height="500" alt="image" src="https://github.com/user-attachments/assets/2d89158f-8231-45a5-84a8-6c5bdce34a55" /> | 4ZUD |
+| Neurodegeneration | Adenosine A2A Receptor | Excess A2AR signaling is associated with neuroinflammatory and neurodegenerative pathways. | <img width="500" height="500" alt="image" src="https://github.com/user-attachments/assets/5ff3f421-babe-415a-ae5a-3757a3b0bb4f" /> | 5N2R |
+
+---
+
+# 🧬 Integration With Astronaut Omics Validation
+
+## Why Omics Validation Is Necessary
+
+Although AI-driven peptide therapeutics can now be designed computationally at unprecedented speeds, one of the largest challenges in space medicine remains the inability to perform traditional long-term clinical trials in microgravity environments.
+
+Physiological responses in space differ substantially from Earth due to:
+
+- Microgravity-induced musculoskeletal unloading
+- Elevated radiation exposure
+- Altered immune signaling
+- Fluid redistribution
+- Chronic stress and circadian disruption
+- Confinement-related metabolic changes
+
+As a result, therapeutics that appear effective on Earth may behave differently during long-duration missions.
+
+Because large-scale pharmaceutical trials cannot realistically be conducted aboard spacecraft or lunar habitats, astronaut **multi-omics data** becomes one of the most valuable tools for validating therapeutic performance.
+
+---
+
+## Our Proposed Validation Framework
+
+Our project combines:
+
+1. **AI-guided Therapeutics***
+2. **Astronaut Omics Datasets**
+3. **Biomarker-based Efficacy, Safety, and Resilience Scoring**
+
+into a unified precision medicine pipeline for long-term human spaceflight.
+
+*In AI-guided drug discovery, in-vitro and in-vivo studies are still conducted to gather enough data before pursuing clinical trials.
+
+Rather than waiting years for conventional clinical endpoints, astronaut biological data can provide continuous molecular feedback regarding whether a therapeutic is:
+
+- Producing the intended biological response
+- Causing unintended toxicity
+- Maintaining astronaut physiological resilience
+
+---
+
+# 🚀 Use of AI In Streamlit App Creation
+
+Besides the aforementioned AI programs for drug discovery, we also utilized Claude to create proof-of-concept visuals to guide our dashboard creation.
+
+**Example Proof-of-Concept Visual**
+
+<img width="1108" height="919" alt="image" src="https://github.com/user-attachments/assets/9d6c25a4-68e6-4a78-89bb-8b2b72ab7dfc" />
+
+In addition to these visuals, Claude and ChatGPT were used for translating our scoring methodologies into coded modules, debugging various errors, and user interface refinement tasks like identifying where font changes were being made. Our final codebase and documents were also reformatted to the discretion of these AI programs while we did our best to mitigate any loss of our own diction.
+
+</details>
 
