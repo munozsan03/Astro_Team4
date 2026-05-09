@@ -11,11 +11,16 @@ In research papers and research labs, a common workflow has been identified star
 Below is the workflow that our labs at the University of Houston adopt, which we plan to utilize to target the inhibition of bone density loss, muscle atrophy, and neurodegeneration.
 
 RFdiffusion
+Input: G Protein-Coupled Receptor
+Output: Generated Peptide Backbone To Agonize or Antagonize
 
 LigandMPNN
+Input: Peptide Backbone
+Output: Amino Acid Sequence
 
 AlphaFold
-
+Input: Amino Acid Sequence
+Output: Validated Structure Based On Worldwide RCSB Database
 
 
 By utilizing our existing AI drug discovery workload for peptides, we can either agonize receptors to encourage growth of bones, muscle, and brain matter, or we can antagonize the loss of bones, muscle, and brain matter.
