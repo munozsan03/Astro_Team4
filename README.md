@@ -1,6 +1,6 @@
-# Astro_Team4
+# TrinityRx - Team 4
 
-## Biomarker-Driven Therapeutic Evaluation for Long-Duration Spaceflight
+## Biomarker-Driven Therapeutic Evaluation Dashboard for Long-Duration Spaceflight
 
 Teammates:
 Santiago Munoz, Vy Tran, Giovanni Victorio
