@@ -179,5 +179,8 @@ Please refer to:
 - `6. Neurobiological Resilience Biomarker Justifications.md`
 - `7. Neurobiological Resilience Scoring Methodology.md`
 
+**Use of AI**
+
+AI-assisted development tools were used for selected documentation, debugging, and interface refinement tasks during development. Additional details are provided in [`Use of AI.md`].
 
 
