@@ -52,7 +52,6 @@ Our prototype addresses this challenge by integrating biomarker-based safety mon
 
 ## Approach 
 
-## Approach
 
 Our prototype integrates biomarker-driven safety, efficacy, and resilience analysis into a unified visualization platform designed for long-duration spaceflight applications.
 
