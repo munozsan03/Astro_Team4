@@ -92,9 +92,6 @@ The dashboard prototype visualizes astronaut health risks using biomarker-based 
 </tr>
 </table>
 
-<p align="center">
-<em>Figure 4. Representative prototype modules for efficacy, safety, and neurobiological resilience analysis during long-duration spaceflight.</em>
-</p>
 
 ---
 
