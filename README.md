@@ -19,7 +19,7 @@ These disruptions can lead to increased risk of:
 
 <p>
   • Bone Density Loss
-  <img src="[images/bone_density.png](https://my.clevelandclinic.org/-/scassets/images/org/health/articles/osteopenia)" width="200" style="vertical-align: middle; margin-left: 15px;">
+  <img src="[images/bone_density.png](https://my.clevelandclinic.org/-/scassets/images/org/health/articles/osteopenia)" width="400" style="vertical-align: middle; margin-left: 15px;">
 </p>
   
 -  Muscle Atrophy
