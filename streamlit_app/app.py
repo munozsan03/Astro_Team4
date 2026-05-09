@@ -275,26 +275,10 @@ st.markdown(
         color: #7d4e00 !important;
     }}
 
-    /* ── Sidebar chevron — custom color ──────────────────── */
-[data-testid="stSidebarCollapseButton"] button {{
-    background-color: #3b82f6 !important;
-    border-radius: 50% !important;
-    border: 2px solid #2563eb !important;
-}}
-
-[data-testid="stSidebarCollapseButton"] button svg,
-[data-testid="collapsedControl"] button svg {{
-    fill: #ffffff !important;
-    stroke: #ffffff !important;
-}}
-
-[data-testid="collapsedControl"] button {{
-    background-color: #3b82f6 !important;
-    border-radius: 50% !important;
-    border: 2px solid #2563eb !important;
-}}
-
-
+    /* ── Hide sidebar collapse arrow / toggle button ─── */
+    [data-testid="collapsedControl"],
+    [data-testid="stSidebarCollapseButton"],
+    button[kind="header"]
 
     /* ── Keep sidebar always expanded ────────────────── */
     [data-testid="stSidebar"] {{
@@ -315,26 +299,7 @@ st.markdown(
         color: #111111 !important;
     }}
 
-    /* ── Top toolbar / header bar ────────────────────────── */
-[data-testid="stHeader"] {{
-    background-color: #3b82f6 !important;
-}}
-
-[data-testid="stToolbar"] {{
-    background-color: #3b82f6 !important;
-}}
-
-/* ── Icons inside the top bar ────────────────────────── */
-[data-testid="stHeader"] button svg,
-[data-testid="stToolbar"] button svg {{
-    fill: #ffffff !important;
-    stroke: #ffffff !important;
-}}
-
-[data-testid="stHeader"] button {{
-    color: #ffffff !important;
-}}
-
+    
     /* ── Target the Logo (First Image) ── */
     [data-testid="stSidebar"] [data-testid="stImage"]:nth-of-type(1),
     [data-testid="stSidebar"] [data-testid="stImage"]:nth-of-type(1) img {{
@@ -349,12 +314,13 @@ st.markdown(
         max-width: none !important;
         margin-left: -65px !important; /* Centers the oversized body */
     }}
+
+    
     
     </style>
     """,
     unsafe_allow_html=True,
 )
-
 
 
 # ============================================================
