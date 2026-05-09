@@ -14,7 +14,7 @@ Santiago Munoz, Vy Tran, Giovanni Victorio
 Long-term human spaceflight can expose astronauts to extreme conditions such as microgravity, radiation, and confined environments which can disrupt multiple biological systems. 
 
 <p align="center">
-  <img src="https://cdn.mos.cms.futurecdn.net/UnAJpoG9pf5UHEHx8xdGsS-1920-80.jpg.webp" width="500">
+  <img src="https://cdn.mos.cms.futurecdn.net/UnAJpoG9pf5UHEHx8xdGsS-1920-80.jpg.webp" width="700">
 </p>
 
 
