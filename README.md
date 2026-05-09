@@ -158,7 +158,7 @@ There are 2 ways to access or run the Astro_team4 Streamlit dashboard
 **Option 2 - Hosted Streamlit Deployment**
 
 Coming Soon
-Dashboard link
+Dashboard link:  http://10.10.80.62:8501
 QR Code
 
 
