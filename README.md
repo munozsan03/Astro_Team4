@@ -50,6 +50,26 @@ Our prototype addresses this challenge by integrating biomarker-based safety mon
 
 ---
 
+## Approach 
+
+## Approach
+
+Our prototype integrates biomarker-driven safety, efficacy, and resilience analysis into a unified visualization platform designed for long-duration spaceflight applications.
+
+Using longitudinal astronaut multi-omics datasets, the dashboard evaluates physiological changes associated with musculoskeletal degeneration, cardiovascular stress, immune dysregulation, and neurobiological adaptation throughout mission duration.
+
+The framework is organized into three primary analytical categories:
+
+- **Safety Monitoring** — evaluates biomarkers associated with adverse physiological responses and potential therapeutic toxicity.
+- **Efficacy Analysis** — evaluates biomarkers associated with therapeutic effectiveness and preservation of physiological function.
+- **Resilience Modeling** — evaluates recovery trajectory, adaptive response, and inter-crew physiological variability across mission timepoints.
+
+Biomarker trajectories are processed and visualized through an interactive Streamlit dashboard that allows users to explore astronaut health trends, therapeutic response indicators, and physiological risk signatures across multiple biological systems.
+
+The current prototype focuses on representative modules for bone density loss prevention, cardiotoxicity safety monitoring, and neurobiological resilience analysis while establishing a scalable framework for future biomarker integration and therapeutic evaluation.
+
+---
+
 ## Prototype Visuals
 
 The dashboard prototype visualizes astronaut health risks using biomarker-based safety, efficacy, and resilience scoring. These visuals are intended to demonstrate how mission biomarker data could support future therapeutic monitoring during long-duration spaceflight.
