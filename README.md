@@ -152,7 +152,7 @@ There are 2 ways to access or run the Astro_team4 Streamlit dashboard
 1. Clone the Github repository: git clone https://github.com/munozsan03/Astro_Team4.git, or download and extract ZIP file
 2. Using Command Prompt or Terminal, move into the project folder: cd ~/Astro_Team4
 3. Install Streamlit using Python: python -m pip install streamlit
-4. Make sure you are in directory that contains streamlit_app/
+4. Make sure you are in the directory that contains streamlit_app/
 5. Run the Streamlit dashboard: python -m streamlit run streamlit_app/app.py
 
 **Option 2 - Hosted Streamlit Deployment**
