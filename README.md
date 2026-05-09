@@ -62,6 +62,31 @@ The dashboard prototype visualizes astronaut health risks using biomarker-based 
 
 The current prototype focuses on three representative modules: one efficacy module, one safety module, and one resilience module.
 
+<table>
+<tr>
+<td align="center">
+<h3>Safety</h3>
+Cardiotoxicity<br>
+Inflammation<br>
+Immune Dysregulation
+</td>
+
+<td align="center">
+<h3>Efficacy</h3>
+Bone Density<br>
+Muscle Preservation<br>
+Neuroprotection
+</td>
+
+<td align="center">
+<h3>Resilience</h3>
+Recovery Trajectory<br>
+Crew Variability<br>
+Adaptation
+</td>
+</tr>
+</table>
+
 | Module | Category | Tests / Samples | Key Biomarkers |
 |--------|----------|-----------------|----------------|
 | **Bone Density Loss Prevention** | Efficacy | Blood Serum CMP, Plasma Proteomics, Urine Inflammation Panel, Plasma Metabolomics | BGLAP, SPARC, SPP1, SOST, Calcium, Alkaline Phosphatase, RANK, RANKL, BMP7, WNT16, FGF23, Ergocalciferol, Cortisol |
