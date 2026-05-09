@@ -71,7 +71,7 @@ The current prototype focuses on representative modules for bone density loss pr
 
 The dashboard prototype visualizes astronaut health risks using biomarker-based safety, efficacy, and resilience scoring. These visuals are intended to demonstrate how mission biomarker data could support future therapeutic monitoring during long-duration spaceflight.
 
-<img width="1895" height="519" alt="image" src="https://github.com/user-attachments/assets/c0bf30dd-9afa-4a03-affb-c15126971507" />
+<img width="500" height="700" alt="image" src="https://github.com/user-attachments/assets/c0bf30dd-9afa-4a03-affb-c15126971507" />
 
 
 ---
