@@ -1772,15 +1772,6 @@ if os.path.exists(_logo_path):
 st.sidebar.title("Astronaut Biomarker Therapeutic Testing")
 st.sidebar.markdown("---")
 
-# ── Human body illustration ────────────────────────────────
-_app_dir = os.path.dirname(os.path.abspath(__file__))
-_body_img_path = os.path.join(_app_dir, "human_body.png")
-if os.path.exists(_body_img_path):
-    # Note: We keep this one large as per your previous request
-    st.sidebar.image(_body_img_path, use_container_width=True)
-
-
-st.sidebar.markdown("---")
 st.sidebar.markdown("### 📋 View Module")
 
 module_options = [
@@ -1798,6 +1789,15 @@ selected_module = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 
+# ── Human body illustration ────────────────────────────────
+_app_dir = os.path.dirname(os.path.abspath(__file__))
+_body_img_path = os.path.join(_app_dir, "human_body.png")
+if os.path.exists(_body_img_path):
+    # Note: We keep this one large as per your previous request
+    st.sidebar.image(_body_img_path, use_container_width=True)
+
+st.sidebar.markdown("---")
+
 selected_cfg = CREW_CONFIG[st.session_state.selected_crew]
 st.sidebar.markdown(
     f"""
@@ -1809,7 +1809,7 @@ st.sidebar.markdown(
         font-weight: 700;
         font-size: {FONT_SIZES['sidebar_active_crew']};
         text-align: center;
-        margin-top: 4px;
+        margin-top: -100px;
     ">
         📡 Viewing: {selected_cfg['label']}<br>
         <span style="font-size:{FONT_SIZES['sidebar_active_crew_sub']}; font-weight:400; opacity:0.9;">
