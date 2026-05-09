@@ -23,6 +23,15 @@ These disruptions can lead to increased risk of:
 
 Terrestrial solutions to these risks include drug therapeutics that require clinical trials for safety and efficacy to be approved for human use. Evaluating potential drug therapeutics during long-term space travel for these risks will be challenging due to the lack of clinical trials in these extreme environments. Our tool targets future drug discovery validation in space missions that tackle issues of bone density loss, muscle atrophy, and neurodegeneration.
 
+In traditional clinical development:
+
+- **Phase I Clinical Trials** primarily evaluate drug safety, tolerability, and adverse physiological effects.
+- **Phase II Clinical Trials** primarily evaluate therapeutic efficacy and biological effectiveness.
+
+However, evaluating potential therapeutics during long-duration spaceflight presents major challenges due to the lack of validated clinical trial frameworks in microgravity and radiation-exposed environments.
+
+Our tool targets future drug discovery validation for long-duration space missions by monitoring biomarkers associated with bone density loss, muscle atrophy, neurodegeneration, safety risk, and physiological resilience.
+
 **Problem Statement**
 
 There are no validated frameworks for assessing drug safety and efficacy in microgravity environments, leaving astronauts on long-duration missions without evidence-based therapeutic options for progressive bone loss, muscle atrophy, and neurodegeneration.
