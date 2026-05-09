@@ -22,11 +22,11 @@ Long-term human spaceflight can expose astronauts to extreme conditions such as 
 These disruptions can lead to increased risk of:
 
 
--  Bone Density Loss
+-  Bone Density Loss, [Seen from this Nature Journal article](https://www.nature.com/articles/s41526-023-00256-5)
 
--  Muscle Atrophy
+-  Muscle Atrophy, [Seen from this Cells Journal article](https://www.mdpi.com/2073-4409/13/24/2120)
   
--  Neurobiological Degeneration
+-  Neurobiological Degeneration, [Seen from this Nature Journal article](https://www.nature.com/articles/s41598-021-88938-6)
 
 
 Terrestrial solutions to these risks include drug therapeutics that require clinical trials for safety and efficacy to be approved for human use. Evaluating therapeutic performance during long-duration spaceflight remains challenging due to the absence of validated clinical frameworks in microgravity environments.
