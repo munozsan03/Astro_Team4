@@ -1,6 +1,6 @@
 # Astro_Team4
 
-### Biomarker-Driven Therapeutic Evaluation for Long-Duration Spaceflight
+## Biomarker-Driven Therapeutic Evaluation for Long-Duration Spaceflight
 
 Teammates:
 Santiago Munoz, Vy Tran, Giovanni Victorio
