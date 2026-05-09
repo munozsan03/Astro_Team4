@@ -71,7 +71,8 @@ The current prototype focuses on representative modules for bone density loss pr
 
 The dashboard prototype visualizes astronaut health risks using biomarker-based safety, efficacy, and resilience scoring. These visuals are intended to demonstrate how mission biomarker data could support future therapeutic monitoring during long-duration spaceflight.
 
-<img width="1895" height="519" alt="image" src="https://github.com/user-attachments/assets/4e30a35f-527e-4da5-b5c1-0f6d451522ed" />
+<img width="1895" height="519" alt="image" src="https://github.com/user-attachments/assets/c0bf30dd-9afa-4a03-affb-c15126971507" />
+
 
 ---
 
@@ -123,7 +124,7 @@ The table below represents the idealized full biomarker panel for future expansi
 
 ## Accessing the Dashboard
 
-There are 3 ways to access or run the Astro_team4 Streamlit dashboard
+There are 2 ways to access or run the Astro_team4 Streamlit dashboard
 
 **Option 1 - Run Locally**
 
@@ -143,7 +144,6 @@ QR Code
 
 ---
 
----
 
 ## Additional Documentation
 
@@ -159,3 +159,6 @@ Please refer to:
 - `5. Cardiotoxicity Safety Scoring Methodology.md`
 - `6. Neurobiological Resilience Biomarker Justifications.md`
 - `7. Neurobiological Resilience Scoring Methodology.md`
+
+
+
