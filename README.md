@@ -5,24 +5,23 @@ Teammates:
 Santiago Munoz, Vy Tran, Giovanni Victorio
 
 
-## Proposal: 
 
-
-**Problem Background**
+## Problem Background:
 
 Long-term human spaceflight can expose astronauts to extreme conditions such as microgravity, radiation, and confined environments which can disrupt multiple biological systems. 
 
 <p align="center">
-  <img src="https://cdn.mos.cms.futurecdn.net/UnAJpoG9pf5UHEHx8xdGsS-1920-80.jpg.webp" width="700">
+  <img src="https://cdn.mos.cms.futurecdn.net/UnAJpoG9pf5UHEHx8xdGsS-1920-80.jpg.webp" width="500">
 </p>
+
 
 These disruptions can lead to increased risk of:
 
-- 🦴 Bone Density Loss
+-  Bone Density Loss
   
-- 💪 Muscle Atrophy
+-  Muscle Atrophy
   
-- 🧠 Neurobiological Degeneration
+-  Neurobiological Degeneration
 
 
 Terrestrial solutions to these risks include drug therapeutics that require clinical trials for safety and efficacy to be approved for human use. Evaluating potential drug therapeutics during long-term space travel for these risks will be challenging due to the lack of clinical trials in these extreme environments. Our tool targets future drug discovery validation in space missions that tackle issues of bone density loss, muscle atrophy, and neurodegeneration.
@@ -35,7 +34,7 @@ In traditional clinical development:
 However, evaluating potential therapeutics during long-duration spaceflight presents major challenges due to the lack of validated clinical trial frameworks in microgravity and radiation-exposed environments.
 
 
-**Problem Statement**
+## Clinical Motivation 
 
 There are no validated frameworks for assessing drug safety and efficacy in microgravity environments, leaving astronauts on long-duration missions without evidence-based therapeutic options for progressive bone loss, muscle atrophy, and neurodegeneration.
 
@@ -60,6 +59,7 @@ The dashboard prototype visualizes astronaut health risks using biomarker-based 
 
 <img width="1895" height="519" alt="image" src="https://github.com/user-attachments/assets/4e30a35f-527e-4da5-b5c1-0f6d451522ed" />
 
+
 ## Current Prototype Biomarker Panel
 
 The current prototype focuses on three representative modules: one efficacy module, one safety module, and one resilience module.
@@ -71,7 +71,7 @@ The current prototype focuses on three representative modules: one efficacy modu
 | **Neurobiological Resilience** | Resilience | Plasma Proteomics, Urine Inflammation Panel, Plasma Metabolomics | BDNF, GFAP, S100B, NRGN, CLU, APOE, NGF, CXCL10, Kynurenine:Tryptophan Ratio, 5-HIAA, N-Acetylaspartic Acid, Cortisol |
 
 
-## Full Biomarker Reference Panel
+## Full Biomarker Framework
 
 The table below represents the idealized full biomarker panel for future expansion of the prototype. It includes additional safety, efficacy, and resilience categories that could be incorporated as more datasets and validation methods become available.
 
@@ -95,6 +95,7 @@ The table below represents the idealized full biomarker panel for future expansi
 | **Neurological Resilience** | Resilience | Plasma Proteomics, Urine Inflammation Panel, Plasma Metabolomics | **Cross-crew comparison of neuro-inflammatory shift and recovery trajectory — Proteomics:** BDNF, GFAP, S100B, NRGN, CLU, APOE · **Urine Panel:** BDNF, GFAP, NGF, CXCL10 · **Metabolomics:** Kynurenine:Tryptophan Ratio, 5-HIAA, N-Acetylaspartic Acid, Cortisol, Nicotinamide |
 | **Microbiome Resilience** | Resilience | Stool Metagenomics, Skin Metagenomics | **Cross-crew comparison of diversity loss and post-flight recovery rate — Taxonomy:** Alpha diversity (Shannon index), Firmicutes:Bacteroidetes ratio, Lactobacillaceae abundance · **Functional (KEGG):** Butyrate synthesis pathway CPM, short-chain fatty acid biosynthesis · **Beta diversity:** Bray-Curtis dissimilarity from each astronaut's own preflight baseline |
 | **Musculoskeletal Resilience** | Resilience | Blood Serum (CMP), Plasma Proteomics, EVP Proteomics, Plasma Metabolomics | **Cross-crew comparison of muscle and bone marker trajectories — Proteomics:** FST, IGF1, NAMPT, BGLAP, SOST, SPP1, COL1A1/1A2, COMP · **CMP:** Creatinine, BUN:Creatinine Ratio, Calcium, Alkaline Phosphatase · **Metabolomics:** 3-Methylhistidine, Creatine, BCAAs (Leu/Ile/Val), Ergocalciferol (Vit D2), Cortisol |
+
 
 ## Accessing the Dashboard
 
