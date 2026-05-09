@@ -16,7 +16,7 @@ FONT_SIZES = {
     # Bone Density Loss Inhibitor Efficacy
     "heading_h2":               "22px",   # Section headings / <h2>4
     # Unused?
-    "heading_h3":               "64px",   # Sub-section headings / <h3>
+    "heading_h3":               "48px",   # Sub-section headings / <h3>
     # Proteomics (logFC)
 
     # ── Sidebar ───────────────────────────────────────────
@@ -47,36 +47,53 @@ FONT_SIZES = {
 
     # ── Tab / radio labels ────────────────────────────────
     "tab_label":                "15px",   # Tab button text
+    # Unused?
     "radio_label":              "15px",   # Sidebar radio options
+    # Unused?
 
     # ── Score bar — label row ─────────────────────────────
-    "score_bar_label":          "15px",   # Biomarker name
-    "score_bar_score":          "16px",   # "XX.X/100" number
-    "score_bar_raw_value":      "13px",   # "(logFC: +0.123)" inline note
+    "score_bar_label":          "32px",   # Biomarker name
+    # BGLAP (Osteocalcin)
+    "score_bar_score":          "32px",   # "XX.X/100" number
+    # 100.0/100
+    "score_bar_raw_value":      "24px",   # "(logFC: +0.123)" inline note
+    # (logFC: -0.001)
 
     # ── Score bar — badge chips ───────────────────────────
-    "score_bar_badge":          "11px",   # "⬆ high threshold" chip
-    "score_bar_avg_tag":        "11px",   # "⚠️ group avg" chip
+    "score_bar_badge":          "24px",   # "⬆ high threshold" chip
+    # low threshold
+    "score_bar_avg_tag":        "24px",   # "⚠️ group avg" chip
+    # group avg
 
     # ── Score bar — sub-text beneath the bar ─────────────
-    "score_bar_note":           "12px",   # Italic explanatory note
+    "score_bar_note":           "18px",   # Italic explanatory note
+    # Primary osteoblast-secreted bone ...
 
     # ── Neuro score bar extras ────────────────────────────
-    "neuro_crew_ref":           "12px",   # "📊 Crew mean = …" line
+    "neuro_crew_ref":           "16px",   # "📊 Crew mean = …" line
+    # Shared value across crew (in Neuro section only)
 
     # ── Total score summary card ──────────────────────────
-    "total_score_heading":      "20px",   # "Total Score" label
-    "total_score_number":       "32px",   # Big score number
-    "total_score_verdict":      "18px",   # "✅ Drug Efficacy Signal: POSITIVE"
-    "total_score_footnote":     "13px",   # Weighted composite footnote
+    "total_score_heading":      "64px",   # "Total Score" label
+    # Total score
+    "total_score_number":       "48px",   # Big score number
+    # 99.8/100
+    "total_score_verdict":      "32px",   # "✅ Drug Efficacy Signal: POSITIVE"
+    # Drug Efficacy Signal: ...
+    "total_score_footnote":     "24px",   # Weighted composite footnote
+    # Weighted composite across ...
 
     # ── Warning / alert banners ───────────────────────────
     "warning_banner":           "15px",   # st.warning() text
-    "averaged_warning":         "14px",   # ⚠️ "group avg" section banner
-    "alert_text":               "15px",   # Generic [data-testid="stAlert"] text
+    # Unused?
+    "averaged_warning":         "32px",   # ⚠️ "group avg" section banner
+    # Data averaged across all crew members
+    "alert_text":               "28px",   # Generic [data-testid="stAlert"] text
+    # Dataset Notice: The current cohort ...
 
     # ── "Data not available" fallback line ────────────────
-    "unavailable_label":        "14px",   # "biomarker — data not available"
+    "unavailable_label":        "64px",   # "biomarker — data not available"
+    # BDNF urine ratio, data not available (Neuro only)
 }
 
 
