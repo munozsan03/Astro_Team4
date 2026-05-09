@@ -8,6 +8,85 @@ import os
 # ============================================================
 st.set_page_config(page_title="Torchlight Health Dashboard", layout="wide")
 
+# ============================================================
+# GLOBAL TYPOGRAPHY & COLOR OVERRIDES
+# ============================================================
+st.markdown(
+    """
+    <style>
+    /* ── Base font size bump ─────────────────────────────── */
+    html, body, [class*="css"] {
+        font-size: 16px !important;
+    }
+
+    /* ── Sidebar labels & text ───────────────────────────── */
+    [data-testid="stSidebar"] * {
+        font-size: 15px !important;
+        color: #e8e8e8 !important;
+    }
+    [data-testid="stSidebar"] h1, 
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3 {
+        font-size: 18px !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+    }
+
+    /* ── Tab labels ──────────────────────────────────────── */
+    button[data-baseweb="tab"] p {
+        font-size: 15px !important;
+        font-weight: 600 !important;
+    }
+
+    /* ── Expander headers ────────────────────────────────── */
+    [data-testid="stExpander"] summary p {
+        font-size: 15px !important;
+        font-weight: 700 !important;
+        color: #111111 !important;
+    }
+
+    /* ── Main body text ──────────────────────────────────── */
+    .stMarkdown p {
+        font-size: 15px !important;
+        color: #1a1a1a !important;
+        line-height: 1.6 !important;
+    }
+
+    /* ── Warning / info banners ──────────────────────────── */
+    [data-testid="stAlert"] p {
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        color: #1a1a1a !important;
+    }
+
+    /* ── Page title (h1) ─────────────────────────────────── */
+    h1 {
+        font-size: 28px !important;
+        font-weight: 800 !important;
+        color: #0a0a0a !important;
+    }
+    h2 { font-size: 22px !important; font-weight: 700 !important; color: #111 !important; }
+    h3 { font-size: 18px !important; font-weight: 700 !important; color: #222 !important; }
+
+    /* ── Score bar biomarker labels (inline HTML) ────────── */
+    /* Applied via style= in the HTML blocks below */
+
+    /* ── Crew selector button strip (top of page) ────────── */
+    div.crew-selector-row button {
+        font-size: 15px !important;
+        font-weight: 700 !important;
+    }
+
+    /* ── Sidebar nav radio buttons ───────────────────────── */
+    [data-testid="stRadio"] label {
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        color: #f0f0f0 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 # ============================================================
 # DATA LOADING
@@ -16,11 +95,11 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "processed")
 
 @st.cache_data
 def load_data():
-    pp   = pd.read_csv(os.path.join(DATA_DIR, "plasma_proteomics.csv"))
-    met  = pd.read_csv(os.path.join(DATA_DIR, "plasma_metabolomics.csv"))
-    cmp  = pd.read_csv(os.path.join(DATA_DIR, "cmp_metabolic_panel.csv"))
-    card = pd.read_csv(os.path.join(DATA_DIR, "cardiac_cytokines_eve.csv"))
-    urine= pd.read_csv(os.path.join(DATA_DIR, "urine_inflammation_panel.csv"))
+    pp    = pd.read_csv(os.path.join(DATA_DIR, "plasma_proteomics.csv"))
+    met   = pd.read_csv(os.path.join(DATA_DIR, "plasma_metabolomics.csv"))
+    cmp   = pd.read_csv(os.path.join(DATA_DIR, "cmp_metabolic_panel.csv"))
+    card  = pd.read_csv(os.path.join(DATA_DIR, "cardiac_cytokines_eve.csv"))
+    urine = pd.read_csv(os.path.join(DATA_DIR, "urine_inflammation_panel.csv"))
     return pp, met, cmp, card, urine
 
 try:
@@ -30,19 +109,79 @@ except Exception as e:
     DATA_LOADED = False
     DATA_ERROR = str(e)
 
-
 # ============================================================
-# CREW MEMBER SELECTION — SESSION STATE
+# CREW CONFIGURATION
+# (Add a PNG file named crew_C001.png, crew_C002.png, etc.
+#  into the same folder as app.py — they will render here.)
 # ============================================================
 CREW_CONFIG = {
-    "C001": {"label": "Crew Member 1", "color": "#3b82f6", "hover": "#2563eb", "text": "#ffffff"},
-    "C002": {"label": "Crew Member 2", "color": "#10b981", "hover": "#059669", "text": "#ffffff"},
-    "C003": {"label": "Crew Member 3", "color": "#f59e0b", "hover": "#d97706", "text": "#ffffff"},
-    "C004": {"label": "Crew Member 4", "color": "#ef4444", "hover": "#dc2626", "text": "#ffffff"},
+    "C001": {
+        "label": "Crew Member 1",
+        "color": "#3b82f6", "hover": "#2563eb", "text": "#ffffff",
+        "age": 38, "sex": "Male",
+        "bio": (
+            "Commander. Former military test pilot with 2 prior ISS expeditions. "
+            "Experienced in long-duration microgravity physiology and EVA operations. "
+            "Exercises 90 min/day on ARED resistance system."
+        ),
+        "photo": "crew_C001.png",
+    },
+    "C002": {
+        "label": "Crew Member 2",
+        "color": "#10b981", "hover": "#059669", "text": "#ffffff",
+        "age": 34, "sex": "Female",
+        "bio": (
+            "Flight Engineer. Biomedical research specialist with background in space medicine. "
+            "First long-duration spaceflight. Primary operator of onboard laboratory equipment "
+            "and daily biomarker collection protocols."
+        ),
+        "photo": "crew_C002.png",
+    },
+    "C003": {
+        "label": "Crew Member 3",
+        "color": "#f59e0b", "hover": "#d97706", "text": "#ffffff",
+        "age": 41, "sex": "Male",
+        "bio": (
+            "Mission Specialist. Aerospace engineer with expertise in life-support systems. "
+            "Third spaceflight; prior experience on Lunar Gateway transition crew. "
+            "Participates in countermeasure exercise trials."
+        ),
+        "photo": "crew_C003.png",
+    },
+    "C004": {
+        "label": "Crew Member 4",
+        "color": "#ef4444", "hover": "#dc2626", "text": "#ffffff",
+        "age": 29, "sex": "Female",
+        "bio": (
+            "Payload Specialist. Neuroimmunology researcher on first spaceflight. "
+            "Focus on CNS adaptation and neuro-inflammatory biomarker collection. "
+            "Youngest crew member; high baseline physical fitness."
+        ),
+        "photo": "crew_C004.png",
+    },
 }
 
+# ============================================================
+# SESSION STATE — crew selection
+# ============================================================
 if "selected_crew" not in st.session_state:
     st.session_state.selected_crew = "C001"
+
+
+# ============================================================
+# DATASETS THAT ARE AVERAGED (no per-crew differentiation)
+# ============================================================
+# plasma_proteomics.csv  → single logFC per gene, averaged across all subjects
+# plasma_metabolomics.csv → single logFC per metabolite, averaged across all subjects
+#
+# These datasets do NOT change when you switch crew members.
+# A warning banner is shown on any section that relies solely on them.
+
+AVERAGED_DATASETS_NOTE = (
+    "⚠️ <b>Data averaged across all crew members</b> — "
+    "values shown here are group-level averages and do <b>not</b> change between crew members. "
+    "Per-individual proteomics/metabolomics were not available in this dataset."
+)
 
 
 # ============================================================
@@ -50,162 +189,179 @@ if "selected_crew" not in st.session_state:
 # ║   BONE EFFICACY — EDITABLE PARAMETERS & WEIGHTS         ║
 # ╚══════════════════════════════════════════════════════════╝
 BONE_BIOMARKER_PARAMS = {
-
-    # ── PROTEOMICS (logFC, flight vs. pre-flight) ───────────────────────────
-
     "BGLAP (Osteocalcin)": {
         "low": -0.5, "high": 2.0, "weight": 8, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Primary osteoblast-secreted bone matrix protein. Upregulation signals active bone formation. Only penalized when logFC drops below -0.5."
+        "note": "Primary osteoblast-secreted bone matrix protein. Upregulation signals active bone formation. Only penalized when logFC drops below -0.5.",
+        "averaged": True,
     },
     "SPARC (Osteonectin)": {
         "low": -0.5, "high": 2.0, "weight": 6, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Bone mineralization scaffolding protein. Higher expression supports matrix deposition. Only penalized when logFC drops below -0.5."
+        "note": "Bone mineralization scaffolding protein. Higher expression supports matrix deposition. Only penalized when logFC drops below -0.5.",
+        "averaged": True,
     },
     "SPP1 (Osteopontin — proteomics)": {
         "low": -2.0, "high": 0.75, "weight": 4, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "Osteopontin promotes osteoclast activity. Only penalized when logFC rises above +0.75."
+        "note": "Osteopontin promotes osteoclast activity. Only penalized when logFC rises above +0.75.",
+        "averaged": True,
     },
     "SOST (Sclerostin)": {
         "low": -2.0, "high": 0.5, "weight": 8, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "Sclerostin inhibits Wnt signaling and suppresses bone formation. Only penalized when logFC rises above +0.5."
+        "note": "Sclerostin inhibits Wnt signaling and suppresses bone formation. Only penalized when logFC rises above +0.5.",
+        "averaged": True,
     },
     "POSTN (Periostin)": {
         "low": -0.5, "high": 2.0, "weight": 5, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Periosteal bone formation marker. Only penalized when logFC drops below -0.5."
+        "note": "Periosteal bone formation marker. Only penalized when logFC drops below -0.5.",
+        "averaged": True,
     },
     "BGN (Biglycan)": {
         "low": -0.75, "high": 2.0, "weight": 4, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Bone matrix proteoglycan regulating collagen fibrillogenesis. Only penalized when logFC drops below -0.75."
+        "note": "Bone matrix proteoglycan regulating collagen fibrillogenesis. Only penalized when logFC drops below -0.75.",
+        "averaged": True,
     },
     "DCN (Decorin)": {
         "low": -0.75, "high": 2.0, "weight": 3, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Collagen-binding proteoglycan supporting structural bone matrix. Only penalized when logFC drops below -0.75."
+        "note": "Collagen-binding proteoglycan supporting structural bone matrix. Only penalized when logFC drops below -0.75.",
+        "averaged": True,
     },
     "COL1A1 (Collagen I α1)": {
         "low": -0.5, "high": 2.0, "weight": 7, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Primary structural collagen of bone. Only penalized when logFC drops below -0.5."
+        "note": "Primary structural collagen of bone. Only penalized when logFC drops below -0.5.",
+        "averaged": True,
     },
     "COL1A2 (Collagen I α2)": {
         "low": -0.5, "high": 2.0, "weight": 5, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Partners with COL1A1 to form mature type-I collagen triple helix. Only penalized when logFC drops below -0.5."
+        "note": "Partners with COL1A1 to form mature type-I collagen triple helix. Only penalized when logFC drops below -0.5.",
+        "averaged": True,
     },
     "SFRP2 (Wnt modulator)": {
         "low": -1.0, "high": 1.5, "weight": 4, "higher_is_better": True,
         "threshold_type": "both",
-        "note": "SFRP2 facilitates Wnt signaling in bone; mild upregulation is supportive but excessive dysregulation becomes inhibitory. Penalized below -1.0 and above +1.5."
+        "note": "SFRP2 facilitates Wnt signaling in bone; mild upregulation is supportive but excessive dysregulation becomes inhibitory. Penalized below -1.0 and above +1.5.",
+        "averaged": True,
     },
     "SFRP4 (Wnt modulator)": {
         "low": -2.0, "high": 0.5, "weight": 3, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "SFRP4 inhibits Wnt signaling and is associated with osteoporosis. Only penalized when logFC rises above +0.5."
+        "note": "SFRP4 inhibits Wnt signaling and is associated with osteoporosis. Only penalized when logFC rises above +0.5.",
+        "averaged": True,
     },
     "MGP (Matrix Gla Protein)": {
         "low": -2.0, "high": 0.75, "weight": 3, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "MGP inhibits mineralization when elevated. Only penalized when logFC rises above +0.75."
+        "note": "MGP inhibits mineralization when elevated. Only penalized when logFC rises above +0.75.",
+        "averaged": True,
     },
     "ADIPOQ (Adiponectin)": {
         "low": -1.0, "high": 2.0, "weight": 3, "higher_is_better": True,
         "threshold_type": "both",
-        "note": "Adiponectin promotes osteoblast differentiation. Moderate elevation is protective; penalized below -1.0 and above +2.0."
+        "note": "Adiponectin promotes osteoblast differentiation. Moderate elevation is protective; penalized below -1.0 and above +2.0.",
+        "averaged": True,
     },
-
-    # ── CMP — SERUM CHEMISTRY (post-flight / pre-flight ratio) ──────────────
-
     "Calcium (CMP ratio)": {
         "low": 0.90, "high": 1.10, "weight": 6, "higher_is_better": True,
         "threshold_type": "both",
-        "note": "Serum calcium must stay balanced. Ratio < 0.90 suggests hypocalcemia; ratio > 1.10 may indicate hypercalcemia. Penalized at both extremes."
+        "note": "Serum calcium must stay balanced. Ratio < 0.90 suggests hypocalcemia; ratio > 1.10 may indicate hypercalcemia. Penalized at both extremes.",
+        "averaged": False,
     },
     "Alkaline Phosphatase (CMP ratio)": {
         "low": 0.80, "high": 1.40, "weight": 5, "higher_is_better": True,
         "threshold_type": "both",
-        "note": "Alk Phos reflects osteoblast activity. Modest elevation is favorable; ratio > 1.4 may indicate liver stress or excessive turnover; ratio < 0.80 suggests suppressed osteoblasts."
+        "note": "Alk Phos reflects osteoblast activity. Modest elevation is favorable; ratio > 1.4 may indicate liver stress or excessive turnover; ratio < 0.80 suggests suppressed osteoblasts.",
+        "averaged": False,
     },
-
-    # ── URINE INFLAMMATION PANEL (post-flight / pre-flight ratio, npq) ──────
-
     "RANKL (urine ratio)": {
         "low": 0.80, "high": 1.25, "weight": 7, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "RANKL drives osteoclastogenesis. Elevated post-flight ratio signals continued bone resorption stimulus. Only penalized when ratio rises above 1.25."
+        "note": "RANKL drives osteoclastogenesis. Elevated post-flight ratio signals continued bone resorption stimulus. Only penalized when ratio rises above 1.25.",
+        "averaged": False,
     },
     "RANK (urine ratio)": {
         "low": 0.80, "high": 1.25, "weight": 4, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "RANK receptor expression on osteoclast precursors. Only penalized when ratio rises above 1.25."
+        "note": "RANK receptor expression on osteoclast precursors. Only penalized when ratio rises above 1.25.",
+        "averaged": False,
     },
     "BMP7 (urine ratio)": {
         "low": 0.90, "high": 2.0, "weight": 5, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "BMP7 promotes osteoblast differentiation. Higher post-flight ratio is protective. Only penalized when ratio drops below 0.90."
+        "note": "BMP7 promotes osteoblast differentiation. Higher post-flight ratio is protective. Only penalized when ratio drops below 0.90.",
+        "averaged": False,
     },
     "WNT16 (urine ratio)": {
         "low": 0.90, "high": 2.0, "weight": 5, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "WNT16 suppresses osteoclastogenesis and supports cortical bone integrity. Only penalized when ratio drops below 0.90."
+        "note": "WNT16 suppresses osteoclastogenesis and supports cortical bone integrity. Only penalized when ratio drops below 0.90.",
+        "averaged": False,
     },
     "FGF23 (urine ratio)": {
         "low": 0.80, "high": 1.20, "weight": 4, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "FGF23 inhibits Vitamin D activation and phosphate reabsorption. Only penalized when ratio rises above 1.20."
+        "note": "FGF23 inhibits Vitamin D activation and phosphate reabsorption. Only penalized when ratio rises above 1.20.",
+        "averaged": False,
     },
     "IL-6 (urine ratio)": {
         "low": 0.80, "high": 1.30, "weight": 5, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "IL-6 activates osteoclasts and drives bone loss. Only penalized when ratio rises above 1.30."
+        "note": "IL-6 activates osteoclasts and drives bone loss. Only penalized when ratio rises above 1.30.",
+        "averaged": False,
     },
     "IL-17A (urine ratio)": {
         "low": 0.80, "high": 1.25, "weight": 4, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "IL-17A stimulates osteoclast differentiation and inflammatory bone loss. Only penalized when ratio rises above 1.25."
+        "note": "IL-17A stimulates osteoclast differentiation and inflammatory bone loss. Only penalized when ratio rises above 1.25.",
+        "averaged": False,
     },
     "TGF-β1 (urine ratio)": {
         "low": 0.80, "high": 1.60, "weight": 3, "higher_is_better": True,
         "threshold_type": "both",
-        "note": "TGF-β1 is pleiotropic: modest elevation supports bone formation coupling, but very high levels can promote resorption/fibrosis imbalance. Penalized below 0.80 and above 1.60."
+        "note": "TGF-β1 is pleiotropic: modest elevation supports bone formation coupling, but very high levels can promote resorption/fibrosis imbalance. Penalized below 0.80 and above 1.60.",
+        "averaged": False,
     },
-
-    # ── METABOLOMICS (logFC, flight vs. pre-flight) ──────────────────────────
-
     "Vitamin D2 (Ergocalciferol)": {
         "low": -0.5, "high": 2.0, "weight": 6, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Vitamin D is essential for calcium absorption and bone mineralization. Only penalized when logFC drops below -0.5."
+        "note": "Vitamin D is essential for calcium absorption and bone mineralization. Only penalized when logFC drops below -0.5.",
+        "averaged": True,
     },
     "Cortisol (metabolomics)": {
         "low": -2.0, "high": 0.75, "weight": 5, "higher_is_better": False,
         "threshold_type": "high",
-        "note": "Chronic cortisol elevation suppresses osteoblasts and promotes bone loss. Only penalized when logFC rises above +0.75."
+        "note": "Chronic cortisol elevation suppresses osteoblasts and promotes bone loss. Only penalized when logFC rises above +0.75.",
+        "averaged": True,
     },
     "Proline": {
         "low": -1.0, "high": 2.0, "weight": 3, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Proline is a primary amino acid in collagen. Only penalized when logFC drops below -1.0."
+        "note": "Proline is a primary amino acid in collagen. Only penalized when logFC drops below -1.0.",
+        "averaged": True,
     },
     "Glycine": {
         "low": -1.0, "high": 2.0, "weight": 3, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Glycine is the most abundant amino acid in collagen. Only penalized when logFC drops below -1.0."
+        "note": "Glycine is the most abundant amino acid in collagen. Only penalized when logFC drops below -1.0.",
+        "averaged": True,
     },
     "Lysine": {
         "low": -1.0, "high": 2.0, "weight": 3, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Lysine is essential for collagen cross-linking. Only penalized when logFC drops below -1.0."
+        "note": "Lysine is essential for collagen cross-linking. Only penalized when logFC drops below -1.0.",
+        "averaged": True,
     },
     "Citric Acid": {
         "low": -1.0, "high": 2.0, "weight": 2, "higher_is_better": True,
         "threshold_type": "low",
-        "note": "Citrate is incorporated into bone mineral crystals. Only penalized when logFC drops below -1.0."
+        "note": "Citrate is incorporated into bone mineral crystals. Only penalized when logFC drops below -1.0.",
+        "averaged": True,
     },
 }
 
@@ -213,17 +369,11 @@ BONE_BIOMARKER_PARAMS = {
 # ============================================================
 # ╔══════════════════════════════════════════════════════════╗
 # ║   NEURO RESILIENCE — EDITABLE PARAMETERS & WEIGHTS      ║
-# ║                                                          ║
-# ║   NOTE: low/high thresholds are NOT hardcoded here.     ║
-# ║   They are computed at runtime as crew mean ± 1 SD,     ║
-# ║   so each crew member is scored relative to the group.  ║
 # ╚══════════════════════════════════════════════════════════╝
 NEURO_BIOMARKER_PARAMS = {
-
-    # ── PROTEOMICS (logFC, flight vs. pre-flight) ───────────────────────────
-
     "BDNF (Brain-Derived Neurotrophic Factor)": {
         "weight": 8, "higher_is_better": True, "threshold_type": "low",
+        "averaged": True,
         "note": (
             "BDNF is the primary neuroprotective growth factor, supporting neuronal survival, "
             "synaptic plasticity, and cognitive resilience. Suppression during spaceflight indicates "
@@ -233,6 +383,7 @@ NEURO_BIOMARKER_PARAMS = {
     },
     "S100B (Astrocyte Damage Marker)": {
         "weight": 7, "higher_is_better": False, "threshold_type": "high",
+        "averaged": True,
         "note": (
             "S100B is released by astrocytes upon cellular stress or damage, indicating neuroglial "
             "injury and blood-brain barrier disruption. Scored against crew average: penalized when "
@@ -241,6 +392,7 @@ NEURO_BIOMARKER_PARAMS = {
     },
     "NRGN (Neurogranin — Synaptic Marker)": {
         "weight": 6, "higher_is_better": False, "threshold_type": "high",
+        "averaged": True,
         "note": (
             "Neurogranin is released from dendritic spines during synaptic damage. Elevated plasma "
             "neurogranin indicates loss of synaptic integrity. Scored against crew average: penalized "
@@ -249,6 +401,7 @@ NEURO_BIOMARKER_PARAMS = {
     },
     "CLU (Clusterin — Neuroprotective Chaperone)": {
         "weight": 4, "higher_is_better": True, "threshold_type": "low",
+        "averaged": True,
         "note": (
             "Clusterin clears misfolded proteins and supports neuronal survival under stress. Mild "
             "upregulation is a neuroprotective compensatory response. Scored against crew average: "
@@ -257,6 +410,7 @@ NEURO_BIOMARKER_PARAMS = {
     },
     "APOE (Apolipoprotein E — CNS Lipid Transport)": {
         "weight": 4, "higher_is_better": True, "threshold_type": "both",
+        "averaged": True,
         "note": (
             "APOE mediates lipid transport and synaptic membrane repair. Moderate upregulation is "
             "beneficial; excessive dysregulation in either direction reflects abnormal lipid metabolism. "
@@ -264,11 +418,9 @@ NEURO_BIOMARKER_PARAMS = {
             "direction from the crew mean."
         ),
     },
-
-    # ── URINE INFLAMMATION PANEL (post-flight / pre-flight ratio, npq) ──────
-
     "BDNF (urine ratio)": {
         "weight": 7, "higher_is_better": True, "threshold_type": "low",
+        "averaged": False,
         "note": (
             "Urinary BDNF reflects ongoing neurotrophin secretion. A maintained or elevated post-flight "
             "ratio indicates a preserved neurotrophic response. Scored against crew average: penalized "
@@ -277,6 +429,7 @@ NEURO_BIOMARKER_PARAMS = {
     },
     "GFAP (Glial Fibrillary Acidic Protein — urine ratio)": {
         "weight": 6, "higher_is_better": False, "threshold_type": "high",
+        "averaged": False,
         "note": (
             "GFAP is released by reactive astrocytes following CNS injury or neuroinflammation. "
             "Elevated post-flight GFAP signals sustained glial activation. Scored against crew average: "
@@ -285,6 +438,7 @@ NEURO_BIOMARKER_PARAMS = {
     },
     "NGF (Nerve Growth Factor — urine ratio)": {
         "weight": 5, "higher_is_better": True, "threshold_type": "low",
+        "averaged": False,
         "note": (
             "NGF is essential for neuron survival and axonal maintenance. Higher post-flight NGF "
             "supports regenerative processes. Scored against crew average: penalized when ratio falls "
@@ -293,17 +447,16 @@ NEURO_BIOMARKER_PARAMS = {
     },
     "CXCL10 (IP-10 — Neuroinflammatory Chemokine — urine ratio)": {
         "weight": 5, "higher_is_better": False, "threshold_type": "high",
+        "averaged": False,
         "note": (
             "CXCL10 drives neuroinflammatory T-cell recruitment and microglial activation. Elevated "
             "post-flight CXCL10 reflects ongoing CNS inflammatory signaling. Scored against crew "
             "average: penalized when ratio rises more than 1 SD above the crew mean."
         ),
     },
-
-    # ── METABOLOMICS (logFC, flight vs. pre-flight) ──────────────────────────
-
     "Kynurenine (Neuro-Inflammatory Pathway)": {
         "weight": 6, "higher_is_better": False, "threshold_type": "high",
+        "averaged": True,
         "note": (
             "Kynurenine is a neurotoxic tryptophan catabolite that drives neuroinflammation. High "
             "kynurenine diverts tryptophan away from serotonin synthesis toward quinolinic acid, an "
@@ -313,6 +466,7 @@ NEURO_BIOMARKER_PARAMS = {
     },
     "Tryptophan (Serotonin Precursor)": {
         "weight": 5, "higher_is_better": True, "threshold_type": "low",
+        "averaged": True,
         "note": (
             "Tryptophan is the sole precursor for serotonin and melatonin. Depletion indicates shunting "
             "toward the inflammatory kynurenine pathway and impaired mood/sleep neurochemistry. Scored "
@@ -321,6 +475,7 @@ NEURO_BIOMARKER_PARAMS = {
     },
     "5-HIAA (Serotonin Metabolite)": {
         "weight": 5, "higher_is_better": True, "threshold_type": "low",
+        "averaged": True,
         "note": (
             "5-HIAA is the primary serotonin metabolite, reflecting active serotonergic "
             "neurotransmission. Suppressed 5-HIAA indicates reduced serotonin turnover and potential "
@@ -330,6 +485,7 @@ NEURO_BIOMARKER_PARAMS = {
     },
     "Kynurenine:Tryptophan Ratio (K:T Ratio)": {
         "weight": 7, "higher_is_better": False, "threshold_type": "high",
+        "averaged": True,
         "note": (
             "The K:T ratio is the gold-standard index of IDO1 enzyme activation and neuroinflammatory "
             "tryptophan shunting. An elevated ratio indicates preferential routing into the neurotoxic "
@@ -339,6 +495,7 @@ NEURO_BIOMARKER_PARAMS = {
     },
     "N-Acetylaspartic Acid (NAA — Neuronal Viability)": {
         "weight": 6, "higher_is_better": True, "threshold_type": "low",
+        "averaged": True,
         "note": (
             "NAA is synthesized exclusively in neurons. Circulating NAA reduction reflects neuronal "
             "metabolic compromise and impaired mitochondrial function. Scored against crew average: "
@@ -347,6 +504,7 @@ NEURO_BIOMARKER_PARAMS = {
     },
     "Cortisol (Neuro — HPA Axis Activation)": {
         "weight": 6, "higher_is_better": False, "threshold_type": "high",
+        "averaged": True,
         "note": (
             "Chronic HPA axis activation suppresses hippocampal neurogenesis, impairs synaptic "
             "plasticity, and downregulates BDNF. Elevated flight cortisol is a key driver of "
@@ -356,6 +514,7 @@ NEURO_BIOMARKER_PARAMS = {
     },
     "Nicotinamide (NAD+ Precursor — Neuroprotection)": {
         "weight": 4, "higher_is_better": True, "threshold_type": "low",
+        "averaged": True,
         "note": (
             "Nicotinamide supports NAD+ biosynthesis, essential for neuronal energy metabolism, DNA "
             "repair, and sirtuin-mediated neuroprotection. Depletion indicates impaired NAD+ "
@@ -367,140 +526,388 @@ NEURO_BIOMARKER_PARAMS = {
 
 
 # ============================================================
-# BONE SCORE ENGINE  (shared with neuro)
+# CARDIOTOXICITY PARAMETERS
+# ============================================================
+CARDIO_BIOMARKER_PARAMS = {
+    "CRP (C-Reactive Protein)": {
+        "low": 1.0, "high": 1.5, "weight": 15,
+        "threshold_type": "high", "averaged": False,
+        "note": (
+            "Canonical systemic inflammation marker directly linked to endothelial dysfunction "
+            "and cardiovascular risk. A post/pre ratio above 1.5 (50% elevation) represents "
+            "clinically meaningful persistent inflammation. Weight 15 — highest priority marker."
+        ),
+    },
+    "PF4 (Platelet Factor 4)": {
+        "low": 1.0, "high": 1.5, "weight": 15,
+        "threshold_type": "high", "averaged": False,
+        "note": (
+            "Platelet activation marker directly linked to thrombotic activity and clotting potential. "
+            "PF4 elevation during spaceflight indicates platelet hyper-reactivity and elevated "
+            "thromboembolism risk. Weight 15 — co-primary marker alongside CRP."
+        ),
+    },
+    "Fibrinogen": {
+        "low": 1.0, "high": 1.5, "weight": 12,
+        "threshold_type": "high", "averaged": False,
+        "note": (
+            "Coagulation-associated acute phase protein. Elevated fibrinogen increases blood viscosity "
+            "and thrombosis risk, compounding cardiovascular strain in microgravity. "
+            "Ratio above 1.5 reflects sustained coagulation activation."
+        ),
+    },
+    "Fetuin-A": {
+        "low": 0.75, "high": 1.30, "weight": 12,
+        "threshold_type": "both", "averaged": False,
+        "note": (
+            "Modulates vascular calcification and metabolic regulation. Both depletion (loss of "
+            "calcification inhibition, risk of vascular mineralization) and elevation (impaired "
+            "insulin signaling, metabolic cardiovascular stress) are concerning. "
+            "Penalized when ratio falls below 0.75 or rises above 1.30."
+        ),
+    },
+    "Haptoglobin": {
+        "low": 1.0, "high": 1.5, "weight": 10,
+        "threshold_type": "high", "averaged": False,
+        "note": (
+            "Hemoglobin scavenging protein reflecting oxidative vascular stress and radiation "
+            "response. Elevated haptoglobin post-flight indicates increased hemolysis and "
+            "oxidative burden on the vascular endothelium."
+        ),
+    },
+    "L-Selectin (CD62L)": {
+        "low": 0.70, "high": 1.40, "weight": 10,
+        "threshold_type": "both", "averaged": False,
+        "note": (
+            "Regulates leukocyte adhesion and immune-endothelial activation. Both shedding "
+            "(loss of immune surveillance, ratio < 0.70) and excessive upregulation "
+            "(systemic endothelial activation, ratio > 1.40) indicate vascular dysfunction. "
+            "Penalized at both extremes."
+        ),
+    },
+    "SAP (Serum Amyloid P Component)": {
+        "low": 1.0, "high": 1.5, "weight": 10,
+        "threshold_type": "high", "averaged": False,
+        "note": (
+            "Reflects persistent systemic inflammatory burden and tissue remodeling activity. "
+            "Elevated SAP is associated with chronic inflammation and extracellular matrix "
+            "pathology relevant to vascular wall integrity."
+        ),
+    },
+    "Alpha-2-Macroglobulin (A2M)": {
+        "low": 0.75, "high": 1.40, "weight": 8,
+        "threshold_type": "both", "averaged": False,
+        "note": (
+            "Regulates protease activity across multiple vascular and inflammatory cascades. "
+            "Both suppression (unregulated protease activity, endothelial degradation) and "
+            "excessive elevation (impaired protease clearance, chronic signaling dysregulation) "
+            "negatively affect vascular homeostasis. Penalized at both extremes."
+        ),
+    },
+    "AGP (Alpha-1-Acid Glycoprotein)": {
+        "low": 1.0, "high": 1.5, "weight": 8,
+        "threshold_type": "high", "averaged": False,
+        "note": (
+            "Correlates with chronic systemic inflammation and cardiovascular risk. AGP is an "
+            "acute phase reactant that rises with sustained inflammatory activation, indicating "
+            "ongoing vascular and immune stress."
+        ),
+    },
+    "VWF (Von Willebrand Factor — proteomics)": {
+        "low": -2.0, "high": 0.75, "weight": 9,
+        "threshold_type": "high", "averaged": True,
+        "note": (
+            "VWF is a key mediator of platelet adhesion and endothelial stress response. "
+            "Elevated VWF logFC reflects endothelial activation and dysfunction, directly "
+            "increasing thrombosis risk. Only penalized when logFC rises above +0.75."
+        ),
+    },
+    "SERPINE1 / PAI-1 (Fibrinolysis Inhibitor — proteomics)": {
+        "low": -2.0, "high": 0.75, "weight": 7,
+        "threshold_type": "high", "averaged": True,
+        "note": (
+            "PAI-1 is the primary inhibitor of fibrinolysis (clot dissolution). Elevated "
+            "SERPINE1 logFC means clots are less efficiently cleared, increasing risk of "
+            "sustained thrombosis and cardiovascular events. Only penalized when logFC rises above +0.75."
+        ),
+    },
+}
+
+
+# ============================================================
+# SCORE ENGINES
 # ============================================================
 
 def score_biomarker(value, low, high, higher_is_better, threshold_type="both"):
     if value is None:
         return None
-
-    span = high - low
+    span = max(high - low, 1e-9)
 
     if threshold_type == "low":
-        if higher_is_better:
-            if value >= low:
-                return 100.0
-            score = (value - (low - span)) / span * 100
-        else:
-            if value >= low:
-                return 100.0
-            score = (value - (low - span)) / span * 100
+        if value >= low:
+            return 100.0
+        return float(np.clip((value - (low - span)) / span * 100, 0, 100))
 
     elif threshold_type == "high":
-        if not higher_is_better:
-            if value <= high:
-                return 100.0
-            score = ((high + span) - value) / span * 100
-        else:
-            if value <= high:
-                return 100.0
-            score = ((high + span) - value) / span * 100
+        if value <= high:
+            return 100.0
+        return float(np.clip(((high + span) - value) / span * 100, 0, 100))
 
     else:  # "both"
         if low <= value <= high:
             return 100.0
         elif value < low:
-            score = (value - (low - span)) / span * 100
+            return float(np.clip((value - (low - span)) / span * 100, 0, 100))
         else:
-            score = ((high + span) - value) / span * 100
-
-    return float(np.clip(score, 0, 100))
+            return float(np.clip(((high + span) - value) / span * 100, 0, 100))
 
 
-def render_score_bar(label, score, note, threshold_type="both", data_value=None, data_label="value"):
+def score_cardio_biomarker(value, low, high, threshold_type="high"):
+    if value is None:
+        return None
+    span = max(high - low, 1e-9)
+
+    if threshold_type == "high":
+        if value <= low:
+            return 0.0
+        elif value >= high:
+            return 100.0
+        return float((value - low) / span * 100)
+
+    elif threshold_type == "low":
+        if value >= high:
+            return 0.0
+        elif value <= low:
+            return 100.0
+        return float((high - value) / span * 100)
+
+    else:  # "both"
+        if low <= value <= high:
+            return 0.0
+        elif value < low:
+            return float(np.clip((low - value) / span * 100, 0, 100))
+        else:
+            return float(np.clip((value - high) / span * 100, 0, 100))
+
+
+# ============================================================
+# RENDER HELPERS
+# ============================================================
+
+def _averaged_warning_html():
+    return (
+        f"<div style='background:#fff3cd; border:2px solid #f59e0b; border-radius:8px; "
+        f"padding:10px 14px; margin:10px 0 14px 0; font-size:14px; color:#7d4e00; font-weight:600;'>"
+        f"⚠️ <b>Data averaged across all crew members</b> — values in this section are "
+        f"group-level averages from <code>plasma_proteomics.csv</code> or "
+        f"<code>plasma_metabolomics.csv</code> and do <b>not</b> change between crew members."
+        f"</div>"
+    )
+
+
+def render_score_bar(label, score, note, threshold_type="both", data_value=None,
+                     data_label="value", is_averaged=False):
     if score is None:
-        st.markdown(f"**{label}** — *data not available*")
+        st.markdown(
+            f"<div style='font-size:14px; color:#555; margin-bottom:8px;'>"
+            f"<b>{label}</b> — <i>data not available</i></div>",
+            unsafe_allow_html=True,
+        )
         return
 
     if score >= 60:
-        bar_color = "#2ecc71"
-        text_color = "#1a5e35"
+        bar_color, text_color = "#1db954", "#0a4522"
     elif score >= 40:
-        bar_color = "#f39c12"
-        text_color = "#7d4e00"
+        bar_color, text_color = "#f59e0b", "#5c3800"
     else:
-        bar_color = "#e74c3c"
-        text_color = "#6e1a1a"
-
-    bar_pct = score
+        bar_color, text_color = "#dc2626", "#5c0a0a"
 
     raw_display = ""
     if data_value is not None:
-        raw_display = f"<span style='font-size:12px; color:#888;'>({data_label}: {data_value:+.3f})</span>"
+        raw_display = (
+            f"<span style='font-size:13px; color:#555; font-weight:500;'>"
+            f"({data_label}: {data_value:+.3f})</span>"
+        )
 
     badge_styles = {
-        "low":  ("⬇ low threshold",  "#d4edff", "#0066aa"),
-        "high": ("⬆ high threshold", "#fde8e8", "#aa0000"),
-        "both": ("↕ both thresholds", "#f0e8fd", "#6600aa"),
+        "low":  ("⬇ low threshold",   "#cce5ff", "#004085"),
+        "high": ("⬆ high threshold",  "#f8d7da", "#721c24"),
+        "both": ("↕ both thresholds", "#e8d5f7", "#4b0082"),
     }
-    badge_text, badge_bg, badge_fg = badge_styles.get(
-        threshold_type, ("threshold", "#eee", "#333")
-    )
+    badge_text, badge_bg, badge_fg = badge_styles.get(threshold_type, ("threshold", "#eee", "#333"))
     badge_html = (
-        f"<span style='font-size:10px; background:{badge_bg}; color:{badge_fg}; "
-        f"border-radius:4px; padding:1px 5px; margin-left:6px; "
-        f"font-weight:600; vertical-align:middle;'>{badge_text}</span>"
+        f"<span style='font-size:11px; background:{badge_bg}; color:{badge_fg}; "
+        f"border-radius:4px; padding:2px 6px; margin-left:6px; "
+        f"font-weight:700; vertical-align:middle;'>{badge_text}</span>"
     )
+
+    avg_tag = ""
+    if is_averaged:
+        avg_tag = (
+            "<span style='font-size:11px; background:#fff3cd; color:#7d4e00; "
+            "border-radius:4px; padding:2px 6px; margin-left:6px; "
+            "font-weight:700; vertical-align:middle;'>⚠️ group avg</span>"
+        )
 
     st.markdown(
         f"""
-        <div style="margin-bottom: 10px;">
-          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px;">
-            <span style="font-weight:600; font-size:14px;">{label}{badge_html}</span>
-            <span style="font-weight:700; color:{text_color}; font-size:15px;">
+        <div style="margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
+            <span style="font-weight:700; font-size:15px; color:#111;">{label}{badge_html}{avg_tag}</span>
+            <span style="font-weight:800; color:{text_color}; font-size:16px;">
               {score:.1f}/100 &nbsp; {raw_display}
             </span>
           </div>
-          <div style="background:#e0e0e0; border-radius:6px; height:14px; width:100%;">
-            <div style="background:{bar_color}; width:{bar_pct}%; height:14px; border-radius:6px; transition: width 0.4s;"></div>
+          <div style="background:#d0d0d0; border-radius:6px; height:16px; width:100%;">
+            <div style="background:{bar_color}; width:{score}%; height:16px; border-radius:6px; transition:width 0.4s;"></div>
           </div>
-          <div style="font-size:11px; color:#777; margin-top:2px; font-style:italic;">{note}</div>
+          <div style="font-size:12px; color:#444; margin-top:3px; font-style:italic; line-height:1.5;">{note}</div>
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
+    )
+
+
+def render_cardio_score_bar(label, score, note, threshold_type, data_value,
+                             data_label, is_averaged=False):
+    if score is None:
+        st.markdown(
+            f"<div style='font-size:14px; color:#555; margin-bottom:8px;'>"
+            f"<b>{label}</b> — <i>data not available</i></div>",
+            unsafe_allow_html=True,
+        )
+        return
+
+    if score < 35:
+        bar_color, text_color = "#1db954", "#0a4522"
+    elif score < 65:
+        bar_color, text_color = "#f59e0b", "#5c3800"
+    else:
+        bar_color, text_color = "#dc2626", "#5c0a0a"
+
+    raw_display = ""
+    if data_value is not None:
+        raw_display = (
+            f"<span style='font-size:13px; color:#555; font-weight:500;'>"
+            f"({data_label}: {data_value:+.3f})</span>"
+        )
+
+    badge_styles = {
+        "low":  ("⬇ low threshold",   "#cce5ff", "#004085"),
+        "high": ("⬆ high threshold",  "#f8d7da", "#721c24"),
+        "both": ("↕ both thresholds", "#e8d5f7", "#4b0082"),
+    }
+    badge_text, badge_bg, badge_fg = badge_styles.get(threshold_type, ("threshold", "#eee", "#333"))
+    badge_html = (
+        f"<span style='font-size:11px; background:{badge_bg}; color:{badge_fg}; "
+        f"border-radius:4px; padding:2px 6px; margin-left:6px; "
+        f"font-weight:700; vertical-align:middle;'>{badge_text}</span>"
+    )
+
+    avg_tag = ""
+    if is_averaged:
+        avg_tag = (
+            "<span style='font-size:11px; background:#fff3cd; color:#7d4e00; "
+            "border-radius:4px; padding:2px 6px; margin-left:6px; "
+            "font-weight:700; vertical-align:middle;'>⚠️ group avg</span>"
+        )
+
+    st.markdown(
+        f"""
+        <div style="margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
+            <span style="font-weight:700; font-size:15px; color:#111;">{label}{badge_html}{avg_tag}</span>
+            <span style="font-weight:800; color:{text_color}; font-size:16px;">
+              {score:.1f}/100 risk &nbsp; {raw_display}
+            </span>
+          </div>
+          <div style="background:#d0d0d0; border-radius:6px; height:16px; width:100%;">
+            <div style="background:{bar_color}; width:{score}%; height:16px;
+                        border-radius:6px; transition:width 0.4s;"></div>
+          </div>
+          <div style="font-size:12px; color:#444; margin-top:3px; font-style:italic; line-height:1.5;">{note}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
 
 def render_total_score_bar(score, n_biomarkers, domain_label="Drug Efficacy"):
     if score >= 60:
-        bar_color = "#27ae60"
-        label_color = "#1a5e35"
+        bar_color, label_color = "#1db954", "#0a4522"
         verdict = f"✅ {domain_label} Signal: POSITIVE"
-        verdict_color = "#1a5e35"
+        verdict_color = "#0a4522"
     elif score >= 40:
-        bar_color = "#e67e22"
-        label_color = "#7d4e00"
+        bar_color, label_color = "#f59e0b", "#5c3800"
         verdict = f"⚠️ {domain_label} Signal: UNCERTAIN"
-        verdict_color = "#7d4e00"
+        verdict_color = "#5c3800"
     else:
-        bar_color = "#c0392b"
-        label_color = "#6e1a1a"
+        bar_color, label_color = "#dc2626", "#5c0a0a"
         verdict = f"🚨 {domain_label} Signal: INSUFFICIENT"
-        verdict_color = "#6e1a1a"
+        verdict_color = "#5c0a0a"
 
     st.markdown(
         f"""
-        <div style="border:2px solid {bar_color}; border-radius:12px; padding:18px 22px; margin-bottom:24px; background:#fafafa;">
+        <div style="border:2px solid {bar_color}; border-radius:12px; padding:20px 24px;
+                    margin-bottom:24px; background:#f8f8f8;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-size:18px; font-weight:700; color:#333;">Total Score</span>
-            <span style="font-size:28px; font-weight:900; color:{label_color};">{score:.1f} / 100</span>
+            <span style="font-size:20px; font-weight:800; color:#111;">Total Score</span>
+            <span style="font-size:32px; font-weight:900; color:{label_color};">{score:.1f} / 100</span>
           </div>
-          <div style="background:#e0e0e0; border-radius:8px; height:22px; width:100%; margin-bottom:10px;">
-            <div style="background:{bar_color}; width:{score}%; height:22px; border-radius:8px;"></div>
+          <div style="background:#d0d0d0; border-radius:8px; height:24px; width:100%; margin-bottom:10px;">
+            <div style="background:{bar_color}; width:{score}%; height:24px; border-radius:8px;"></div>
           </div>
-          <div style="font-size:16px; font-weight:700; color:{verdict_color};">{verdict}</div>
-          <div style="font-size:12px; color:#888; margin-top:4px;">
+          <div style="font-size:18px; font-weight:800; color:{verdict_color};">{verdict}</div>
+          <div style="font-size:13px; color:#555; margin-top:5px; font-weight:500;">
             Weighted composite across {n_biomarkers} biomarkers.
             Score ≥ 60 = positive signal &nbsp;|&nbsp; 40–59 = uncertain &nbsp;|&nbsp; &lt; 40 = insufficient evidence.
           </div>
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
+    )
+
+
+def render_cardio_total_score_bar(score):
+    n = len(CARDIO_BIOMARKER_PARAMS)
+    if score < 35:
+        bar_color, label_color = "#1db954", "#0a4522"
+        verdict = "✅ Cardiotoxicity Risk: NOMINAL"
+        verdict_color = "#0a4522"
+    elif score < 65:
+        bar_color, label_color = "#f59e0b", "#5c3800"
+        verdict = "⚠️ Cardiotoxicity Risk: CAUTION"
+        verdict_color = "#5c3800"
+    else:
+        bar_color, label_color = "#dc2626", "#5c0a0a"
+        verdict = "🚨 Cardiotoxicity Risk: CRITICAL"
+        verdict_color = "#5c0a0a"
+
+    st.markdown(
+        f"""
+        <div style="border:2px solid {bar_color}; border-radius:12px; padding:20px 24px;
+                    margin-bottom:24px; background:#f8f8f8;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span style="font-size:20px; font-weight:800; color:#111;">Total Cardiotoxicity Risk Score</span>
+            <span style="font-size:32px; font-weight:900; color:{label_color};">{score:.1f} / 100</span>
+          </div>
+          <div style="background:#d0d0d0; border-radius:8px; height:24px; width:100%; margin-bottom:10px;">
+            <div style="background:{bar_color}; width:{score}%; height:24px; border-radius:8px;"></div>
+          </div>
+          <div style="font-size:18px; font-weight:800; color:{verdict_color};">{verdict}</div>
+          <div style="font-size:13px; color:#555; margin-top:5px; font-weight:500;">
+            Weighted composite across {n} biomarkers (cytokine panel + proteomics). &nbsp;
+            Score 0–34 = Nominal &nbsp;|&nbsp; 35–64 = Caution &nbsp;|&nbsp; 65–100 = Critical.
+            Higher score = greater cardiovascular concern.
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
 
 # ============================================================
-# HELPER FUNCTIONS
+# DATA HELPERS
 # ============================================================
 
 def get_logfc(pp_df, gene):
@@ -564,517 +971,18 @@ def post_pre_ratio(tps_dict):
 
 
 # ============================================================
-# MODULE 1 — BONE TAB
+# NEURO CREW STATS
 # ============================================================
 
-def render_bone_tab(crew_id):
-    st.title("🦴 Bone Density Loss Inhibitor Efficacy")
-    st.write(
-        "Each biomarker is scored 0–100 based on calibrated thresholds. "
-        "The **Total Efficacy Score** is a weighted average across all biomarkers. "
-        "**Green bars** indicate a protective/efficacious signal; "
-        "**red bars** indicate bone-loss risk or insufficient drug effect. "
-        "Threshold badges show whether each biomarker is penalized at its low end, "
-        "high end, or both extremes."
-    )
-
-    # PROTEOMICS
-    prot_map = {
-        "BGLAP (Osteocalcin)":             get_logfc(pp, 'BGLAP'),
-        "SPARC (Osteonectin)":             get_logfc(pp, 'SPARC'),
-        "SPP1 (Osteopontin — proteomics)": get_logfc(pp, 'SPP1'),
-        "SOST (Sclerostin)":               get_logfc(pp, 'SOST'),
-        "POSTN (Periostin)":               get_logfc(pp, 'POSTN'),
-        "BGN (Biglycan)":                  get_logfc(pp, 'BGN'),
-        "DCN (Decorin)":                   get_logfc(pp, 'DCN'),
-        "COL1A1 (Collagen I α1)":          get_logfc(pp, 'COL1A1'),
-        "COL1A2 (Collagen I α2)":          get_logfc(pp, 'COL1A2'),
-        "SFRP2 (Wnt modulator)":           get_logfc(pp, 'SFRP2'),
-        "SFRP4 (Wnt modulator)":           get_logfc(pp, 'SFRP4'),
-        "MGP (Matrix Gla Protein)":        get_logfc(pp, 'MGP'),
-        "ADIPOQ (Adiponectin)":            get_logfc(pp, 'ADIPOQ'),
-    }
-
-    # CMP
-    ca = get_cmp_per_crew(cmp, 'calcium_value_milligram_per_deciliter', crew_id)
-    ap = get_cmp_per_crew(cmp, 'alkaline_phosphatase_value_units_per_liter', crew_id)
-
-    cmp_map = {
-        "Calcium (CMP ratio)":              post_pre_ratio(ca),
-        "Alkaline Phosphatase (CMP ratio)": post_pre_ratio(ap),
-    }
-
-    # URINE
-    urine_col_map = {
-        "RANKL (urine ratio)":  'tnfsf11_concentration_npq',
-        "RANK (urine ratio)":   'tnfrsf11a_concentration_npq',
-        "BMP7 (urine ratio)":   'bmp7_concentration_npq',
-        "WNT16 (urine ratio)":  'wnt16_concentration_npq',
-        "FGF23 (urine ratio)":  'fgf23_concentration_npq',
-        "IL-6 (urine ratio)":   'il6_concentration_npq',
-        "IL-17A (urine ratio)": 'il17a_concentration_npq',
-        "TGF-β1 (urine ratio)": 'tgfb1_concentration_npq',
-    }
-    urine_map = {}
-    for label, col in urine_col_map.items():
-        tps = get_urine_per_crew(urine, col, crew_id)
-        urine_map[label] = post_pre_ratio(tps)
-
-    # METABOLOMICS
-    met_map = {
-        "Vitamin D2 (Ergocalciferol)": get_met_logfc(met, 'Ergocalciferol'),
-        "Cortisol (metabolomics)":      get_met_logfc(met, 'Cortisol'),
-        "Proline":                      get_met_logfc(met, 'Proline'),
-        "Glycine":                      get_met_logfc(met, 'Glycine'),
-        "Lysine":                       get_met_logfc(met, 'Lysine'),
-        "Citric Acid":                  get_met_logfc(met, 'Citric Acid'),
-    }
-
-    all_raw = {**prot_map, **cmp_map, **urine_map, **met_map}
-
-    scores = {}
-    for name, params in BONE_BIOMARKER_PARAMS.items():
-        raw = all_raw.get(name)
-        scores[name] = score_biomarker(
-            raw,
-            params["low"],
-            params["high"],
-            params["higher_is_better"],
-            params.get("threshold_type", "both"),
-        )
-
-    total_weight = 0.0
-    weighted_sum = 0.0
-    for name, params in BONE_BIOMARKER_PARAMS.items():
-        s = scores.get(name)
-        if s is not None:
-            weighted_sum += s * params["weight"]
-            total_weight += params["weight"]
-
-    total_score = (weighted_sum / total_weight) if total_weight > 0 else 50.0
-    render_total_score_bar(total_score, len(BONE_BIOMARKER_PARAMS), domain_label="Drug Efficacy")
-
-    sections = [
-        ("🔬 Proteomics (logFC — flight vs. pre-flight)", prot_map, "logFC"),
-        ("🧪 CMP Serum Chemistry (post/pre ratio)", cmp_map, "ratio"),
-        ("💧 Urine Inflammation Panel (post/pre ratio)", urine_map, "ratio"),
-        ("⚗️ Metabolomics (logFC — flight vs. pre-flight)", met_map, "logFC"),
-    ]
-
-    for section_title, raw_dict, val_label in sections:
-        with st.expander(section_title, expanded=True):
-            any_data = False
-            for name, raw_val in raw_dict.items():
-                params = BONE_BIOMARKER_PARAMS.get(name)
-                if params is None:
-                    continue
-                s = scores.get(name)
-                render_score_bar(
-                    label=name,
-                    score=s,
-                    note=params["note"],
-                    threshold_type=params.get("threshold_type", "both"),
-                    data_value=raw_val,
-                    data_label=val_label,
-                )
-                any_data = True
-            if not any_data:
-                st.write("*No data available for this section.*")
-
-
-# ============================================================
-# MODULE 2 — CARDIOTOXICITY SAFETY
-# ============================================================
-
-# ============================================================
-# ╔══════════════════════════════════════════════════════════╗
-# ║   CARDIOTOXICITY — EDITABLE PARAMETERS & WEIGHTS        ║
-# ║                                                          ║
-# ║   RISK SCORE: higher score = MORE concern.              ║
-# ║   Score 0–34 = Nominal · 35–64 = Caution · 65–100 = Critical ║
-# ║                                                          ║
-# ║   Cytokine panel: values are post/pre ratios.           ║
-# ║   Proteomics: values are logFC (flight vs. pre-flight). ║
-# ║                                                          ║
-# ║   threshold_type:                                        ║
-# ║     "high"  → only elevated values drive risk up        ║
-# ║     "low"   → only suppressed values drive risk up      ║
-# ║     "both"  → deviations in either direction add risk   ║
-# ║                                                          ║
-# ║   Thresholds are intentionally conservative starting    ║
-# ║   points. Refine with cohort data as available.         ║
-# ╚══════════════════════════════════════════════════════════╝
-CARDIO_BIOMARKER_PARAMS = {
-
-    # ── CARDIAC CYTOKINE / PLASMA PANEL (post/pre ratio) ───────────────────
-    # Ratio = postflight mean / preflight mean.
-    # 1.0 = no change · >1 = elevated postflight · <1 = suppressed postflight
-
-    "CRP (C-Reactive Protein)": {
-        "low": 1.0, "high": 1.5, "weight": 15,
-        "threshold_type": "high",
-        "note": (
-            "Canonical systemic inflammation marker directly linked to endothelial dysfunction "
-            "and cardiovascular risk. A post/pre ratio above 1.5 (50% elevation) represents "
-            "clinically meaningful persistent inflammation. Weight 15 — highest priority marker."
-        ),
-    },
-    "PF4 (Platelet Factor 4)": {
-        "low": 1.0, "high": 1.5, "weight": 15,
-        "threshold_type": "high",
-        "note": (
-            "Platelet activation marker directly linked to thrombotic activity and clotting potential. "
-            "PF4 elevation during spaceflight indicates platelet hyper-reactivity and elevated "
-            "thromboembolism risk. Weight 15 — co-primary marker alongside CRP."
-        ),
-    },
-    "Fibrinogen": {
-        "low": 1.0, "high": 1.5, "weight": 12,
-        "threshold_type": "high",
-        "note": (
-            "Coagulation-associated acute phase protein. Elevated fibrinogen increases blood viscosity "
-            "and thrombosis risk, compounding cardiovascular strain in microgravity. "
-            "Ratio above 1.5 reflects sustained coagulation activation."
-        ),
-    },
-    "Fetuin-A": {
-        "low": 0.75, "high": 1.30, "weight": 12,
-        "threshold_type": "both",
-        "note": (
-            "Modulates vascular calcification and metabolic regulation. Both depletion (loss of "
-            "calcification inhibition, risk of vascular mineralization) and elevation (impaired "
-            "insulin signaling, metabolic cardiovascular stress) are concerning. "
-            "Penalized when ratio falls below 0.75 or rises above 1.30."
-        ),
-    },
-    "Haptoglobin": {
-        "low": 1.0, "high": 1.5, "weight": 10,
-        "threshold_type": "high",
-        "note": (
-            "Hemoglobin scavenging protein reflecting oxidative vascular stress and radiation "
-            "response. Elevated haptoglobin post-flight indicates increased hemolysis and "
-            "oxidative burden on the vascular endothelium."
-        ),
-    },
-    "L-Selectin (CD62L)": {
-        "low": 0.70, "high": 1.40, "weight": 10,
-        "threshold_type": "both",
-        "note": (
-            "Regulates leukocyte adhesion and immune-endothelial activation. Both shedding "
-            "(loss of immune surveillance, ratio < 0.70) and excessive upregulation "
-            "(systemic endothelial activation, ratio > 1.40) indicate vascular dysfunction. "
-            "Penalized at both extremes."
-        ),
-    },
-    "SAP (Serum Amyloid P Component)": {
-        "low": 1.0, "high": 1.5, "weight": 10,
-        "threshold_type": "high",
-        "note": (
-            "Reflects persistent systemic inflammatory burden and tissue remodeling activity. "
-            "Elevated SAP is associated with chronic inflammation and extracellular matrix "
-            "pathology relevant to vascular wall integrity."
-        ),
-    },
-    "Alpha-2-Macroglobulin (A2M)": {
-        "low": 0.75, "high": 1.40, "weight": 8,
-        "threshold_type": "both",
-        "note": (
-            "Regulates protease activity across multiple vascular and inflammatory cascades. "
-            "Both suppression (unregulated protease activity, endothelial degradation) and "
-            "excessive elevation (impaired protease clearance, chronic signaling dysregulation) "
-            "negatively affect vascular homeostasis. Penalized at both extremes."
-        ),
-    },
-    "AGP (Alpha-1-Acid Glycoprotein)": {
-        "low": 1.0, "high": 1.5, "weight": 8,
-        "threshold_type": "high",
-        "note": (
-            "Correlates with chronic systemic inflammation and cardiovascular risk. AGP is an "
-            "acute phase reactant that rises with sustained inflammatory activation, indicating "
-            "ongoing vascular and immune stress."
-        ),
-    },
-
-    # ── PROTEOMICS (logFC, flight vs. pre-flight) ───────────────────────────
-    # logFC > 0 = upregulated during flight · logFC < 0 = downregulated
-
-    "VWF (Von Willebrand Factor — proteomics)": {
-        "low": -2.0, "high": 0.75, "weight": 9,
-        "threshold_type": "high",
-        "note": (
-            "VWF is a key mediator of platelet adhesion and endothelial stress response. "
-            "Elevated VWF logFC reflects endothelial activation and dysfunction, directly "
-            "increasing thrombosis risk. Only penalized when logFC rises above +0.75."
-        ),
-    },
-    "SERPINE1 / PAI-1 (Fibrinolysis Inhibitor — proteomics)": {
-        "low": -2.0, "high": 0.75, "weight": 7,
-        "threshold_type": "high",
-        "note": (
-            "PAI-1 is the primary inhibitor of fibrinolysis (clot dissolution). Elevated "
-            "SERPINE1 logFC means clots are less efficiently cleared, increasing risk of "
-            "sustained thrombosis and cardiovascular events. Only penalized when logFC rises above +0.75."
-        ),
-    },
+_NEURO_PER_CREW_MARKERS = {
+    "BDNF (urine ratio)",
+    "GFAP (Glial Fibrillary Acidic Protein — urine ratio)",
+    "NGF (Nerve Growth Factor — urine ratio)",
+    "CXCL10 (IP-10 — Neuroinflammatory Chemokine — urine ratio)",
 }
 
 
-# ============================================================
-# CARDIOTOXICITY RISK SCORE ENGINE
-# ============================================================
-# This is a RISK score (0 = no concern, 100 = maximum concern),
-# which is the inverse of the bone/neuro efficacy scores.
-# The score_cardio_biomarker function maps values onto 0–100
-# where 0 is safest and 100 is most alarming.
-
-def score_cardio_biomarker(value, low, high, threshold_type="high"):
-    """
-    Returns a 0–100 RISK score (higher = more concerning).
-
-    high  : value penalized when it rises above `high`
-    low   : value penalized when it falls below `low`
-    both  : value penalized when outside [low, high]
-    """
-    if value is None:
-        return None
-
-    span = high - low
-    if span <= 0:
-        span = 1.0  # guard against misconfigured thresholds
-
-    if threshold_type == "high":
-        if value <= low:
-            return 0.0                                   # below lower bound → no concern
-        elif value >= high:
-            return 100.0                                 # at/above upper bound → max concern
-        else:
-            return float((value - low) / span * 100)    # linear rise
-
-    elif threshold_type == "low":
-        if value >= high:
-            return 0.0                                   # at/above upper bound → no concern
-        elif value <= low:
-            return 100.0                                 # at/below lower bound → max concern
-        else:
-            return float((high - value) / span * 100)   # linear rise as value drops
-
-    else:  # "both"
-        if low <= value <= high:
-            return 0.0                                   # inside window → no concern
-        elif value < low:
-            # how far below the window?
-            return float(np.clip((low - value) / span * 100, 0, 100))
-        else:
-            # how far above the window?
-            return float(np.clip((value - high) / span * 100, 0, 100))
-
-
-def render_cardio_score_bar(label, score, note, threshold_type, data_value, data_label):
-    """
-    Risk-oriented score bar. Color scheme is INVERTED vs bone/neuro:
-      green  → low risk  (score < 35)
-      yellow → moderate  (35–64)
-      red    → high risk (≥ 65)
-    """
-    if score is None:
-        st.markdown(f"**{label}** — *data not available*")
-        return
-
-    if score < 35:
-        bar_color  = "#2ecc71"
-        text_color = "#1a5e35"
-    elif score < 65:
-        bar_color  = "#f39c12"
-        text_color = "#7d4e00"
-    else:
-        bar_color  = "#e74c3c"
-        text_color = "#6e1a1a"
-
-    raw_display = ""
-    if data_value is not None:
-        raw_display = (
-            f"<span style='font-size:12px; color:#888;'>"
-            f"({data_label}: {data_value:+.3f})</span>"
-        )
-
-    badge_styles = {
-        "low":  ("⬇ low threshold",   "#d4edff", "#0066aa"),
-        "high": ("⬆ high threshold",  "#fde8e8", "#aa0000"),
-        "both": ("↕ both thresholds", "#f0e8fd", "#6600aa"),
-    }
-    badge_text, badge_bg, badge_fg = badge_styles.get(
-        threshold_type, ("threshold", "#eee", "#333")
-    )
-    badge_html = (
-        f"<span style='font-size:10px; background:{badge_bg}; color:{badge_fg}; "
-        f"border-radius:4px; padding:1px 5px; margin-left:6px; "
-        f"font-weight:600; vertical-align:middle;'>{badge_text}</span>"
-    )
-
-    st.markdown(
-        f"""
-        <div style="margin-bottom: 10px;">
-          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px;">
-            <span style="font-weight:600; font-size:14px;">{label}{badge_html}</span>
-            <span style="font-weight:700; color:{text_color}; font-size:15px;">
-              {score:.1f}/100 risk &nbsp; {raw_display}
-            </span>
-          </div>
-          <div style="background:#e0e0e0; border-radius:6px; height:14px; width:100%;">
-            <div style="background:{bar_color}; width:{score}%; height:14px;
-                        border-radius:6px; transition: width 0.4s;"></div>
-          </div>
-          <div style="font-size:11px; color:#777; margin-top:2px; font-style:italic;">{note}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-def render_cardio_total_score_bar(score):
-    n = len(CARDIO_BIOMARKER_PARAMS)
-    if score < 35:
-        bar_color    = "#27ae60"
-        label_color  = "#1a5e35"
-        verdict      = "✅ Cardiotoxicity Risk: NOMINAL"
-        verdict_color = "#1a5e35"
-    elif score < 65:
-        bar_color    = "#e67e22"
-        label_color  = "#7d4e00"
-        verdict      = "⚠️ Cardiotoxicity Risk: CAUTION"
-        verdict_color = "#7d4e00"
-    else:
-        bar_color    = "#c0392b"
-        label_color  = "#6e1a1a"
-        verdict      = "🚨 Cardiotoxicity Risk: CRITICAL"
-        verdict_color = "#6e1a1a"
-
-    st.markdown(
-        f"""
-        <div style="border:2px solid {bar_color}; border-radius:12px; padding:18px 22px;
-                    margin-bottom:24px; background:#fafafa;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-size:18px; font-weight:700; color:#333;">Total Cardiotoxicity Risk Score</span>
-            <span style="font-size:28px; font-weight:900; color:{label_color};">{score:.1f} / 100</span>
-          </div>
-          <div style="background:#e0e0e0; border-radius:8px; height:22px; width:100%; margin-bottom:10px;">
-            <div style="background:{bar_color}; width:{score}%; height:22px; border-radius:8px;"></div>
-          </div>
-          <div style="font-size:16px; font-weight:700; color:{verdict_color};">{verdict}</div>
-          <div style="font-size:12px; color:#888; margin-top:4px;">
-            Weighted composite across {n} biomarkers (cytokine panel + proteomics). &nbsp;
-            Score 0–34 = Nominal &nbsp;|&nbsp; 35–64 = Caution &nbsp;|&nbsp; 65–100 = Critical.
-            <br>Higher score = greater cardiovascular concern.
-          </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-def render_cardio_tab(crew_id):
-    st.title("❤️ Cardiotoxicity Safety")
-    st.write(
-        "Each biomarker is scored **0–100 as a risk score** — higher means greater cardiovascular "
-        "concern. The **Total Cardiotoxicity Risk Score** is a weighted average across all markers. "
-        "**Green bars** indicate low concern; **red bars** indicate elevated cardiovascular risk. "
-        "Cytokine panel markers are scored from post/pre ratios; proteomics markers from logFC."
-    )
-
-    # ── CYTOKINE PANEL (post/pre ratios) ────────────────────────────────────
-    cytokine_col_map = {
-        "CRP (C-Reactive Protein)":          'crp_concentration_picogram_per_milliliter',
-        "PF4 (Platelet Factor 4)":           'pf4_concentration_nanogram_per_milliliter',
-        "Fibrinogen":                        'fibrinogen_concentration_nanogram_per_milliliter',
-        "Fetuin-A":                          'fetuin_a36_concentration_nanogram_per_milliliter',
-        "Haptoglobin":                       'haptoglobin_concentration_nanogram_per_milliliter',
-        "L-Selectin (CD62L)":               'l_selectin_concentration_picogram_per_milliliter',
-        "SAP (Serum Amyloid P Component)":   'sap_concentration_picogram_per_milliliter',
-        "Alpha-2-Macroglobulin (A2M)":       'a2_macroglobulin_concentration_nanogram_per_milliliter',
-        "AGP (Alpha-1-Acid Glycoprotein)":   'agp_concentration_nanogram_per_milliliter',
-    }
-    cytokine_map = {}
-    for label, row_name in cytokine_col_map.items():
-        tps = get_cardiac_per_crew(card, row_name, crew_id)
-        cytokine_map[label] = post_pre_ratio(tps)
-
-    # ── PROTEOMICS (logFC) ───────────────────────────────────────────────────
-    prot_map = {
-        "VWF (Von Willebrand Factor — proteomics)":             get_logfc(pp, 'VWF'),
-        "SERPINE1 / PAI-1 (Fibrinolysis Inhibitor — proteomics)": get_logfc(pp, 'SERPINE1'),
-    }
-
-    all_raw = {**cytokine_map, **prot_map}
-
-    # ── SCORE EACH BIOMARKER ─────────────────────────────────────────────────
-    scores = {}
-    for name, params in CARDIO_BIOMARKER_PARAMS.items():
-        raw = all_raw.get(name)
-        scores[name] = score_cardio_biomarker(
-            raw,
-            params["low"],
-            params["high"],
-            params.get("threshold_type", "high"),
-        )
-
-    total_weight = 0.0
-    weighted_sum = 0.0
-    for name, params in CARDIO_BIOMARKER_PARAMS.items():
-        s = scores.get(name)
-        if s is not None:
-            weighted_sum += s * params["weight"]
-            total_weight  += params["weight"]
-
-    total_score = (weighted_sum / total_weight) if total_weight > 0 else 0.0
-    render_cardio_total_score_bar(total_score)
-
-    # ── RENDER SECTIONS ──────────────────────────────────────────────────────
-    sections = [
-        ("🩸 Cardiac Cytokine / Plasma Panel (post/pre ratio)", cytokine_map, "ratio"),
-        ("🔬 Proteomics (logFC — flight vs. pre-flight)",        prot_map,    "logFC"),
-    ]
-
-    for section_title, raw_dict, val_label in sections:
-        with st.expander(section_title, expanded=True):
-            any_data = False
-            for name, raw_val in raw_dict.items():
-                params = CARDIO_BIOMARKER_PARAMS.get(name)
-                if params is None:
-                    continue
-                s = scores.get(name)
-                render_cardio_score_bar(
-                    label=name,
-                    score=s,
-                    note=params["note"],
-                    threshold_type=params.get("threshold_type", "high"),
-                    data_value=raw_val,
-                    data_label=val_label,
-                )
-                any_data = True
-            if not any_data:
-                st.write("*No data available for this section.*")
-
-
-# ============================================================
-# MODULE 3 — NEUROLOGICAL RESILIENCE
-# ============================================================
-
-# ============================================================
-# NEURO CREW-RELATIVE DATA COLLECTION
-# ============================================================
-# These functions pull the same biomarker values for ALL crew
-# members so we can compute a crew mean ± 1 SD as dynamic
-# thresholds, then score the selected crew member against that.
-
 def _neuro_raw_for_crew(target_crew_id):
-    """
-    Return the dict of raw neuro biomarker values for a single crew member.
-    Proteomics logFC values come from pp (not crew-specific in the CSV),
-    so every crew member shares the same proteomics row — those markers
-    are excluded from the relative comparison and fall back to fixed
-    ±1.0 / 0.0 reference bounds instead.
-    """
-    # PROTEOMICS — shared across crew (logFC columns, not per-crew)
     prot_map = {
         "BDNF (Brain-Derived Neurotrophic Factor)":       get_logfc(pp, 'BDNF'),
         "S100B (Astrocyte Damage Marker)":                get_logfc(pp, 'S100B'),
@@ -1083,19 +991,17 @@ def _neuro_raw_for_crew(target_crew_id):
         "APOE (Apolipoprotein E — CNS Lipid Transport)":  get_logfc(pp, 'APOE'),
     }
 
-    # URINE — per-crew post/pre ratios
     urine_col_map = {
-        "BDNF (urine ratio)":                                          'bdnf_concentration_npq',
-        "GFAP (Glial Fibrillary Acidic Protein — urine ratio)":        'gfap_concentration_npq',
-        "NGF (Nerve Growth Factor — urine ratio)":                     'ngf_concentration_npq',
-        "CXCL10 (IP-10 — Neuroinflammatory Chemokine — urine ratio)":  'cxcl10_concentration_npq',
+        "BDNF (urine ratio)":                                         'bdnf_concentration_npq',
+        "GFAP (Glial Fibrillary Acidic Protein — urine ratio)":       'gfap_concentration_npq',
+        "NGF (Nerve Growth Factor — urine ratio)":                    'ngf_concentration_npq',
+        "CXCL10 (IP-10 — Neuroinflammatory Chemokine — urine ratio)": 'cxcl10_concentration_npq',
     }
     urine_map = {}
     for label, col in urine_col_map.items():
         tps = get_urine_per_crew(urine, col, target_crew_id)
         urine_map[label] = post_pre_ratio(tps)
 
-    # METABOLOMICS — shared logFC (not per-crew in the CSV)
     kyn_logfc = get_met_logfc(met, 'Kynurenine')
     trp_logfc = get_met_logfc(met, 'Tryptophan')
     kt_ratio  = None
@@ -1115,32 +1021,10 @@ def _neuro_raw_for_crew(target_crew_id):
     return {**prot_map, **urine_map, **met_map}
 
 
-# Track which biomarkers are per-crew (urine ratios) vs shared across crew
-# (proteomics logFC, metabolomics logFC). Only per-crew markers get a true
-# crew-relative threshold; shared markers use a symmetric ±1.0 fallback.
-_NEURO_PER_CREW_MARKERS = {
-    "BDNF (urine ratio)",
-    "GFAP (Glial Fibrillary Acidic Protein — urine ratio)",
-    "NGF (Nerve Growth Factor — urine ratio)",
-    "CXCL10 (IP-10 — Neuroinflammatory Chemokine — urine ratio)",
-}
-
-
 @st.cache_data
 def _build_neuro_crew_stats():
-    """
-    Collect raw values for every crew member for every neuro biomarker,
-    then return a dict:
-        { biomarker_name: {"mean": float, "sd": float, "values": {crew_id: val}} }
-
-    Only the urine-panel markers are truly per-crew. For proteomics and
-    metabolomics (shared logFC columns), all crew members have the same
-    value, so the SD is 0 — those markers fall back to the ±1.0 symmetric
-    window around the shared value.
-    """
     all_crew_ids = list(CREW_CONFIG.keys())
-    per_marker = {}  # name -> list of (crew_id, value)
-
+    per_marker = {}
     for cid in all_crew_ids:
         raw = _neuro_raw_for_crew(cid)
         for name, val in raw.items():
@@ -1151,142 +1035,329 @@ def _build_neuro_crew_stats():
         valid = [(cid, v) for cid, v in crew_vals.items() if v is not None]
         vals_only = [v for _, v in valid]
         if len(vals_only) >= 2:
-            mu  = float(np.mean(vals_only))
-            sd  = float(np.std(vals_only, ddof=1))   # sample SD
+            mu = float(np.mean(vals_only))
+            sd = float(np.std(vals_only, ddof=1))
         elif len(vals_only) == 1:
-            mu  = float(vals_only[0])
-            sd  = 0.0
+            mu = float(vals_only[0])
+            sd = 0.0
         else:
-            mu, sd = 0.0, 1.0  # full fallback if no data at all
+            mu, sd = 0.0, 1.0
         stats[name] = {"mean": mu, "sd": sd, "values": crew_vals}
-
     return stats
 
 
 def _neuro_dynamic_thresholds(name, stats, n_sd=1.0):
-    """
-    Derive low / high thresholds for a neuro biomarker.
-
-    For per-crew markers (urine ratios): use crew mean ± n_sd * SD.
-    If SD is zero (all crew identical) or marker is shared/proteomics/
-    metabolomics, fall back to a ±1.0 window centred on the shared value.
-
-    Returns (low, high, crew_mean, crew_sd).
-    """
-    s = stats.get(name, {})
+    s  = stats.get(name, {})
     mu = s.get("mean", 0.0)
     sd = s.get("sd",   1.0)
-
     is_per_crew = name in _NEURO_PER_CREW_MARKERS
-
     if is_per_crew and sd > 1e-9:
-        low  = mu - n_sd * sd
-        high = mu + n_sd * sd
-    else:
-        # Shared marker: symmetric ±1.0 window around the common value
-        low  = mu - 1.0
-        high = mu + 1.0
-        sd   = 1.0  # display value
-
-    return low, high, mu, sd
+        return mu - n_sd * sd, mu + n_sd * sd, mu, sd
+    return mu - 1.0, mu + 1.0, mu, 1.0
 
 
 def render_neuro_score_bar(label, score, note, threshold_type, data_value,
-                           data_label, crew_mean, crew_sd, is_per_crew):
-    """
-    Extended score bar that also shows the crew reference band
-    (mean ± 1 SD) below the bar for context.
-    """
+                           data_label, crew_mean, crew_sd, is_per_crew, is_averaged=False):
     if score is None:
-        st.markdown(f"**{label}** — *data not available*")
+        st.markdown(
+            f"<div style='font-size:14px; color:#555; margin-bottom:8px;'>"
+            f"<b>{label}</b> — <i>data not available</i></div>",
+            unsafe_allow_html=True,
+        )
         return
 
     if score >= 60:
-        bar_color  = "#2ecc71"
-        text_color = "#1a5e35"
+        bar_color, text_color = "#1db954", "#0a4522"
     elif score >= 40:
-        bar_color  = "#f39c12"
-        text_color = "#7d4e00"
+        bar_color, text_color = "#f59e0b", "#5c3800"
     else:
-        bar_color  = "#e74c3c"
-        text_color = "#6e1a1a"
+        bar_color, text_color = "#dc2626", "#5c0a0a"
 
     raw_display = ""
     if data_value is not None:
         raw_display = (
-            f"<span style='font-size:12px; color:#888;'>"
+            f"<span style='font-size:13px; color:#555; font-weight:500;'>"
             f"({data_label}: {data_value:+.3f})</span>"
         )
 
     badge_styles = {
-        "low":  ("⬇ low threshold",   "#d4edff", "#0066aa"),
-        "high": ("⬆ high threshold",  "#fde8e8", "#aa0000"),
-        "both": ("↕ both thresholds", "#f0e8fd", "#6600aa"),
+        "low":  ("⬇ low threshold",   "#cce5ff", "#004085"),
+        "high": ("⬆ high threshold",  "#f8d7da", "#721c24"),
+        "both": ("↕ both thresholds", "#e8d5f7", "#4b0082"),
     }
-    badge_text, badge_bg, badge_fg = badge_styles.get(
-        threshold_type, ("threshold", "#eee", "#333")
-    )
+    badge_text, badge_bg, badge_fg = badge_styles.get(threshold_type, ("threshold", "#eee", "#333"))
     badge_html = (
-        f"<span style='font-size:10px; background:{badge_bg}; color:{badge_fg}; "
-        f"border-radius:4px; padding:1px 5px; margin-left:6px; "
-        f"font-weight:600; vertical-align:middle;'>{badge_text}</span>"
+        f"<span style='font-size:11px; background:{badge_bg}; color:{badge_fg}; "
+        f"border-radius:4px; padding:2px 6px; margin-left:6px; "
+        f"font-weight:700; vertical-align:middle;'>{badge_text}</span>"
     )
 
-    # Crew reference line — shown only for per-crew markers where SD > 0
-    if is_per_crew and crew_sd > 1e-9:
-        ref_label = (
-            f"crew mean = {crew_mean:+.3f} &nbsp;|&nbsp; "
-            f"±1 SD band = [{crew_mean - crew_sd:+.3f}, {crew_mean + crew_sd:+.3f}]"
+    avg_tag = ""
+    if is_averaged:
+        avg_tag = (
+            "<span style='font-size:11px; background:#fff3cd; color:#7d4e00; "
+            "border-radius:4px; padding:2px 6px; margin-left:6px; "
+            "font-weight:700; vertical-align:middle;'>⚠️ group avg</span>"
         )
+
+    if is_per_crew and crew_sd > 1e-9:
         ref_html = (
-            f"<div style='font-size:11px; color:#555; margin-top:1px;'>"
-            f"📊 Reference: {ref_label}</div>"
+            f"<div style='font-size:12px; color:#333; margin-top:2px; font-weight:500;'>"
+            f"📊 Crew mean = {crew_mean:+.3f} &nbsp;|&nbsp; "
+            f"±1 SD band = [{crew_mean - crew_sd:+.3f}, {crew_mean + crew_sd:+.3f}]</div>"
         )
     else:
         ref_html = (
-            f"<div style='font-size:11px; color:#aaa; margin-top:1px;'>"
-            f"📊 Shared value across crew &nbsp;|&nbsp; "
-            f"scored against ±1.0 symmetric window</div>"
+            f"<div style='font-size:12px; color:#777; margin-top:2px;'>"
+            f"📊 Shared value across crew &nbsp;|&nbsp; scored against ±1.0 symmetric window</div>"
         )
 
     st.markdown(
         f"""
-        <div style="margin-bottom: 12px;">
-          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:3px;">
-            <span style="font-weight:600; font-size:14px;">{label}{badge_html}</span>
-            <span style="font-weight:700; color:{text_color}; font-size:15px;">
+        <div style="margin-bottom:14px;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
+            <span style="font-weight:700; font-size:15px; color:#111;">{label}{badge_html}{avg_tag}</span>
+            <span style="font-weight:800; color:{text_color}; font-size:16px;">
               {score:.1f}/100 &nbsp; {raw_display}
             </span>
           </div>
-          <div style="background:#e0e0e0; border-radius:6px; height:14px; width:100%;">
-            <div style="background:{bar_color}; width:{score}%; height:14px;
-                        border-radius:6px; transition: width 0.4s;"></div>
+          <div style="background:#d0d0d0; border-radius:6px; height:16px; width:100%;">
+            <div style="background:{bar_color}; width:{score}%; height:16px;
+                        border-radius:6px; transition:width 0.4s;"></div>
           </div>
           {ref_html}
-          <div style="font-size:11px; color:#777; margin-top:2px; font-style:italic;">{note}</div>
+          <div style="font-size:12px; color:#444; margin-top:3px; font-style:italic; line-height:1.5;">{note}</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
 
-def render_neuro_tab(crew_id):
-    st.title("🧠 Neurological Resilience")
-    st.write(
-        "Each biomarker is scored 0–100 relative to the **crew average**. "
-        "Thresholds are set at **crew mean ± 1 SD** for per-crew markers "
-        "(urine panel), and at a **±1.0 symmetric window** around the shared "
-        "value for proteomics and metabolomics. "
-        "The **Total Neurological Resilience Score** is a weighted average across all markers. "
-        "**Green bars** indicate a neuroprotective signal; "
-        "**red bars** indicate neuroinflammation, neurodamage, or impaired neurotrophic support."
+# ============================================================
+# DATASET WARNING BANNER (for sections using averaged data)
+# ============================================================
+
+def show_averaged_section_warning():
+    st.markdown(
+        "<div style='background:#fff3cd; border:2px solid #f59e0b; border-radius:8px; "
+        "padding:12px 16px; margin:6px 0 16px 0; font-size:14px; color:#5c3800; font-weight:600;'>"
+        "⚠️ <b>Data averaged across all crew members</b> — "
+        "The values shown in this section are group-level averages and do <b>not</b> "
+        "change when switching crew members. "
+        "Per-individual proteomics/metabolomics were not available in this dataset."
+        "</div>",
+        unsafe_allow_html=True,
     )
 
-    # Build crew-wide stats once (cached)
-    crew_stats = _build_neuro_crew_stats()
 
-    # Raw values for the selected crew member
-    raw_this_crew = _neuro_raw_for_crew(crew_id)
+# ============================================================
+# MODULE 1 — BONE TAB
+# ============================================================
+
+def render_bone_tab(crew_id):
+    st.title("🦴 Bone Density Loss Inhibitor Efficacy")
+
+    st.warning(
+        "⚕️ **Dataset Notice:** The current cohort does not include astronauts taking any "
+        "therapeutic medications. Subjects were healthy and not in space long enough to exhibit "
+        "massive changes to bone density, muscle atrophy, or brain degradation. Biomarker levels "
+        "should therefore appear relatively normal — extreme signals are not expected."
+    )
+
+    st.write(
+        "Each biomarker is scored 0–100 based on calibrated thresholds. "
+        "The **Total Efficacy Score** is a weighted average across all biomarkers. "
+        "**Green bars** indicate a protective/efficacious signal; "
+        "**red bars** indicate bone-loss risk or insufficient drug effect. "
+        "Markers tagged **⚠️ group avg** come from datasets averaged across all crew members."
+    )
+
+    prot_map = {
+        "BGLAP (Osteocalcin)":             get_logfc(pp, 'BGLAP'),
+        "SPARC (Osteonectin)":             get_logfc(pp, 'SPARC'),
+        "SPP1 (Osteopontin — proteomics)": get_logfc(pp, 'SPP1'),
+        "SOST (Sclerostin)":               get_logfc(pp, 'SOST'),
+        "POSTN (Periostin)":               get_logfc(pp, 'POSTN'),
+        "BGN (Biglycan)":                  get_logfc(pp, 'BGN'),
+        "DCN (Decorin)":                   get_logfc(pp, 'DCN'),
+        "COL1A1 (Collagen I α1)":          get_logfc(pp, 'COL1A1'),
+        "COL1A2 (Collagen I α2)":          get_logfc(pp, 'COL1A2'),
+        "SFRP2 (Wnt modulator)":           get_logfc(pp, 'SFRP2'),
+        "SFRP4 (Wnt modulator)":           get_logfc(pp, 'SFRP4'),
+        "MGP (Matrix Gla Protein)":        get_logfc(pp, 'MGP'),
+        "ADIPOQ (Adiponectin)":            get_logfc(pp, 'ADIPOQ'),
+    }
+
+    ca = get_cmp_per_crew(cmp, 'calcium_value_milligram_per_deciliter', crew_id)
+    ap = get_cmp_per_crew(cmp, 'alkaline_phosphatase_value_units_per_liter', crew_id)
+
+    cmp_map = {
+        "Calcium (CMP ratio)":              post_pre_ratio(ca),
+        "Alkaline Phosphatase (CMP ratio)": post_pre_ratio(ap),
+    }
+
+    urine_col_map = {
+        "RANKL (urine ratio)":  'tnfsf11_concentration_npq',
+        "RANK (urine ratio)":   'tnfrsf11a_concentration_npq',
+        "BMP7 (urine ratio)":   'bmp7_concentration_npq',
+        "WNT16 (urine ratio)":  'wnt16_concentration_npq',
+        "FGF23 (urine ratio)":  'fgf23_concentration_npq',
+        "IL-6 (urine ratio)":   'il6_concentration_npq',
+        "IL-17A (urine ratio)": 'il17a_concentration_npq',
+        "TGF-β1 (urine ratio)": 'tgfb1_concentration_npq',
+    }
+    urine_map = {
+        label: post_pre_ratio(get_urine_per_crew(urine, col, crew_id))
+        for label, col in urine_col_map.items()
+    }
+
+    met_map = {
+        "Vitamin D2 (Ergocalciferol)": get_met_logfc(met, 'Ergocalciferol'),
+        "Cortisol (metabolomics)":      get_met_logfc(met, 'Cortisol'),
+        "Proline":                      get_met_logfc(met, 'Proline'),
+        "Glycine":                      get_met_logfc(met, 'Glycine'),
+        "Lysine":                       get_met_logfc(met, 'Lysine'),
+        "Citric Acid":                  get_met_logfc(met, 'Citric Acid'),
+    }
+
+    all_raw = {**prot_map, **cmp_map, **urine_map, **met_map}
+
+    scores = {
+        name: score_biomarker(
+            all_raw.get(name),
+            p["low"], p["high"], p["higher_is_better"], p.get("threshold_type", "both")
+        )
+        for name, p in BONE_BIOMARKER_PARAMS.items()
+    }
+
+    total_weight = sum(p["weight"] for name, p in BONE_BIOMARKER_PARAMS.items() if scores.get(name) is not None)
+    weighted_sum = sum(scores[name] * p["weight"] for name, p in BONE_BIOMARKER_PARAMS.items() if scores.get(name) is not None)
+    total_score = (weighted_sum / total_weight) if total_weight > 0 else 50.0
+    render_total_score_bar(total_score, len(BONE_BIOMARKER_PARAMS), domain_label="Drug Efficacy")
+
+    sections = [
+        ("🔬 Proteomics (logFC — flight vs. pre-flight)", prot_map, "logFC", True),
+        ("🧪 CMP Serum Chemistry (post/pre ratio)", cmp_map, "ratio", False),
+        ("💧 Urine Inflammation Panel (post/pre ratio)", urine_map, "ratio", False),
+        ("⚗️ Metabolomics (logFC — flight vs. pre-flight)", met_map, "logFC", True),
+    ]
+
+    for section_title, raw_dict, val_label, section_averaged in sections:
+        with st.expander(section_title, expanded=True):
+            if section_averaged:
+                show_averaged_section_warning()
+            for name, raw_val in raw_dict.items():
+                params = BONE_BIOMARKER_PARAMS.get(name)
+                if params is None:
+                    continue
+                render_score_bar(
+                    label=name, score=scores.get(name), note=params["note"],
+                    threshold_type=params.get("threshold_type", "both"),
+                    data_value=raw_val, data_label=val_label,
+                    is_averaged=params.get("averaged", False),
+                )
+
+
+# ============================================================
+# MODULE 2 — CARDIOTOXICITY SAFETY
+# ============================================================
+
+def render_cardio_tab(crew_id):
+    st.title("❤️ Cardiotoxicity Safety")
+
+    st.warning(
+        "⚕️ **Dataset Notice:** The current cohort does not include astronauts taking any "
+        "therapeutic medications. Subjects were healthy and not in space long enough to exhibit "
+        "massive changes to bone density, muscle atrophy, or brain degradation. Biomarker levels "
+        "should therefore appear relatively normal — extreme signals are not expected."
+    )
+
+    st.write(
+        "Each biomarker is scored **0–100 as a risk score** — higher means greater cardiovascular "
+        "concern. The **Total Cardiotoxicity Risk Score** is a weighted average across all markers. "
+        "**Green bars** indicate low concern; **red bars** indicate elevated cardiovascular risk. "
+        "Markers tagged **⚠️ group avg** come from datasets averaged across all crew members."
+    )
+
+    cytokine_col_map = {
+        "CRP (C-Reactive Protein)":         'crp_concentration_picogram_per_milliliter',
+        "PF4 (Platelet Factor 4)":          'pf4_concentration_nanogram_per_milliliter',
+        "Fibrinogen":                       'fibrinogen_concentration_nanogram_per_milliliter',
+        "Fetuin-A":                         'fetuin_a36_concentration_nanogram_per_milliliter',
+        "Haptoglobin":                      'haptoglobin_concentration_nanogram_per_milliliter',
+        "L-Selectin (CD62L)":              'l_selectin_concentration_picogram_per_milliliter',
+        "SAP (Serum Amyloid P Component)":  'sap_concentration_picogram_per_milliliter',
+        "Alpha-2-Macroglobulin (A2M)":      'a2_macroglobulin_concentration_nanogram_per_milliliter',
+        "AGP (Alpha-1-Acid Glycoprotein)":  'agp_concentration_nanogram_per_milliliter',
+    }
+    cytokine_map = {
+        label: post_pre_ratio(get_cardiac_per_crew(card, row_name, crew_id))
+        for label, row_name in cytokine_col_map.items()
+    }
+
+    prot_map = {
+        "VWF (Von Willebrand Factor — proteomics)":              get_logfc(pp, 'VWF'),
+        "SERPINE1 / PAI-1 (Fibrinolysis Inhibitor — proteomics)": get_logfc(pp, 'SERPINE1'),
+    }
+
+    all_raw = {**cytokine_map, **prot_map}
+
+    scores = {
+        name: score_cardio_biomarker(
+            all_raw.get(name), p["low"], p["high"], p.get("threshold_type", "high")
+        )
+        for name, p in CARDIO_BIOMARKER_PARAMS.items()
+    }
+
+    total_weight = sum(p["weight"] for name, p in CARDIO_BIOMARKER_PARAMS.items() if scores.get(name) is not None)
+    weighted_sum = sum(scores[name] * p["weight"] for name, p in CARDIO_BIOMARKER_PARAMS.items() if scores.get(name) is not None)
+    total_score = (weighted_sum / total_weight) if total_weight > 0 else 0.0
+    render_cardio_total_score_bar(total_score)
+
+    sections = [
+        ("🩸 Cardiac Cytokine / Plasma Panel (post/pre ratio)", cytokine_map, "ratio", False),
+        ("🔬 Proteomics (logFC — flight vs. pre-flight)",        prot_map,    "logFC", True),
+    ]
+
+    for section_title, raw_dict, val_label, section_averaged in sections:
+        with st.expander(section_title, expanded=True):
+            if section_averaged:
+                show_averaged_section_warning()
+            for name, raw_val in raw_dict.items():
+                params = CARDIO_BIOMARKER_PARAMS.get(name)
+                if params is None:
+                    continue
+                render_cardio_score_bar(
+                    label=name, score=scores.get(name), note=params["note"],
+                    threshold_type=params.get("threshold_type", "high"),
+                    data_value=raw_val, data_label=val_label,
+                    is_averaged=params.get("averaged", False),
+                )
+
+
+# ============================================================
+# MODULE 3 — NEUROLOGICAL RESILIENCE
+# ============================================================
+
+def render_neuro_tab(crew_id):
+    st.title("🧠 Neurological Resilience")
+
+    st.warning(
+        "⚕️ **Dataset Notice:** The current cohort does not include astronauts taking any "
+        "therapeutic medications. Subjects were healthy and not in space long enough to exhibit "
+        "massive changes to bone density, muscle atrophy, or brain degradation. Biomarker levels "
+        "should therefore appear relatively normal — extreme signals are not expected."
+    )
+
+    st.write(
+        "Each biomarker is scored 0–100 relative to the **crew average**. "
+        "Thresholds are set at **crew mean ± 1 SD** for per-crew markers (urine panel), "
+        "and at a **±1.0 symmetric window** around the shared value for proteomics and metabolomics. "
+        "Markers tagged **⚠️ group avg** come from datasets averaged across all crew members."
+    )
+
+    crew_stats     = _build_neuro_crew_stats()
+    raw_this_crew  = _neuro_raw_for_crew(crew_id)
 
     prot_map = {k: raw_this_crew[k] for k in [
         "BDNF (Brain-Derived Neurotrophic Factor)",
@@ -1311,177 +1382,186 @@ def render_neuro_tab(crew_id):
         "Nicotinamide (NAD+ Precursor — Neuroprotection)",
     ]}
 
-    # ── SCORE EACH BIOMARKER AGAINST DYNAMIC THRESHOLDS ────────────────────
-    scores      = {}
-    thresholds  = {}   # store (low, high, mean, sd) for display
+    scores     = {}
+    thresholds = {}
 
     for name, params in NEURO_BIOMARKER_PARAMS.items():
         raw = raw_this_crew.get(name)
         low, high, mu, sd = _neuro_dynamic_thresholds(name, crew_stats)
         thresholds[name] = (low, high, mu, sd)
-        scores[name] = score_biomarker(
-            raw, low, high,
-            params["higher_is_better"],
-            params.get("threshold_type", "both"),
-        )
+        scores[name] = score_biomarker(raw, low, high, params["higher_is_better"],
+                                       params.get("threshold_type", "both"))
 
-    total_weight = 0.0
-    weighted_sum = 0.0
-    for name, params in NEURO_BIOMARKER_PARAMS.items():
-        s = scores.get(name)
-        if s is not None:
-            weighted_sum += s * params["weight"]
-            total_weight  += params["weight"]
-
+    total_weight = sum(p["weight"] for name, p in NEURO_BIOMARKER_PARAMS.items() if scores.get(name) is not None)
+    weighted_sum = sum(scores[name] * p["weight"] for name, p in NEURO_BIOMARKER_PARAMS.items() if scores.get(name) is not None)
     total_score = (weighted_sum / total_weight) if total_weight > 0 else 50.0
-    render_total_score_bar(
-        total_score, len(NEURO_BIOMARKER_PARAMS),
-        domain_label="Neurological Resilience"
-    )
+    render_total_score_bar(total_score, len(NEURO_BIOMARKER_PARAMS), domain_label="Neurological Resilience")
 
-    # ── RENDER SECTIONS ──────────────────────────────────────────────────────
     sections = [
-        ("🔬 Proteomics (logFC — flight vs. pre-flight)", prot_map, "logFC"),
-        ("💧 Urine Inflammation Panel (post/pre ratio)",   urine_map, "ratio"),
-        ("⚗️ Metabolomics (logFC — flight vs. pre-flight)", met_map, "logFC"),
+        ("🔬 Proteomics (logFC — flight vs. pre-flight)", prot_map, "logFC", True),
+        ("💧 Urine Inflammation Panel (post/pre ratio)",   urine_map, "ratio", False),
+        ("⚗️ Metabolomics (logFC — flight vs. pre-flight)", met_map, "logFC", True),
     ]
 
-    for section_title, raw_dict, val_label in sections:
+    for section_title, raw_dict, val_label, section_averaged in sections:
         with st.expander(section_title, expanded=True):
-            any_data = False
+            if section_averaged:
+                show_averaged_section_warning()
             for name, raw_val in raw_dict.items():
                 params = NEURO_BIOMARKER_PARAMS.get(name)
                 if params is None:
                     continue
-                s = scores.get(name)
                 _, _, mu, sd = thresholds.get(name, (0, 0, 0, 1))
-                is_per_crew  = name in _NEURO_PER_CREW_MARKERS
                 render_neuro_score_bar(
-                    label=name,
-                    score=s,
-                    note=params["note"],
+                    label=name, score=scores.get(name), note=params["note"],
                     threshold_type=params.get("threshold_type", "both"),
-                    data_value=raw_val,
-                    data_label=val_label,
-                    crew_mean=mu,
-                    crew_sd=sd,
-                    is_per_crew=is_per_crew,
+                    data_value=raw_val, data_label=val_label,
+                    crew_mean=mu, crew_sd=sd,
+                    is_per_crew=(name in _NEURO_PER_CREW_MARKERS),
+                    is_averaged=params.get("averaged", False),
                 )
-                any_data = True
-            if not any_data:
-                st.write("*No data available for this section.*")
 
 
 # ============================================================
-# UI HELPERS
-# ============================================================
+# ╔══════════════════════════════════════════════════════════╗
+# ║   TOP-OF-PAGE CREW SELECTOR                              ║
+# ╚══════════════════════════════════════════════════════════╝
 
-def get_color(category, score):
-    if category == "Bone Density Loss Inhibitor Efficacy":
-        return "green" if score > 0.7 else "yellow" if score > 0.4 else "red"
-    if category == "Cardiotoxicity Safety":
-        return "green" if score < 0.35 else "yellow" if score < 0.65 else "red"
-    if category == "Neurological Resilience":
-        return "green" if score > 0.6 else "yellow" if score > 0.35 else "red"
-
-
-def render_circle(color, score):
+def render_crew_selector():
+    """Horizontal crew selector row at the very top of the main content area."""
     st.markdown(
-        f"""
-        <div style="
-            width: 140px; height: 140px; border-radius: 50%;
-            background-color: {color};
-            display: flex; align-items: center; justify-content: center;
-            font-size: 22px; font-weight: bold; color: black;">
-        {score:.3f}
+        """
+        <div style="background:#f0f2f6; border-radius:12px; padding:16px 20px; margin-bottom:20px;">
+          <div style="font-size:14px; font-weight:700; color:#444; margin-bottom:10px;
+                      text-transform:uppercase; letter-spacing:0.08em;">
+            Select Crew Member
+          </div>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-# ============================================================
-# SIDEBAR — CREW MEMBER SELECTOR (colored buttons)
-# ============================================================
-st.sidebar.title("Torchlight Health")
-st.sidebar.markdown("---")
-st.sidebar.markdown("### Select Crew Member")
-
-st.sidebar.markdown(
-    """
-    <style>
-    div[data-testid="stSidebar"] .crew-btn-row {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        margin-top: 8px;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-for crew_id, cfg in CREW_CONFIG.items():
-    is_active = st.session_state.selected_crew == crew_id
-    border = "3px solid #fff" if is_active else "3px solid transparent"
-    opacity = "1.0" if is_active else "0.65"
-    checkmark = " ✓" if is_active else ""
-
-    btn_key = f"crew_btn_{crew_id}"
-    st.sidebar.markdown(
-        f"""
-        <style>
-        div[data-testid="stSidebar"] div:has(> div > button[kind="secondary"]#btn_{crew_id}) button {{
-            background-color: {cfg['color']} !important;
-            color: {cfg['text']} !important;
-            border: {border} !important;
-            opacity: {opacity};
-            font-weight: {'800' if is_active else '500'};
-            width: 100%;
-        }}
-        </style>
         """,
         unsafe_allow_html=True,
     )
 
-    clicked = st.sidebar.button(
-        f"{cfg['label']}{checkmark}",
-        key=btn_key,
-        use_container_width=True,
-        type="secondary",
-    )
-    if clicked:
-        st.session_state.selected_crew = crew_id
-        st.rerun()
+    # Use columns for a horizontal button strip
+    cols = st.columns(len(CREW_CONFIG))
+    for col, (crew_id, cfg) in zip(cols, CREW_CONFIG.items()):
+        is_active = st.session_state.selected_crew == crew_id
+        with col:
+            label_str = f"{'✓ ' if is_active else ''}{cfg['label']}"
+            # Styled button via markdown trick + regular button
+            if st.button(
+                label_str,
+                key=f"top_crew_{crew_id}",
+                use_container_width=True,
+                type="primary" if is_active else "secondary",
+            ):
+                st.session_state.selected_crew = crew_id
+                st.rerun()
 
-button_styles = ""
-for i, (crew_id, cfg) in enumerate(CREW_CONFIG.items(), start=1):
-    is_active = st.session_state.selected_crew == crew_id
-    border = "3px solid #ffffff" if is_active else "3px solid rgba(255,255,255,0.3)"
-    opacity = "1.0" if is_active else "0.7"
-    font_weight = "800" if is_active else "500"
-    button_styles += f"""
-    div[data-testid="stSidebar"] div[data-testid="stVerticalBlock"]
-      > div:nth-child({i}) button {{
-        background-color: {cfg['color']} !important;
-        color: {cfg['text']} !important;
-        border: {border} !important;
-        opacity: {opacity} !important;
-        font-weight: {font_weight} !important;
-        border-radius: 8px !important;
-        transition: all 0.15s ease !important;
-    }}
-    div[data-testid="stSidebar"] div[data-testid="stVerticalBlock"]
-      > div:nth-child({i}) button:hover {{
-        background-color: {cfg['hover']} !important;
-        opacity: 1.0 !important;
-    }}
-    """
+    # Inject per-button colors
+    button_css = ""
+    for i, (crew_id, cfg) in enumerate(CREW_CONFIG.items(), start=1):
+        is_active = st.session_state.selected_crew == crew_id
+        opacity   = "1.0" if is_active else "0.65"
+        border    = f"3px solid {cfg['color']}" if is_active else "2px solid #ccc"
+        button_css += f"""
+        /* Column {i} button */
+        div[data-testid="stHorizontalBlock"] > div:nth-child({i})
+          button {{
+            background-color: {cfg['color']} !important;
+            color: {cfg['text']} !important;
+            border: {border} !important;
+            opacity: {opacity} !important;
+            font-weight: {'800' if is_active else '600'} !important;
+            font-size: 15px !important;
+            border-radius: 8px !important;
+            transition: all 0.15s ease !important;
+        }}
+        div[data-testid="stHorizontalBlock"] > div:nth-child({i})
+          button:hover {{
+            background-color: {cfg['hover']} !important;
+            opacity: 1.0 !important;
+        }}
+        """
+    st.markdown(f"<style>{button_css}</style>", unsafe_allow_html=True)
 
-st.sidebar.markdown(f"<style>{button_styles}</style>", unsafe_allow_html=True)
 
-selected_cfg = CREW_CONFIG[st.session_state.selected_crew]
+def render_crew_card(crew_id):
+    """Compact crew profile shown below the selector."""
+    cfg   = CREW_CONFIG[crew_id]
+    photo = cfg.get("photo", "")
+    app_dir = os.path.dirname(os.path.abspath(__file__))
+    photo_path = os.path.join(app_dir, photo)
+
+    col_img, col_info = st.columns([1, 4])
+    with col_img:
+        if photo and os.path.exists(photo_path):
+            st.image(photo_path, width=110)
+        else:
+            # Placeholder avatar square
+            st.markdown(
+                f"""
+                <div style="
+                    width:100px; height:100px; border-radius:50%;
+                    background:{cfg['color']}; display:flex;
+                    align-items:center; justify-content:center;
+                    font-size:36px; color:{cfg['text']}; font-weight:900;
+                    border:3px solid #ddd;">
+                  {cfg['label'][0]}
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+    with col_info:
+        st.markdown(
+            f"""
+            <div style="background:#f8f9fc; border-left:4px solid {cfg['color']};
+                        border-radius:0 10px 10px 0; padding:12px 16px;">
+              <div style="font-size:18px; font-weight:800; color:#111;">
+                {cfg['label']}
+                <span style="font-size:13px; color:#777; font-weight:500; margin-left:8px;">
+                  ID: {crew_id}
+                </span>
+              </div>
+              <div style="font-size:14px; color:#444; margin-top:2px; font-weight:600;">
+                Age: {cfg['age']} &nbsp;|&nbsp; Sex: {cfg['sex']}
+              </div>
+              <div style="font-size:14px; color:#555; margin-top:6px; line-height:1.55;">
+                {cfg['bio']}
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("<hr style='margin:14px 0 4px 0; border:1px solid #e0e0e0;'>", unsafe_allow_html=True)
+
+
+# ============================================================
+# SIDEBAR — MODULE NAVIGATION
+# ============================================================
+
+st.sidebar.title("Torchlight Health")
 st.sidebar.markdown("---")
+st.sidebar.markdown("### 📋 View Module")
+
+module_options = [
+    "🦴 Bone Density Loss Inhibitor Efficacy",
+    "❤️ Cardiotoxicity Safety",
+    "🧠 Neurological Resilience",
+]
+
+selected_module = st.sidebar.radio(
+    label="",
+    options=module_options,
+    index=0,
+    label_visibility="collapsed",
+)
+
+st.sidebar.markdown("---")
+
+# Show active crew indicator in sidebar too
+selected_cfg = CREW_CONFIG[st.session_state.selected_crew]
 st.sidebar.markdown(
     f"""
     <div style="
@@ -1495,7 +1575,9 @@ st.sidebar.markdown(
         margin-top: 4px;
     ">
         📡 Viewing: {selected_cfg['label']}<br>
-        <span style="font-size:12px; font-weight:400; opacity:0.9;">ID: {st.session_state.selected_crew}</span>
+        <span style="font-size:12px; font-weight:400; opacity:0.9;">
+          ID: {st.session_state.selected_crew}
+        </span>
     </div>
     """,
     unsafe_allow_html=True,
@@ -1504,46 +1586,26 @@ st.sidebar.markdown(
 if not DATA_LOADED:
     st.sidebar.markdown("---")
     st.sidebar.error(f"⚠️ Could not load CSV data from:\n`{DATA_DIR}`\n\nError: {DATA_ERROR}")
-    st.sidebar.info("Adjust `DATA_DIR` at the top of `app.py` to point to your `data/processed/` folder.")
+    st.sidebar.info(
+        "Adjust `DATA_DIR` at the top of `app.py` to point to your `data/processed/` folder."
+    )
+
+# ============================================================
+# MAIN CONTENT
+# ============================================================
+
+render_crew_selector()
 
 crew = st.session_state.selected_crew
+render_crew_card(crew)
 
+if not DATA_LOADED:
+    st.error("⚠️ Data not loaded. Check the sidebar for details.")
+    st.stop()
 
-# ============================================================
-# TAB LAYOUT
-# ============================================================
-tabs = st.tabs([
-    "🦴 Bone Density Loss Inhibitor Efficacy",
-    "❤️ Cardiotoxicity Safety",
-    "🧠 Neurological Resilience"
-])
-
-
-# ============================================================
-# TAB 1 — BONE DENSITY LOSS INHIBITOR EFFICACY
-# ============================================================
-with tabs[0]:
-    if DATA_LOADED:
-        render_bone_tab(crew)
-    else:
-        st.warning("Data not loaded. Check the sidebar for details.")
-
-
-# ============================================================
-# TAB 2 — CARDIOTOXICITY SAFETY
-# ============================================================
-with tabs[1]:
-    if DATA_LOADED:
-        render_cardio_tab(crew)
-    else:
-        st.warning("Data not loaded. Check the sidebar for details.")
-
-
-# ============================================================
-# TAB 3 — NEUROLOGICAL RESILIENCE
-# ============================================================
-with tabs[2]:
-    if DATA_LOADED:
-        render_neuro_tab(crew)
-    else:
-        st.warning("Data not loaded. Check the sidebar for details.")
+if selected_module == "🦴 Bone Density Loss Inhibitor Efficacy":
+    render_bone_tab(crew)
+elif selected_module == "❤️ Cardiotoxicity Safety":
+    render_cardio_tab(crew)
+elif selected_module == "🧠 Neurological Resilience":
+    render_neuro_tab(crew)
