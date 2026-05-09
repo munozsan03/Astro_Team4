@@ -12,6 +12,10 @@ Santiago Munoz, Vy Tran, Giovanni Victorio
 
 Long-term human spaceflight can expose astronauts to extreme conditions such as microgravity, radiation, and confined environments which can disrupt multiple biological systems. 
 
+<p align="center">
+  <img src="(https://cdn.mos.cms.futurecdn.net/UnAJpoG9pf5UHEHx8xdGsS-1920-80.jpg.webp)" width="700">
+</p>
+
 These disruptions can lead to increased risk of:
 
 - 🦴 Bone Density Loss
@@ -30,7 +34,6 @@ In traditional clinical development:
 
 However, evaluating potential therapeutics during long-duration spaceflight presents major challenges due to the lack of validated clinical trial frameworks in microgravity and radiation-exposed environments.
 
-Our tool targets future drug discovery validation for long-duration space missions by monitoring biomarkers associated with bone density loss, muscle atrophy, neurodegeneration, safety risk, and physiological resilience.
 
 **Problem Statement**
 
