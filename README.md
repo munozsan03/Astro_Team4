@@ -1,10 +1,13 @@
 # Astro_Team4
-Torchlight Summit
+
+### Biomarker-Driven Therapeutic Evaluation for Long-Duration Spaceflight
 
 Teammates:
 Santiago Munoz, Vy Tran, Giovanni Victorio
 
-
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-red)
+![Hackathon](https://img.shields.io/badge/Torchlight-Hackathon-orange)
 
 ## Problem Background:
 
@@ -17,11 +20,9 @@ Long-term human spaceflight can expose astronauts to extreme conditions such as 
 
 These disruptions can lead to increased risk of:
 
-<li>
-  Bone Density Loss
-  <img src="https://my.clevelandclinic.org/-/scassets/images/org/health/articles/osteopenia" width="180" align="right">
-</li>
-  
+
+-  Bone Density Loss
+
 -  Muscle Atrophy
   
 -  Neurobiological Degeneration
