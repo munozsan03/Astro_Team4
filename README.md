@@ -168,7 +168,7 @@ There are 2 ways to access or run the Astro_team4 Streamlit dashboard
 
 Dashboard link: https://astroteam4-jsxtx6fdranyr5uv6rdzcn.streamlit.app/
 
-QR-code: <img width="442" height="440" alt="image" src="https://github.com/user-attachments/assets/1f629432-6134-4b37-b324-f4e95cd25a61" />
+QR-code: <img width="300" height="300" alt="image" src="https://github.com/user-attachments/assets/1f629432-6134-4b37-b324-f4e95cd25a61" />
 
 ---
 
