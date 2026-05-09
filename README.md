@@ -28,7 +28,7 @@ These disruptions can lead to increased risk of:
 -  Neurobiological Degeneration
 
 
-Terrestrial solutions to these risks include drug therapeutics that require clinical trials for safety and efficacy to be approved for human use. Evaluating potential drug therapeutics during long-term space travel for these risks will be challenging due to the lack of clinical trials in these extreme environments. Our tool targets future drug discovery validation in space missions that tackle issues of bone density loss, muscle atrophy, and neurodegeneration.
+Terrestrial solutions to these risks include drug therapeutics that require clinical trials for safety and efficacy to be approved for human use. Evaluating therapeutic performance during long-duration spaceflight remains challenging due to the absence of validated clinical frameworks in microgravity environments.
 
 ---
 
@@ -46,26 +46,24 @@ Microgravity-associated physiological adaptation may alter biomarker trajectorie
 
 This creates a major translational gap for future astronaut healthcare and therapeutic deployment during deep-space missions.
 
-Our prototype addresses this challenge by integrating biomarker-based safety monitoring, efficacy scoring, and physiological resilience analysis into a unified visualization platform designed for long-duration spaceflight applications.
-
 ---
 
 ## Approach 
 
 
-Our prototype integrates biomarker-driven safety, efficacy, and resilience analysis into a unified visualization platform designed for long-duration spaceflight applications.
+Our prototype integrates biomarker-driven safety, efficacy, and resilience analysis into a unified visualization platform for long-duration spaceflight applications.
 
 Using longitudinal astronaut multi-omics datasets, the dashboard evaluates physiological changes associated with musculoskeletal degeneration, cardiovascular stress, immune dysregulation, and neurobiological adaptation throughout mission duration.
 
 The framework is organized into three primary analytical categories:
 
-- **Safety Monitoring** — evaluates biomarkers associated with adverse physiological responses and potential therapeutic toxicity.
-- **Efficacy Analysis** — evaluates biomarkers associated with therapeutic effectiveness and preservation of physiological function.
-- **Resilience Modeling** — evaluates recovery trajectory, adaptive response, and inter-crew physiological variability across mission timepoints.
+- Safety Monitoring — evaluates biomarkers associated with adverse physiological responses and potential therapeutic toxicity.
 
-Biomarker trajectories are processed and visualized through an interactive Streamlit dashboard that allows users to explore astronaut health trends, therapeutic response indicators, and physiological risk signatures across multiple biological systems.
+- Efficacy Analysis — evaluates biomarkers associated with therapeutic effectiveness and preservation of physiological function.
 
-The current prototype focuses on representative modules for bone density loss prevention, cardiotoxicity safety monitoring, and neurobiological resilience analysis while establishing a scalable framework for future biomarker integration and therapeutic evaluation.
+- Resilience Modeling — evaluates recovery trajectory, adaptive response, and inter-crew physiological variability across mission timepoints.
+
+The current prototype focuses on representative modules for bone density loss prevention, cardiotoxicity safety monitoring, and neurobiological resilience analysis while establishing a scalable framework for future biomarker integration.
 
 ---
 
@@ -95,6 +93,10 @@ The current prototype focuses on three representative modules: one efficacy modu
 
 The table below represents the idealized full biomarker panel for future expansion of the prototype. It includes additional safety, efficacy, and resilience categories that could be incorporated as more datasets and validation methods become available.
 
+<details>
+<summary><strong>View Full Biomarker Framework</strong></summary>
+
+
 | Risk | Category | Tests / Samples | Measured Biomarkers |
 |------|----------|-----------------|---------------------|
 | **Neurodegeneration** | Efficacy | Plasma Proteomics, Urine Inflammation Panel, Plasma Metabolomics, EVP Proteomics | **Proteomics:** BDNF, APP, SNCA, CLU, APOE, S100B, VGF, NRGN, L1CAM, CNTN1, IGF1, MDK, CHGB, SCG5, PRNP · **Urine Panel:** BDNF, GFAP, NGF, MIF, IL-6, TNF, IFN-γ, CXCL10, TGF-β1/3, VSNL1 · **Metabolomics:** Kynurenine, Tryptophan, Kynurenic Acid, Xanthurenic Acid, N-Acetylaspartic Acid, 5-HIAA, Homovanillic Acid, Cortisol, Nicotinamide |
@@ -115,6 +117,7 @@ The table below represents the idealized full biomarker panel for future expansi
 | **Neurological Resilience** | Resilience | Plasma Proteomics, Urine Inflammation Panel, Plasma Metabolomics | **Cross-crew comparison of neuro-inflammatory shift and recovery trajectory — Proteomics:** BDNF, GFAP, S100B, NRGN, CLU, APOE · **Urine Panel:** BDNF, GFAP, NGF, CXCL10 · **Metabolomics:** Kynurenine:Tryptophan Ratio, 5-HIAA, N-Acetylaspartic Acid, Cortisol, Nicotinamide |
 | **Microbiome Resilience** | Resilience | Stool Metagenomics, Skin Metagenomics | **Cross-crew comparison of diversity loss and post-flight recovery rate — Taxonomy:** Alpha diversity (Shannon index), Firmicutes:Bacteroidetes ratio, Lactobacillaceae abundance · **Functional (KEGG):** Butyrate synthesis pathway CPM, short-chain fatty acid biosynthesis · **Beta diversity:** Bray-Curtis dissimilarity from each astronaut's own preflight baseline |
 | **Musculoskeletal Resilience** | Resilience | Blood Serum (CMP), Plasma Proteomics, EVP Proteomics, Plasma Metabolomics | **Cross-crew comparison of muscle and bone marker trajectories — Proteomics:** FST, IGF1, NAMPT, BGLAP, SOST, SPP1, COL1A1/1A2, COMP · **CMP:** Creatinine, BUN:Creatinine Ratio, Calcium, Alkaline Phosphatase · **Metabolomics:** 3-Methylhistidine, Creatine, BCAAs (Leu/Ile/Val), Ergocalciferol (Vit D2), Cortisol |
+</details>
 
 ---
 
