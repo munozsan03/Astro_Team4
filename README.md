@@ -71,11 +71,30 @@ The current prototype focuses on representative modules for bone density loss pr
 
 The dashboard prototype visualizes astronaut health risks using biomarker-based safety, efficacy, and resilience scoring. These visuals are intended to demonstrate how mission biomarker data could support future therapeutic monitoring during long-duration spaceflight.
 
-<img width="500" height="600" alt="image" src="https://github.com/user-attachments/assets/c0bf30dd-9afa-4a03-affb-c15126971507" />
-<img width="500" height="600" alt="Screenshot 2026-05-09 103551" src="https://github.com/user-attachments/assets/65c401e4-0749-4c12-83db-366393623a68" />
-<img width="500" height="600" alt="Screenshot 2026-05-09 103551" src="https://github.com/user-attachments/assets/3e46f4f9-f4ca-4564-9061-e39c16add203" />
-<img width="500" height="600" alt="Screenshot 2026-05-09 103604" src="https://github.com/user-attachments/assets/ebc17d9c-d145-4cd4-97be-951a09f2475a" />
+<table align="center" cellspacing="20">
+<tr>
 
+<td align="center">
+<img src="https://github.com/user-attachments/assets/c0bf30dd-9afa-4a03-affb-c15126971507" width="280"><br>
+<em>Bone Density Loss Prevention</em>
+</td>
+
+<td align="center">
+<img src="https://github.com/user-attachments/assets/65c401e4-0749-4c12-83db-366393623a68" width="280"><br>
+<em>Cardiotoxicity Safety</em>
+</td>
+
+<td align="center">
+<img src="https://github.com/user-attachments/assets/ebc17d9c-d145-4cd4-97be-951a09f2475a" width="280"><br>
+<em>Neurobiological Resilience</em>
+</td>
+
+</tr>
+</table>
+
+<p align="center">
+<em>Figure 4. Representative prototype modules for efficacy, safety, and neurobiological resilience analysis during long-duration spaceflight.</em>
+</p>
 
 ---
 
