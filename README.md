@@ -5,7 +5,7 @@ Teammates:
 Santiago Munoz, Vy Tran, Giovanni Victorio
 
 
-# Proposal: 
+# Proposal: 1
 
 
 **Problem Background**
