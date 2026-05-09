@@ -14,11 +14,11 @@ Long-term human spaceflight can expose astronauts to extreme conditions such as 
 
 These disruptions can lead to increased risk of:
 
-- Bone Density Loss
-
-- Muscle Atrophy
-
-- Neurobiological Degeneration
+- 🦴 Bone Density Loss
+  
+- 💪 Muscle Atrophy
+  
+- 🧠 Neurobiological Degeneration
 
 
 Terrestrial solutions to these risks include drug therapeutics that require clinical trials for safety and efficacy to be approved for human use. Evaluating potential drug therapeutics during long-term space travel for these risks will be challenging due to the lack of clinical trials in these extreme environments. Our tool targets future drug discovery validation in space missions that tackle issues of bone density loss, muscle atrophy, and neurodegeneration.
@@ -88,19 +88,24 @@ The table below represents the idealized full biomarker panel for future expansi
 
 There are 3 ways to access or run the Astro_team4 Streamlit dashboard
 
-   **Option 1**
+**Option 1**
+
 Use this option if you want to download the project and run the dashboard on your own computer.
+
 1. Clone the Github repository: git clone https://github.com/munozsan03/Astro_Team4.git
 2. Move into the project folder: cd Astro_Team4
 
-   **Option 2**
+**Option 2**
+
 Use this option if the dashboard is deployed online.
 
 Dashboard link
 QR Code
 
-   **Option 3**
+**Option 3**
+
 Use this option if you already have the project folder on your computer and only need to install Streamlit and run the app.
+
 1. Install Streamlit using Python
 2. Move into the project folder: cd Astro_Team4
 3. Run the dashboard: python -m streamlit run streamlit_app/app.py
