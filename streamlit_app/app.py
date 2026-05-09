@@ -132,6 +132,11 @@ st.markdown(
         box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
     }}
 
+    header[data-testid="stHeader"] {{
+    background-color: #3b82f6 !important;
+}}
+
+    
     /* ── Expander ─────────────────────────────────────── */
     [data-testid="stExpander"] {{
         background: #ffffff !important;
@@ -298,7 +303,6 @@ st.markdown(
     [data-theme="dark"] [data-testid="stSidebar"] h3 {{
         color: #111111 !important;
     }}
-
     
     /* ── Target the Logo (First Image) ── */
     [data-testid="stSidebar"] [data-testid="stImage"]:nth-of-type(1),
@@ -316,11 +320,11 @@ st.markdown(
     }}
 
     
-    
     </style>
     """,
     unsafe_allow_html=True,
 )
+
 
 
 # ============================================================
