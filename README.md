@@ -128,26 +128,14 @@ There are 3 ways to access or run the Astro_team4 Streamlit dashboard
 **Option 1 - Run Locally**
 
 
-1. Clone the Github repository: git clone https://github.com/munozsan03/Astro_Team4.git
-2. Move into the project folder: cd Astro_Team4
-3. Creater a virtual environment: python -m venv venv
-4. Activate the virtual environment (Windows PowerShell): .\venv\Scripts\Activate.ps1
-5. If PowerShell blocks activation: Set-ExecutionPolicy - Scope Process -ExecutionPolicy Bypass
-6. Install required libraries: python -m pip install -r requirements.txt
-7. Run the Streamlit dashboard: python -m streamlit run streamlit_app/app.py
+1. Clone the Github repository: git clone https://github.com/munozsan03/Astro_Team4.git, or download and extract ZIP file
+2. Using Command Prompt or Terminal, move into the project folder: cd ~/Astro_Team4
+3. Install Streamlit using Python: python -m pip install streamlit
+4. Make sure you are in directory that contains streamlit_app/
+5. Run the Streamlit dashboard: python -m streamlit run streamlit_app/app.py
 
 **Option 2 - Hosted Streamlit Deployment**
 
-
+Coming Soon
 Dashboard link
 QR Code
-
-**Option 3 - Offline Streamlit Execution**
-
-
-1. Install Streamlit using Python
-2. Move into the project folder: cd Astro_Team4
-3. Run the dashboard: python -m streamlit run streamlit_app/app.py
-4. After running the command, Streamlit will show a local URL such as: http://localhost:8501
-
-
