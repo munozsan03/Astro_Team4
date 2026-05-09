@@ -4,85 +4,259 @@ import numpy as np
 import os
 
 # ============================================================
+# FONT SIZE LIBRARY
+# Edit any value here to change that font size across the app.
+# ============================================================
+FONT_SIZES = {
+    # ── Global / base ─────────────────────────────────────
+    "base":                     "16px",   # Root body / default text
+
+    # ── Page headings ─────────────────────────────────────
+    "heading_h1":               "28px",   # st.title() / <h1>
+    "heading_h2":               "22px",   # Section headings / <h2>
+    "heading_h3":               "18px",   # Sub-section headings / <h3>
+
+    # ── Sidebar ───────────────────────────────────────────
+    "sidebar_body":             "15px",   # General sidebar text
+    "sidebar_heading":          "18px",   # Sidebar h1/h2/h3
+    "sidebar_active_crew":      "15px",   # Active-crew badge label
+    "sidebar_active_crew_sub":  "12px",   # Active-crew badge sub-line (ID)
+
+    # ── Crew selector buttons ──────────────────────────────
+    "crew_selector_heading":    "24px",   # "Select Crew Member" label
+    "crew_button":              "15px",   # Crew selector button text
+
+    # ── Crew info card ─────────────────────────────────────
+    "crew_card_name":           "18px",   # Crew member name
+    "crew_card_id":             "13px",   # "(ID: C001)" label
+    "crew_card_demographics":   "14px",   # Age / Sex line
+    "crew_card_bio":            "14px",   # Bio paragraph
+
+    # ── Tab / radio labels ────────────────────────────────
+    "tab_label":                "15px",   # Tab button text
+    "radio_label":              "15px",   # Sidebar radio options
+
+    # ── Score bar — label row ─────────────────────────────
+    "score_bar_label":          "15px",   # Biomarker name
+    "score_bar_score":          "16px",   # "XX.X/100" number
+    "score_bar_raw_value":      "13px",   # "(logFC: +0.123)" inline note
+
+    # ── Score bar — badge chips ───────────────────────────
+    "score_bar_badge":          "11px",   # "⬆ high threshold" chip
+    "score_bar_avg_tag":        "11px",   # "⚠️ group avg" chip
+
+    # ── Score bar — sub-text beneath the bar ─────────────
+    "score_bar_note":           "12px",   # Italic explanatory note
+
+    # ── Neuro score bar extras ────────────────────────────
+    "neuro_crew_ref":           "12px",   # "📊 Crew mean = …" line
+
+    # ── Total score summary card ──────────────────────────
+    "total_score_heading":      "20px",   # "Total Score" label
+    "total_score_number":       "32px",   # Big score number
+    "total_score_verdict":      "18px",   # "✅ Drug Efficacy Signal: POSITIVE"
+    "total_score_footnote":     "13px",   # Weighted composite footnote
+
+    # ── Warning / alert banners ───────────────────────────
+    "warning_banner":           "15px",   # st.warning() text
+    "averaged_warning":         "14px",   # ⚠️ "group avg" section banner
+    "alert_text":               "15px",   # Generic [data-testid="stAlert"] text
+
+    # ── "Data not available" fallback line ────────────────
+    "unavailable_label":        "14px",   # "biomarker — data not available"
+}
+
+
+# ============================================================
 # PAGE CONFIG
 # ============================================================
-st.set_page_config(page_title="Torchlight Health Dashboard", layout="wide")
+st.set_page_config(page_title="Astronaut Therapeutic Testing", layout="wide")
 
 # ============================================================
 # GLOBAL TYPOGRAPHY & COLOR OVERRIDES
 # ============================================================
 st.markdown(
-    """
+    f"""
     <style>
-    /* ── Base font size bump ─────────────────────────────── */
-    html, body, [class*="css"] {
-        font-size: 16px !important;
-    }
-
-    /* ── Sidebar labels & text ───────────────────────────── */
-    [data-testid="stSidebar"] * {
-        font-size: 15px !important;
-        color: #e8e8e8 !important;
-    }
-    [data-testid="stSidebar"] h1, 
-    [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3 {
-        font-size: 18px !important;
-        color: #ffffff !important;
-        font-weight: 700 !important;
-    }
-
-    /* ── Tab labels ──────────────────────────────────────── */
-    button[data-baseweb="tab"] p {
-        font-size: 15px !important;
-        font-weight: 600 !important;
-    }
-
-    /* ── Expander headers ────────────────────────────────── */
-    [data-testid="stExpander"] summary p {
-        font-size: 15px !important;
-        font-weight: 700 !important;
+    /* ── Force light background + dark text everywhere ─── */
+    html, body, [class*="css"], .stApp, [data-testid="stAppViewContainer"] {{
+        background-color: #f2f4f7 !important;
         color: #111111 !important;
-    }
+        font-size: {FONT_SIZES["base"]} !important;
+    }}
 
-    /* ── Main body text ──────────────────────────────────── */
-    .stMarkdown p {
-        font-size: 15px !important;
-        color: #1a1a1a !important;
-        line-height: 1.6 !important;
-    }
+    /* Main content block */
+    [data-testid="stMainBlockContainer"],
+    [data-testid="block-container"],
+    .main .block-container {{
+        background-color: #f2f4f7 !important;
+    }}
 
-    /* ── Warning / info banners ──────────────────────────── */
-    [data-testid="stAlert"] p {
-        font-size: 15px !important;
-        font-weight: 600 !important;
-        color: #1a1a1a !important;
-    }
+    /* ── White card behind every vertical block ───────── */
+    [data-testid="stVerticalBlock"],
+    [data-testid="stVerticalBlockBorderWrapper"] {{
+        background: #ffffff !important;
+        border-radius: 12px !important;
+        padding: 16px 20px !important;
+        margin-bottom: 8px !important;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
+    }}
 
-    /* ── Page title (h1) ─────────────────────────────────── */
-    h1 {
-        font-size: 28px !important;
-        font-weight: 800 !important;
-        color: #0a0a0a !important;
-    }
-    h2 { font-size: 22px !important; font-weight: 700 !important; color: #111 !important; }
-    h3 { font-size: 18px !important; font-weight: 700 !important; color: #222 !important; }
-
-    /* ── Score bar biomarker labels (inline HTML) ────────── */
-    /* Applied via style= in the HTML blocks below */
-
-    /* ── Crew selector button strip (top of page) ────────── */
-    div.crew-selector-row button {
-        font-size: 15px !important;
+    /* ── Expander ─────────────────────────────────────── */
+    [data-testid="stExpander"] {{
+        background: #ffffff !important;
+        border-radius: 12px !important;
+        border: 1px solid #e0e3e8 !important;
+        margin-bottom: 10px !important;
+    }}
+    [data-testid="stExpander"] summary {{
+        background: #ffffff !important;
+        border-radius: 12px !important;
+    }}
+    [data-testid="stExpander"] summary p,
+    [data-testid="stExpander"] summary span {{
+        color: #111111 !important;
+        font-size: {FONT_SIZES["heading_h3"]} !important;
         font-weight: 700 !important;
-    }
+    }}
+    [data-testid="stExpander"] [data-testid="stVerticalBlock"] {{
+        background: #ffffff !important;
+        box-shadow: none !important;
+        padding: 8px 4px !important;
+    }}
 
-    /* ── Sidebar nav radio buttons ───────────────────────── */
-    [data-testid="stRadio"] label {
-        font-size: 15px !important;
+    /* ── All text elements → dark ─────────────────────── */
+    p, span, div, label, li, td, th, h1, h2, h3, h4, h5, h6,
+    .stMarkdown, .stMarkdown p, .stMarkdown div, .stMarkdown span,
+    [data-testid="stMarkdownContainer"],
+    [data-testid="stMarkdownContainer"] p,
+    [data-testid="stMarkdownContainer"] div,
+    [data-testid="stMarkdownContainer"] span {{
+        color: #111111 !important;
+    }}
+
+    h1 {{ font-size: {FONT_SIZES["heading_h1"]} !important; font-weight: 800 !important; }}
+    h2 {{ font-size: {FONT_SIZES["heading_h2"]} !important; font-weight: 700 !important; }}
+    h3 {{ font-size: {FONT_SIZES["heading_h3"]} !important; font-weight: 700 !important; }}
+
+    /* ── Alert / warning banners ──────────────────────── */
+    [data-testid="stAlert"] {{
+        background: #fffbeb !important;
+        border-color: #f59e0b !important;
+        border-radius: 10px !important;
+    }}
+    [data-testid="stAlert"] p,
+    [data-testid="stAlert"] span,
+    [data-testid="stAlert"] div {{
+        color: #7d4e00 !important;
+        font-size: {FONT_SIZES["alert_text"]} !important;
         font-weight: 600 !important;
-        color: #f0f0f0 !important;
-    }
+    }}
+
+    /* ── Sidebar ──────────────────────────────────────── */
+    [data-testid="stSidebar"],
+    [data-testid="stSidebar"] > div {{
+        background-color: #1a1d2e !important;
+    }}
+    [data-testid="stSidebar"] * {{
+        color: #e8e8e8 !important;
+        font-size: {FONT_SIZES["sidebar_body"]} !important;
+    }}
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3 {{
+        color: #111111 !important;
+        font-size: {FONT_SIZES["sidebar_heading"]} !important;
+        font-weight: 700 !important;
+    }}
+    [data-testid="stRadio"] label {{
+        font-size: {FONT_SIZES["radio_label"]} !important;
+        font-weight: 600 !important;
+        color: #111111 !important;
+    }}
+
+    /* ── Tab labels ───────────────────────────────────── */
+    button[data-baseweb="tab"] p {{
+        font-size: {FONT_SIZES["tab_label"]} !important;
+        font-weight: 600 !important;
+        color: #111111 !important;
+    }}
+
+    /* ── Custom inline background cards ── */
+    div[style*="background:#f8f9fc"],
+    div[style*="background: #f8f9fc"],
+    div[style*="background:#f0f2f6"],
+    div[style*="background: #f0f2f6"],
+    div[style*="background:#f8f8f8"],
+    div[style*="background: #f8f8f8"] {{
+        background: #ffffff !important;
+        color: #111111 !important;
+    }}
+
+    /* ── Warning card (yellow) ────────────────────────── */
+    div[style*="background:#fff3cd"],
+    div[style*="background: #fff3cd"] {{
+        background: #fff8e1 !important;
+        color: #7d4e00 !important;
+        border-color: #f59e0b !important;
+    }}
+
+    div[style*="background:#f8f8f8"] {{
+        background: #ffffff !important;
+    }}
+
+    /* ── Metric / number text ─────────────────────────── */
+    [data-testid="stMetric"] * {{
+        color: #111111 !important;
+    }}
+
+    /* ── Remove any dark overlay on main area ─────────── */
+    [data-theme="dark"] .stApp,
+    [data-theme="dark"] [data-testid="stAppViewContainer"],
+    [data-theme="dark"] [data-testid="stMainBlockContainer"],
+    [data-theme="dark"] .main .block-container {{
+        background-color: #f2f4f7 !important;
+    }}
+    [data-theme="dark"] [data-testid="stVerticalBlock"],
+    [data-theme="dark"] [data-testid="stVerticalBlockBorderWrapper"],
+    [data-theme="dark"] [data-testid="stExpander"],
+    [data-theme="dark"] [data-testid="stExpander"] summary,
+    [data-theme="dark"] [data-testid="stExpander"] [data-testid="stVerticalBlock"] {{
+        background: #ffffff !important;
+        color: #111111 !important;
+    }}
+    [data-theme="dark"] p,
+    [data-theme="dark"] span,
+    [data-theme="dark"] div,
+    [data-theme="dark"] label,
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] .stMarkdown p,
+    [data-theme="dark"] .stMarkdown div,
+    [data-theme="dark"] [data-testid="stMarkdownContainer"] p,
+    [data-theme="dark"] [data-testid="stMarkdownContainer"] div,
+    [data-theme="dark"] [data-testid="stMarkdownContainer"] span {{
+        color: #111111 !important;
+    }}
+    [data-theme="dark"] [data-testid="stAlert"] p,
+    [data-theme="dark"] [data-testid="stAlert"] div,
+    [data-theme="dark"] [data-testid="stAlert"] span {{
+        color: #7d4e00 !important;
+    }}
+    /* Dark mode sidebar stays dark */
+    [data-theme="dark"] [data-testid="stSidebar"],
+    [data-theme="dark"] [data-testid="stSidebar"] > div {{
+        background-color: #1a1d2e !important;
+    }}
+    [data-theme="dark"] [data-testid="stSidebar"] * {{
+        color: #e8e8e8 !important;
+    }}
+    [data-theme="dark"] [data-testid="stSidebar"] h1,
+    [data-theme="dark"] [data-testid="stSidebar"] h2,
+    [data-theme="dark"] [data-testid="stSidebar"] h3 {{
+        color: #111111 !important;
+    }}
     </style>
     """,
     unsafe_allow_html=True,
@@ -111,18 +285,15 @@ except Exception as e:
 
 # ============================================================
 # CREW CONFIGURATION
-# (Add a PNG file named crew_C001.png, crew_C002.png, etc.
-#  into the same folder as app.py — they will render here.)
 # ============================================================
 CREW_CONFIG = {
     "C001": {
         "label": "Crew Member 1",
         "color": "#3b82f6", "hover": "#2563eb", "text": "#ffffff",
-        "age": 38, "sex": "Male",
+        "age": 43, "sex": "Male",
         "bio": (
-            "Commander. Former military test pilot with 2 prior ISS expeditions. "
-            "Experienced in long-duration microgravity physiology and EVA operations. "
-            "Exercises 90 min/day on ARED resistance system."
+            "Mission Command. "
+            "Current NASA Administrator."
         ),
         "photo": "crew_C001.png",
     },
@@ -131,31 +302,28 @@ CREW_CONFIG = {
         "color": "#10b981", "hover": "#059669", "text": "#ffffff",
         "age": 34, "sex": "Female",
         "bio": (
-            "Flight Engineer. Biomedical research specialist with background in space medicine. "
-            "First long-duration spaceflight. Primary operator of onboard laboratory equipment "
-            "and daily biomarker collection protocols."
+            "Medical Officer. "
+            "Physician Assistant at St. Jude's."
         ),
         "photo": "crew_C002.png",
     },
     "C003": {
         "label": "Crew Member 3",
         "color": "#f59e0b", "hover": "#d97706", "text": "#ffffff",
-        "age": 41, "sex": "Male",
+        "age": 56, "sex": "Female",
         "bio": (
-            "Mission Specialist. Aerospace engineer with expertise in life-support systems. "
-            "Third spaceflight; prior experience on Lunar Gateway transition crew. "
-            "Participates in countermeasure exercise trials."
+            "Pilot. "
+            "Professor (PhD), Envoy for the State Department."
         ),
         "photo": "crew_C003.png",
     },
     "C004": {
         "label": "Crew Member 4",
         "color": "#ef4444", "hover": "#dc2626", "text": "#ffffff",
-        "age": 29, "sex": "Female",
+        "age": 29, "sex": "Male",
         "bio": (
-            "Payload Specialist. Neuroimmunology researcher on first spaceflight. "
-            "Focus on CNS adaptation and neuro-inflammatory biomarker collection. "
-            "Youngest crew member; high baseline physical fitness."
+            "Misison Specialist. "
+            "Data Engineer, Air Force Veteran."
         ),
         "photo": "crew_C004.png",
     },
@@ -171,12 +339,6 @@ if "selected_crew" not in st.session_state:
 # ============================================================
 # DATASETS THAT ARE AVERAGED (no per-crew differentiation)
 # ============================================================
-# plasma_proteomics.csv  → single logFC per gene, averaged across all subjects
-# plasma_metabolomics.csv → single logFC per metabolite, averaged across all subjects
-#
-# These datasets do NOT change when you switch crew members.
-# A warning banner is shown on any section that relies solely on them.
-
 AVERAGED_DATASETS_NOTE = (
     "⚠️ <b>Data averaged across all crew members</b> — "
     "values shown here are group-level averages and do <b>not</b> change between crew members. "
@@ -185,9 +347,8 @@ AVERAGED_DATASETS_NOTE = (
 
 
 # ============================================================
-# ╔══════════════════════════════════════════════════════════╗
-# ║   BONE EFFICACY — EDITABLE PARAMETERS & WEIGHTS         ║
-# ╚══════════════════════════════════════════════════════════╝
+# BONE EFFICACY PARAMETERS
+# ============================================================
 BONE_BIOMARKER_PARAMS = {
     "BGLAP (Osteocalcin)": {
         "low": -0.5, "high": 2.0, "weight": 8, "higher_is_better": True,
@@ -367,9 +528,8 @@ BONE_BIOMARKER_PARAMS = {
 
 
 # ============================================================
-# ╔══════════════════════════════════════════════════════════╗
-# ║   NEURO RESILIENCE — EDITABLE PARAMETERS & WEIGHTS      ║
-# ╚══════════════════════════════════════════════════════════╝
+# NEURO RESILIENCE PARAMETERS
+# ============================================================
 NEURO_BIOMARKER_PARAMS = {
     "BDNF (Brain-Derived Neurotrophic Factor)": {
         "weight": 8, "higher_is_better": True, "threshold_type": "low",
@@ -696,8 +856,9 @@ def score_cardio_biomarker(value, low, high, threshold_type="high"):
 
 def _averaged_warning_html():
     return (
-        f"<div style='background:#fff3cd; border:2px solid #f59e0b; border-radius:8px; "
-        f"padding:10px 14px; margin:10px 0 14px 0; font-size:14px; color:#7d4e00; font-weight:600;'>"
+        f"<div style='background:#fff8e1; border:2px solid #f59e0b; border-radius:8px; "
+        f"padding:10px 14px; margin:10px 0 14px 0; font-size:{FONT_SIZES['averaged_warning']}; "
+        f"color:#7d4e00; font-weight:600;'>"
         f"⚠️ <b>Data averaged across all crew members</b> — values in this section are "
         f"group-level averages from <code>plasma_proteomics.csv</code> or "
         f"<code>plasma_metabolomics.csv</code> and do <b>not</b> change between crew members."
@@ -709,7 +870,7 @@ def render_score_bar(label, score, note, threshold_type="both", data_value=None,
                      data_label="value", is_averaged=False):
     if score is None:
         st.markdown(
-            f"<div style='font-size:14px; color:#555; margin-bottom:8px;'>"
+            f"<div style='font-size:{FONT_SIZES['unavailable_label']}; color:#555555; margin-bottom:8px;'>"
             f"<b>{label}</b> — <i>data not available</i></div>",
             unsafe_allow_html=True,
         )
@@ -725,43 +886,44 @@ def render_score_bar(label, score, note, threshold_type="both", data_value=None,
     raw_display = ""
     if data_value is not None:
         raw_display = (
-            f"<span style='font-size:13px; color:#555; font-weight:500;'>"
+            f"<span style='font-size:{FONT_SIZES['score_bar_raw_value']}; "
+            f"color:#444444; font-weight:500;'>"
             f"({data_label}: {data_value:+.3f})</span>"
         )
 
     badge_styles = {
-        "low":  ("⬇ low threshold",   "#cce5ff", "#004085"),
-        "high": ("⬆ high threshold",  "#f8d7da", "#721c24"),
-        "both": ("↕ both thresholds", "#e8d5f7", "#4b0082"),
+        "low":  ("⬇ low threshold",   "#cce5ff", "#003d7a"),
+        "high": ("⬆ high threshold",  "#ffd5d9", "#6b0a12"),
+        "both": ("↕ both thresholds", "#e8d5f7", "#3d0070"),
     }
-    badge_text, badge_bg, badge_fg = badge_styles.get(threshold_type, ("threshold", "#eee", "#333"))
+    badge_text, badge_bg, badge_fg = badge_styles.get(threshold_type, ("threshold", "#eeeeee", "#333333"))
     badge_html = (
-        f"<span style='font-size:11px; background:{badge_bg}; color:{badge_fg}; "
-        f"border-radius:4px; padding:2px 6px; margin-left:6px; "
+        f"<span style='font-size:{FONT_SIZES['score_bar_badge']}; background:{badge_bg}; "
+        f"color:{badge_fg}; border-radius:4px; padding:2px 6px; margin-left:6px; "
         f"font-weight:700; vertical-align:middle;'>{badge_text}</span>"
     )
 
     avg_tag = ""
     if is_averaged:
         avg_tag = (
-            "<span style='font-size:11px; background:#fff3cd; color:#7d4e00; "
-            "border-radius:4px; padding:2px 6px; margin-left:6px; "
-            "font-weight:700; vertical-align:middle;'>⚠️ group avg</span>"
+            f"<span style='font-size:{FONT_SIZES['score_bar_avg_tag']}; background:#fff8e1; "
+            f"color:#7d4e00; border-radius:4px; padding:2px 6px; margin-left:6px; "
+            f"font-weight:700; vertical-align:middle;'>⚠️ group avg</span>"
         )
 
     st.markdown(
         f"""
-        <div style="margin-bottom:12px;">
+        <div style="margin-bottom:12px; background:#ffffff; border-radius:8px; padding:10px 14px; border:1px solid #e8eaed;">
           <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
-            <span style="font-weight:700; font-size:15px; color:#111;">{label}{badge_html}{avg_tag}</span>
-            <span style="font-weight:800; color:{text_color}; font-size:16px;">
+            <span style="font-weight:700; font-size:{FONT_SIZES['score_bar_label']}; color:#111111;">{label}{badge_html}{avg_tag}</span>
+            <span style="font-weight:800; color:{text_color}; font-size:{FONT_SIZES['score_bar_score']};">
               {score:.1f}/100 &nbsp; {raw_display}
             </span>
           </div>
-          <div style="background:#d0d0d0; border-radius:6px; height:16px; width:100%;">
+          <div style="background:#d8dce3; border-radius:6px; height:16px; width:100%;">
             <div style="background:{bar_color}; width:{score}%; height:16px; border-radius:6px; transition:width 0.4s;"></div>
           </div>
-          <div style="font-size:12px; color:#444; margin-top:3px; font-style:italic; line-height:1.5;">{note}</div>
+          <div style="font-size:{FONT_SIZES['score_bar_note']}; color:#444444; margin-top:3px; font-style:italic; line-height:1.5;">{note}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -772,7 +934,7 @@ def render_cardio_score_bar(label, score, note, threshold_type, data_value,
                              data_label, is_averaged=False):
     if score is None:
         st.markdown(
-            f"<div style='font-size:14px; color:#555; margin-bottom:8px;'>"
+            f"<div style='font-size:{FONT_SIZES['unavailable_label']}; color:#555555; margin-bottom:8px;'>"
             f"<b>{label}</b> — <i>data not available</i></div>",
             unsafe_allow_html=True,
         )
@@ -788,44 +950,45 @@ def render_cardio_score_bar(label, score, note, threshold_type, data_value,
     raw_display = ""
     if data_value is not None:
         raw_display = (
-            f"<span style='font-size:13px; color:#555; font-weight:500;'>"
+            f"<span style='font-size:{FONT_SIZES['score_bar_raw_value']}; "
+            f"color:#444444; font-weight:500;'>"
             f"({data_label}: {data_value:+.3f})</span>"
         )
 
     badge_styles = {
-        "low":  ("⬇ low threshold",   "#cce5ff", "#004085"),
-        "high": ("⬆ high threshold",  "#f8d7da", "#721c24"),
-        "both": ("↕ both thresholds", "#e8d5f7", "#4b0082"),
+        "low":  ("⬇ low threshold",   "#cce5ff", "#003d7a"),
+        "high": ("⬆ high threshold",  "#ffd5d9", "#6b0a12"),
+        "both": ("↕ both thresholds", "#e8d5f7", "#3d0070"),
     }
-    badge_text, badge_bg, badge_fg = badge_styles.get(threshold_type, ("threshold", "#eee", "#333"))
+    badge_text, badge_bg, badge_fg = badge_styles.get(threshold_type, ("threshold", "#eeeeee", "#333333"))
     badge_html = (
-        f"<span style='font-size:11px; background:{badge_bg}; color:{badge_fg}; "
-        f"border-radius:4px; padding:2px 6px; margin-left:6px; "
+        f"<span style='font-size:{FONT_SIZES['score_bar_badge']}; background:{badge_bg}; "
+        f"color:{badge_fg}; border-radius:4px; padding:2px 6px; margin-left:6px; "
         f"font-weight:700; vertical-align:middle;'>{badge_text}</span>"
     )
 
     avg_tag = ""
     if is_averaged:
         avg_tag = (
-            "<span style='font-size:11px; background:#fff3cd; color:#7d4e00; "
-            "border-radius:4px; padding:2px 6px; margin-left:6px; "
-            "font-weight:700; vertical-align:middle;'>⚠️ group avg</span>"
+            f"<span style='font-size:{FONT_SIZES['score_bar_avg_tag']}; background:#fff8e1; "
+            f"color:#7d4e00; border-radius:4px; padding:2px 6px; margin-left:6px; "
+            f"font-weight:700; vertical-align:middle;'>⚠️ group avg</span>"
         )
 
     st.markdown(
         f"""
-        <div style="margin-bottom:12px;">
+        <div style="margin-bottom:12px; background:#ffffff; border-radius:8px; padding:10px 14px; border:1px solid #e8eaed;">
           <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
-            <span style="font-weight:700; font-size:15px; color:#111;">{label}{badge_html}{avg_tag}</span>
-            <span style="font-weight:800; color:{text_color}; font-size:16px;">
+            <span style="font-weight:700; font-size:{FONT_SIZES['score_bar_label']}; color:#111111;">{label}{badge_html}{avg_tag}</span>
+            <span style="font-weight:800; color:{text_color}; font-size:{FONT_SIZES['score_bar_score']};">
               {score:.1f}/100 risk &nbsp; {raw_display}
             </span>
           </div>
-          <div style="background:#d0d0d0; border-radius:6px; height:16px; width:100%;">
+          <div style="background:#d8dce3; border-radius:6px; height:16px; width:100%;">
             <div style="background:{bar_color}; width:{score}%; height:16px;
                         border-radius:6px; transition:width 0.4s;"></div>
           </div>
-          <div style="font-size:12px; color:#444; margin-top:3px; font-style:italic; line-height:1.5;">{note}</div>
+          <div style="font-size:{FONT_SIZES['score_bar_note']}; color:#444444; margin-top:3px; font-style:italic; line-height:1.5;">{note}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -849,16 +1012,16 @@ def render_total_score_bar(score, n_biomarkers, domain_label="Drug Efficacy"):
     st.markdown(
         f"""
         <div style="border:2px solid {bar_color}; border-radius:12px; padding:20px 24px;
-                    margin-bottom:24px; background:#f8f8f8;">
+                    margin-bottom:24px; background:#ffffff;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-size:20px; font-weight:800; color:#111;">Total Score</span>
-            <span style="font-size:32px; font-weight:900; color:{label_color};">{score:.1f} / 100</span>
+            <span style="font-size:{FONT_SIZES['total_score_heading']}; font-weight:800; color:#111111;">Total Score</span>
+            <span style="font-size:{FONT_SIZES['total_score_number']}; font-weight:900; color:{label_color};">{score:.1f} / 100</span>
           </div>
-          <div style="background:#d0d0d0; border-radius:8px; height:24px; width:100%; margin-bottom:10px;">
+          <div style="background:#d8dce3; border-radius:8px; height:24px; width:100%; margin-bottom:10px;">
             <div style="background:{bar_color}; width:{score}%; height:24px; border-radius:8px;"></div>
           </div>
-          <div style="font-size:18px; font-weight:800; color:{verdict_color};">{verdict}</div>
-          <div style="font-size:13px; color:#555; margin-top:5px; font-weight:500;">
+          <div style="font-size:{FONT_SIZES['total_score_verdict']}; font-weight:800; color:{verdict_color};">{verdict}</div>
+          <div style="font-size:{FONT_SIZES['total_score_footnote']}; color:#444444; margin-top:5px; font-weight:500;">
             Weighted composite across {n_biomarkers} biomarkers.
             Score ≥ 60 = positive signal &nbsp;|&nbsp; 40–59 = uncertain &nbsp;|&nbsp; &lt; 40 = insufficient evidence.
           </div>
@@ -886,16 +1049,16 @@ def render_cardio_total_score_bar(score):
     st.markdown(
         f"""
         <div style="border:2px solid {bar_color}; border-radius:12px; padding:20px 24px;
-                    margin-bottom:24px; background:#f8f8f8;">
+                    margin-bottom:24px; background:#ffffff;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-size:20px; font-weight:800; color:#111;">Total Cardiotoxicity Risk Score</span>
-            <span style="font-size:32px; font-weight:900; color:{label_color};">{score:.1f} / 100</span>
+            <span style="font-size:{FONT_SIZES['total_score_heading']}; font-weight:800; color:#111111;">Total Cardiotoxicity Risk Score</span>
+            <span style="font-size:{FONT_SIZES['total_score_number']}; font-weight:900; color:{label_color};">{score:.1f} / 100</span>
           </div>
-          <div style="background:#d0d0d0; border-radius:8px; height:24px; width:100%; margin-bottom:10px;">
+          <div style="background:#d8dce3; border-radius:8px; height:24px; width:100%; margin-bottom:10px;">
             <div style="background:{bar_color}; width:{score}%; height:24px; border-radius:8px;"></div>
           </div>
-          <div style="font-size:18px; font-weight:800; color:{verdict_color};">{verdict}</div>
-          <div style="font-size:13px; color:#555; margin-top:5px; font-weight:500;">
+          <div style="font-size:{FONT_SIZES['total_score_verdict']}; font-weight:800; color:{verdict_color};">{verdict}</div>
+          <div style="font-size:{FONT_SIZES['total_score_footnote']}; color:#444444; margin-top:5px; font-weight:500;">
             Weighted composite across {n} biomarkers (cytokine panel + proteomics). &nbsp;
             Score 0–34 = Nominal &nbsp;|&nbsp; 35–64 = Caution &nbsp;|&nbsp; 65–100 = Critical.
             Higher score = greater cardiovascular concern.
@@ -1060,7 +1223,7 @@ def render_neuro_score_bar(label, score, note, threshold_type, data_value,
                            data_label, crew_mean, crew_sd, is_per_crew, is_averaged=False):
     if score is None:
         st.markdown(
-            f"<div style='font-size:14px; color:#555; margin-bottom:8px;'>"
+            f"<div style='font-size:{FONT_SIZES['unavailable_label']}; color:#555555; margin-bottom:8px;'>"
             f"<b>{label}</b> — <i>data not available</i></div>",
             unsafe_allow_html=True,
         )
@@ -1076,57 +1239,59 @@ def render_neuro_score_bar(label, score, note, threshold_type, data_value,
     raw_display = ""
     if data_value is not None:
         raw_display = (
-            f"<span style='font-size:13px; color:#555; font-weight:500;'>"
+            f"<span style='font-size:{FONT_SIZES['score_bar_raw_value']}; "
+            f"color:#444444; font-weight:500;'>"
             f"({data_label}: {data_value:+.3f})</span>"
         )
 
     badge_styles = {
-        "low":  ("⬇ low threshold",   "#cce5ff", "#004085"),
-        "high": ("⬆ high threshold",  "#f8d7da", "#721c24"),
-        "both": ("↕ both thresholds", "#e8d5f7", "#4b0082"),
+        "low":  ("⬇ low threshold",   "#cce5ff", "#003d7a"),
+        "high": ("⬆ high threshold",  "#ffd5d9", "#6b0a12"),
+        "both": ("↕ both thresholds", "#e8d5f7", "#3d0070"),
     }
-    badge_text, badge_bg, badge_fg = badge_styles.get(threshold_type, ("threshold", "#eee", "#333"))
+    badge_text, badge_bg, badge_fg = badge_styles.get(threshold_type, ("threshold", "#eeeeee", "#333333"))
     badge_html = (
-        f"<span style='font-size:11px; background:{badge_bg}; color:{badge_fg}; "
-        f"border-radius:4px; padding:2px 6px; margin-left:6px; "
+        f"<span style='font-size:{FONT_SIZES['score_bar_badge']}; background:{badge_bg}; "
+        f"color:{badge_fg}; border-radius:4px; padding:2px 6px; margin-left:6px; "
         f"font-weight:700; vertical-align:middle;'>{badge_text}</span>"
     )
 
     avg_tag = ""
     if is_averaged:
         avg_tag = (
-            "<span style='font-size:11px; background:#fff3cd; color:#7d4e00; "
-            "border-radius:4px; padding:2px 6px; margin-left:6px; "
-            "font-weight:700; vertical-align:middle;'>⚠️ group avg</span>"
+            f"<span style='font-size:{FONT_SIZES['score_bar_avg_tag']}; background:#fff8e1; "
+            f"color:#7d4e00; border-radius:4px; padding:2px 6px; margin-left:6px; "
+            f"font-weight:700; vertical-align:middle;'>⚠️ group avg</span>"
         )
 
     if is_per_crew and crew_sd > 1e-9:
         ref_html = (
-            f"<div style='font-size:12px; color:#333; margin-top:2px; font-weight:500;'>"
+            f"<div style='font-size:{FONT_SIZES['neuro_crew_ref']}; color:#333333; "
+            f"margin-top:2px; font-weight:500;'>"
             f"📊 Crew mean = {crew_mean:+.3f} &nbsp;|&nbsp; "
             f"±1 SD band = [{crew_mean - crew_sd:+.3f}, {crew_mean + crew_sd:+.3f}]</div>"
         )
     else:
         ref_html = (
-            f"<div style='font-size:12px; color:#777; margin-top:2px;'>"
+            f"<div style='font-size:{FONT_SIZES['neuro_crew_ref']}; color:#666666; margin-top:2px;'>"
             f"📊 Shared value across crew &nbsp;|&nbsp; scored against ±1.0 symmetric window</div>"
         )
 
     st.markdown(
         f"""
-        <div style="margin-bottom:14px;">
+        <div style="margin-bottom:14px; background:#ffffff; border-radius:8px; padding:10px 14px; border:1px solid #e8eaed;">
           <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;">
-            <span style="font-weight:700; font-size:15px; color:#111;">{label}{badge_html}{avg_tag}</span>
-            <span style="font-weight:800; color:{text_color}; font-size:16px;">
+            <span style="font-weight:700; font-size:{FONT_SIZES['score_bar_label']}; color:#111111;">{label}{badge_html}{avg_tag}</span>
+            <span style="font-weight:800; color:{text_color}; font-size:{FONT_SIZES['score_bar_score']};">
               {score:.1f}/100 &nbsp; {raw_display}
             </span>
           </div>
-          <div style="background:#d0d0d0; border-radius:6px; height:16px; width:100%;">
+          <div style="background:#d8dce3; border-radius:6px; height:16px; width:100%;">
             <div style="background:{bar_color}; width:{score}%; height:16px;
                         border-radius:6px; transition:width 0.4s;"></div>
           </div>
           {ref_html}
-          <div style="font-size:12px; color:#444; margin-top:3px; font-style:italic; line-height:1.5;">{note}</div>
+          <div style="font-size:{FONT_SIZES['score_bar_note']}; color:#444444; margin-top:3px; font-style:italic; line-height:1.5;">{note}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -1134,18 +1299,19 @@ def render_neuro_score_bar(label, score, note, threshold_type, data_value,
 
 
 # ============================================================
-# DATASET WARNING BANNER (for sections using averaged data)
+# DATASET WARNING BANNER
 # ============================================================
 
 def show_averaged_section_warning():
     st.markdown(
-        "<div style='background:#fff3cd; border:2px solid #f59e0b; border-radius:8px; "
-        "padding:12px 16px; margin:6px 0 16px 0; font-size:14px; color:#5c3800; font-weight:600;'>"
-        "⚠️ <b>Data averaged across all crew members</b> — "
-        "The values shown in this section are group-level averages and do <b>not</b> "
-        "change when switching crew members. "
-        "Per-individual proteomics/metabolomics were not available in this dataset."
-        "</div>",
+        f"<div style='background:#fff8e1; border:2px solid #f59e0b; border-radius:8px; "
+        f"padding:12px 16px; margin:6px 0 16px 0; font-size:{FONT_SIZES['averaged_warning']}; "
+        f"color:#5c3800; font-weight:600;'>"
+        f"⚠️ <b>Data averaged across all crew members</b> — "
+        f"The values shown in this section are group-level averages and do <b>not</b> "
+        f"change when switching crew members. "
+        f"Per-individual proteomics/metabolomics were not available in this dataset."
+        f"</div>",
         unsafe_allow_html=True,
     )
 
@@ -1423,17 +1589,15 @@ def render_neuro_tab(crew_id):
 
 
 # ============================================================
-# ╔══════════════════════════════════════════════════════════╗
-# ║   TOP-OF-PAGE CREW SELECTOR                              ║
-# ╚══════════════════════════════════════════════════════════╝
+# TOP-OF-PAGE CREW SELECTOR
+# ============================================================
 
 def render_crew_selector():
-    """Horizontal crew selector row at the very top of the main content area."""
     st.markdown(
-        """
-        <div style="background:#f0f2f6; border-radius:12px; padding:16px 20px; margin-bottom:20px;">
-          <div style="font-size:14px; font-weight:700; color:#444; margin-bottom:10px;
-                      text-transform:uppercase; letter-spacing:0.08em;">
+        f"""
+        <div style="background:#e8eaed; border-radius:12px; padding:16px 20px; margin-bottom:20px;">
+          <div style="font-size:{FONT_SIZES['crew_selector_heading']}; font-weight:700; margin-bottom:10px;
+                      text-transform:uppercase; letter-spacing:0.08em; color:#111111;">
             Select Crew Member
           </div>
         </div>
@@ -1441,13 +1605,11 @@ def render_crew_selector():
         unsafe_allow_html=True,
     )
 
-    # Use columns for a horizontal button strip
     cols = st.columns(len(CREW_CONFIG))
     for col, (crew_id, cfg) in zip(cols, CREW_CONFIG.items()):
         is_active = st.session_state.selected_crew == crew_id
         with col:
             label_str = f"{'✓ ' if is_active else ''}{cfg['label']}"
-            # Styled button via markdown trick + regular button
             if st.button(
                 label_str,
                 key=f"top_crew_{crew_id}",
@@ -1457,14 +1619,12 @@ def render_crew_selector():
                 st.session_state.selected_crew = crew_id
                 st.rerun()
 
-    # Inject per-button colors
     button_css = ""
     for i, (crew_id, cfg) in enumerate(CREW_CONFIG.items(), start=1):
         is_active = st.session_state.selected_crew == crew_id
         opacity   = "1.0" if is_active else "0.65"
         border    = f"3px solid {cfg['color']}" if is_active else "2px solid #ccc"
         button_css += f"""
-        /* Column {i} button */
         div[data-testid="stHorizontalBlock"] > div:nth-child({i})
           button {{
             background-color: {cfg['color']} !important;
@@ -1472,7 +1632,7 @@ def render_crew_selector():
             border: {border} !important;
             opacity: {opacity} !important;
             font-weight: {'800' if is_active else '600'} !important;
-            font-size: 15px !important;
+            font-size: {FONT_SIZES['crew_button']} !important;
             border-radius: 8px !important;
             transition: all 0.15s ease !important;
         }}
@@ -1486,7 +1646,6 @@ def render_crew_selector():
 
 
 def render_crew_card(crew_id):
-    """Compact crew profile shown below the selector."""
     cfg   = CREW_CONFIG[crew_id]
     photo = cfg.get("photo", "")
     app_dir = os.path.dirname(os.path.abspath(__file__))
@@ -1497,7 +1656,6 @@ def render_crew_card(crew_id):
         if photo and os.path.exists(photo_path):
             st.image(photo_path, width=110)
         else:
-            # Placeholder avatar square
             st.markdown(
                 f"""
                 <div style="
@@ -1515,18 +1673,19 @@ def render_crew_card(crew_id):
     with col_info:
         st.markdown(
             f"""
-            <div style="background:#f8f9fc; border-left:4px solid {cfg['color']};
-                        border-radius:0 10px 10px 0; padding:12px 16px;">
-              <div style="font-size:18px; font-weight:800; color:#111;">
+            <div style="background:#ffffff; border-left:4px solid {cfg['color']};
+                        border-radius:0 10px 10px 0; padding:12px 16px;
+                        box-shadow:0 1px 4px rgba(0,0,0,0.08);">
+              <div style="font-size:{FONT_SIZES['crew_card_name']}; font-weight:800; color:#111111;">
                 {cfg['label']}
-                <span style="font-size:13px; color:#777; font-weight:500; margin-left:8px;">
+                <span style="font-size:{FONT_SIZES['crew_card_id']}; color:#666666; font-weight:500; margin-left:8px;">
                   ID: {crew_id}
                 </span>
               </div>
-              <div style="font-size:14px; color:#444; margin-top:2px; font-weight:600;">
+              <div style="font-size:{FONT_SIZES['crew_card_demographics']}; color:#333333; margin-top:2px; font-weight:600;">
                 Age: {cfg['age']} &nbsp;|&nbsp; Sex: {cfg['sex']}
               </div>
-              <div style="font-size:14px; color:#555; margin-top:6px; line-height:1.55;">
+              <div style="font-size:{FONT_SIZES['crew_card_bio']}; color:#444444; margin-top:6px; line-height:1.55;">
                 {cfg['bio']}
               </div>
             </div>
@@ -1534,14 +1693,14 @@ def render_crew_card(crew_id):
             unsafe_allow_html=True,
         )
 
-    st.markdown("<hr style='margin:14px 0 4px 0; border:1px solid #e0e0e0;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin:14px 0 4px 0; border:1px solid #d0d4db;'>", unsafe_allow_html=True)
 
 
 # ============================================================
 # SIDEBAR — MODULE NAVIGATION
 # ============================================================
 
-st.sidebar.title("Torchlight Health")
+st.sidebar.title("Astronaut Therapeutic Testing")
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 📋 View Module")
 
@@ -1560,7 +1719,6 @@ selected_module = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 
-# Show active crew indicator in sidebar too
 selected_cfg = CREW_CONFIG[st.session_state.selected_crew]
 st.sidebar.markdown(
     f"""
@@ -1570,12 +1728,12 @@ st.sidebar.markdown(
         padding: 10px 14px;
         border-radius: 10px;
         font-weight: 700;
-        font-size: 15px;
+        font-size: {FONT_SIZES['sidebar_active_crew']};
         text-align: center;
         margin-top: 4px;
     ">
         📡 Viewing: {selected_cfg['label']}<br>
-        <span style="font-size:12px; font-weight:400; opacity:0.9;">
+        <span style="font-size:{FONT_SIZES['sidebar_active_crew_sub']}; font-weight:400; opacity:0.9;">
           ID: {st.session_state.selected_crew}
         </span>
     </div>
