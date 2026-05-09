@@ -1,4 +1,5 @@
 # TrinityRx - Team 4
+<img width="2000" height="500" alt="TrinityRx Logo" src="https://github.com/user-attachments/assets/88bed5d6-4a0f-4755-a999-70bacd940e78" />
 
 ## Biomarker-Driven Therapeutic Evaluation Dashboard for Long-Duration Spaceflight
 
