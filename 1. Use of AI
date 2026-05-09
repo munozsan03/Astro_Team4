@@ -7,6 +7,26 @@ As previously mentioned, the complex environments in long-term spaceflight make 
 Very recent advances in artificial intelligence and machine learning have significantly accelerated this process. 
 Many scientists who study both the arts of biochemistry and computer science have integrated large databases of existing proteins and small molecules into contemporary algorithms that can accelerate the drug discovery process by years.
 
-In research papers and research labs, a common workflow has been identified.
+In research papers and research labs, a common workflow has been identified starting with identifying a G Protein-Coupled Receptor responsible for the effects to mitigate, using AI to generate a peptide backbone to inhibit the receptor, using AI to generate an amino acid sequence that will fold into that peptide backbone, then using AI to verify that the amino acid sequence will actually fold into that structure.
 Below is the workflow that our labs at the University of Houston adopt, which we plan to utilize to target the inhibition of bone density loss, muscle atrophy, and neurodegeneration.
+
+RFdiffusion
+
+LigandMPNN
+
+AlphaFold
+
+
+
+By utilizing our existing AI drug discovery workload for peptides, we can either agonize receptors to encourage growth of bones, muscle, and brain matter, or we can antagonize the loss of bones, muscle, and brain matter.
+
+Below are our anticipated GPCR targets to agonize (activate):
+Bone Density Loss: Parathyroid Hormone 1 Receptor
+Muscle Atrophy: Ghrelin Receptor
+Neurodegeneration: Glucagon-Like Peptide-1 Receptor
+
+Below are our anticipated GPCR targets to antagonize (inhibit):
+Bone Density Loss: Cannabinoid Receptor Type 1
+Muscle Atrophy: Angiotensin II Type 1 Receptor
+Neurodegeneration: Adenosine A2A Receptor
 
