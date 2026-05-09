@@ -66,6 +66,7 @@ The dashboard prototype visualizes astronaut health risks using biomarker-based 
 
 <img width="1895" height="519" alt="image" src="https://github.com/user-attachments/assets/4e30a35f-527e-4da5-b5c1-0f6d451522ed" />
 
+---
 
 ## Current Prototype Biomarker Panel
 
@@ -76,6 +77,8 @@ The current prototype focuses on three representative modules: one efficacy modu
 | **Bone Density Loss Prevention** | Efficacy | Blood Serum CMP, Plasma Proteomics, Urine Inflammation Panel, Plasma Metabolomics | BGLAP, SPARC, SPP1, SOST, Calcium, Alkaline Phosphatase, RANK, RANKL, BMP7, WNT16, FGF23, Ergocalciferol, Cortisol |
 | **Cardiotoxicity** | Safety | Cardiac Cytokine Array, Plasma Proteomics | CRP, Fibrinogen, Haptoglobin, Alpha-2-Macroglobulin, PF4, L-Selectin, Fetuin-A, SAP, VWF, SERPINE1 |
 | **Neurobiological Resilience** | Resilience | Plasma Proteomics, Urine Inflammation Panel, Plasma Metabolomics | BDNF, GFAP, S100B, NRGN, CLU, APOE, NGF, CXCL10, Kynurenine:Tryptophan Ratio, 5-HIAA, N-Acetylaspartic Acid, Cortisol |
+
+---
 
 
 ## Full Biomarker Framework
@@ -103,6 +106,7 @@ The table below represents the idealized full biomarker panel for future expansi
 | **Microbiome Resilience** | Resilience | Stool Metagenomics, Skin Metagenomics | **Cross-crew comparison of diversity loss and post-flight recovery rate — Taxonomy:** Alpha diversity (Shannon index), Firmicutes:Bacteroidetes ratio, Lactobacillaceae abundance · **Functional (KEGG):** Butyrate synthesis pathway CPM, short-chain fatty acid biosynthesis · **Beta diversity:** Bray-Curtis dissimilarity from each astronaut's own preflight baseline |
 | **Musculoskeletal Resilience** | Resilience | Blood Serum (CMP), Plasma Proteomics, EVP Proteomics, Plasma Metabolomics | **Cross-crew comparison of muscle and bone marker trajectories — Proteomics:** FST, IGF1, NAMPT, BGLAP, SOST, SPP1, COL1A1/1A2, COMP · **CMP:** Creatinine, BUN:Creatinine Ratio, Calcium, Alkaline Phosphatase · **Metabolomics:** 3-Methylhistidine, Creatine, BCAAs (Leu/Ile/Val), Ergocalciferol (Vit D2), Cortisol |
 
+---
 
 ## Accessing the Dashboard
 
