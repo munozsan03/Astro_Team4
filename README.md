@@ -17,10 +17,10 @@ Long-term human spaceflight can expose astronauts to extreme conditions such as 
 
 These disruptions can lead to increased risk of:
 
-<p>
-  • Bone Density Loss
-  <img src="[images/bone_density.png](https://my.clevelandclinic.org/-/scassets/images/org/health/articles/osteopenia)" width="500" style="vertical-align: middle; margin-left: 15px;">
-</p>
+<li>
+  Bone Density Loss
+  <img src="https://my.clevelandclinic.org/-/scassets/images/org/health/articles/osteopenia" width="180" align="right">
+</li>
   
 -  Muscle Atrophy
   
