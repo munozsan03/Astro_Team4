@@ -62,7 +62,7 @@ The framework is organized into three primary analytical categories:
 |---|---|
 | **Safety Monitoring** | Evaluates biomarkers associated with adverse physiological responses and potential therapeutic toxicity |
 | **Efficacy Analysis** | Evaluates biomarkers associated with therapeutic effectiveness and preservation of physiological function |
-| **Resilience Modeling** | Evaluates adaptive response, recovery trajectory, and inter-crew physiological variability |
+| **Resilience Modeling** | Evaluates adaptive response, recovery trajectory, and inter-crew physiological variability based on biomarker comparisons |
 
 The current prototype focuses on representative modules for bone density loss prevention, cardiotoxicity safety monitoring, and neurobiological resilience analysis while establishing a scalable framework for future biomarker integration.
 
