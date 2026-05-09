@@ -12,21 +12,21 @@ FONT_SIZES = {
     "base":                     "16px",   # Root body / default text
 
     # ── Page headings ─────────────────────────────────────
-    "heading_h1":               "72px",   # st.title() / <h1>
+    "heading_h1":               "30px",   # st.title() / <h1>
     # Bone Density Loss Inhibitor Efficacy
-    "heading_h2":               "22px",   # Section headings / <h2>4
+    "heading_h2":               "20px",   # Section headings / <h2>4
     # Unused?
-    "heading_h3":               "48px",   # Sub-section headings / <h3>
+    "heading_h3":               "30px",   # Sub-section headings / <h3>
     # Proteomics (logFC)
 
     # ── Sidebar ───────────────────────────────────────────
-    "sidebar_body":             "24px",   # General sidebar text
+    "sidebar_body":             "20px",   # General sidebar text
     # Done Density Loss, Cardiotoxicity Safety selctor
-    "sidebar_heading":          "32px",   # Sidebar h1/h2/h3
+    "sidebar_heading":          "30px",   # Sidebar h1/h2/h3
     # View Module
-    "sidebar_active_crew":      "15px",   # Active-crew badge label
+    "sidebar_active_crew":      "10px",   # Active-crew badge label
     # Unused?
-    "sidebar_active_crew_sub":  "12px",   # Active-crew badge sub-line (ID)
+    "sidebar_active_crew_sub":  "10px",   # Active-crew badge sub-line (ID)
     # Unused?
 
     # ── Crew selector buttons ──────────────────────────────
@@ -52,47 +52,47 @@ FONT_SIZES = {
     # Unused?
 
     # ── Score bar — label row ─────────────────────────────
-    "score_bar_label":          "32px",   # Biomarker name
+    "score_bar_label":          "25px",   # Biomarker name
     # BGLAP (Osteocalcin)
-    "score_bar_score":          "32px",   # "XX.X/100" number
+    "score_bar_score":          "25px",   # "XX.X/100" number
     # 100.0/100
-    "score_bar_raw_value":      "24px",   # "(logFC: +0.123)" inline note
+    "score_bar_raw_value":      "10px",   # "(logFC: +0.123)" inline note
     # (logFC: -0.001)
 
     # ── Score bar — badge chips ───────────────────────────
-    "score_bar_badge":          "24px",   # "⬆ high threshold" chip
+    "score_bar_badge":          "15px",   # "⬆ high threshold" chip
     # low threshold
-    "score_bar_avg_tag":        "24px",   # "⚠️ group avg" chip
+    "score_bar_avg_tag":        "15px",   # "⚠️ group avg" chip
     # group avg
 
     # ── Score bar — sub-text beneath the bar ─────────────
-    "score_bar_note":           "18px",   # Italic explanatory note
+    "score_bar_note":           "15px",   # Italic explanatory note
     # Primary osteoblast-secreted bone ...
 
     # ── Neuro score bar extras ────────────────────────────
-    "neuro_crew_ref":           "16px",   # "📊 Crew mean = …" line
+    "neuro_crew_ref":           "15px",   # "📊 Crew mean = …" line
     # Shared value across crew (in Neuro section only)
 
     # ── Total score summary card ──────────────────────────
-    "total_score_heading":      "64px",   # "Total Score" label
+    "total_score_heading":      "30px",   # "Total Score" label
     # Total score
-    "total_score_number":       "48px",   # Big score number
+    "total_score_number":       "25px",   # Big score number
     # 99.8/100
-    "total_score_verdict":      "32px",   # "✅ Drug Efficacy Signal: POSITIVE"
+    "total_score_verdict":      "20px",   # "✅ Drug Efficacy Signal: POSITIVE"
     # Drug Efficacy Signal: ...
-    "total_score_footnote":     "24px",   # Weighted composite footnote
+    "total_score_footnote":     "15px",   # Weighted composite footnote
     # Weighted composite across ...
 
     # ── Warning / alert banners ───────────────────────────
-    "warning_banner":           "15px",   # st.warning() text
+    "warning_banner":           "10px",   # st.warning() text
     # Unused?
-    "averaged_warning":         "32px",   # ⚠️ "group avg" section banner
+    "averaged_warning":         "15px",   # ⚠️ "group avg" section banner
     # Data averaged across all crew members
-    "alert_text":               "28px",   # Generic [data-testid="stAlert"] text
+    "alert_text":               "15px",   # Generic [data-testid="stAlert"] text
     # Dataset Notice: The current cohort ...
 
     # ── "Data not available" fallback line ────────────────
-    "unavailable_label":        "64px",   # "biomarker — data not available"
+    "unavailable_label":        "60px",   # "biomarker — data not available"
     # BDNF urine ratio, data not available (Neuro only)
 }
 
@@ -186,7 +186,7 @@ st.markdown(
     /* ── Sidebar ──────────────────────────────────────── */
     [data-testid="stSidebar"],
     [data-testid="stSidebar"] > div {{
-        background-color: #1a1d2e !important;
+        background-color: #000000 !important;
     }}
     [data-testid="stSidebar"] * {{
         color: #e8e8e8 !important;
@@ -274,6 +274,21 @@ st.markdown(
     [data-theme="dark"] [data-testid="stAlert"] span {{
         color: #7d4e00 !important;
     }}
+
+    /* ── Hide sidebar collapse arrow / toggle button ─── */
+    [data-testid="collapsedControl"],
+    [data-testid="stSidebarCollapseButton"],
+    button[kind="header"] {{
+        display: none !important;
+    }}
+
+    /* ── Keep sidebar always expanded ────────────────── */
+    [data-testid="stSidebar"] {{
+        transform: none !important;
+        min-width: 400px !important;
+        visibility: visible !important;
+    }}
+
     /* Dark mode sidebar stays dark */
     [data-theme="dark"] [data-testid="stSidebar"],
     [data-theme="dark"] [data-testid="stSidebar"] > div {{
@@ -287,10 +302,28 @@ st.markdown(
     [data-theme="dark"] [data-testid="stSidebar"] h3 {{
         color: #111111 !important;
     }}
+
+    /* ── Target the Logo (First Image) ── */
+    [data-testid="stSidebar"] [data-testid="stImage"]:nth-of-type(1),
+    [data-testid="stSidebar"] [data-testid="stImage"]:nth-of-type(1) img {{
+        min-width: 50px !important;
+        max-width: none !important; 
+        margin-left: auto !important;
+        margin-right: auto !important;
+
+    /* ── Target the Human Body (Second Image) ── */
+    [data-testid="stSidebar"] [data-testid="stImage"]:nth-of-type(2) img {{
+        min-width: 500px !important; /* Keeps the body huge */
+        max-width: none !important;
+        margin-left: -65px !important; /* Centers the oversized body */
+    }}
+    
     </style>
     """,
     unsafe_allow_html=True,
 )
+
+
 
 # ============================================================
 # DATA LOADING
@@ -358,6 +391,7 @@ CREW_CONFIG = {
         "photo": "crew_C004.png",
     },
 }
+
 
 # ============================================================
 # SESSION STATE — crew selection
@@ -1351,7 +1385,7 @@ def show_averaged_section_warning():
 # ============================================================
 
 def render_bone_tab(crew_id):
-    st.title("🦴 Bone Density Loss Inhibitor Efficacy")
+    st.title(" Bone Density Loss Inhibitor Efficacy")
 
     st.warning(
         "⚕️ **Dataset Notice:** The current cohort does not include astronauts taking any "
@@ -1432,14 +1466,14 @@ def render_bone_tab(crew_id):
     render_total_score_bar(total_score, len(BONE_BIOMARKER_PARAMS), domain_label="Drug Efficacy")
 
     sections = [
-        ("🔬 Proteomics (logFC — flight vs. pre-flight)", prot_map, "logFC", True),
-        ("🧪 CMP Serum Chemistry (post/pre ratio)", cmp_map, "ratio", False),
-        ("💧 Urine Inflammation Panel (post/pre ratio)", urine_map, "ratio", False),
-        ("⚗️ Metabolomics (logFC — flight vs. pre-flight)", met_map, "logFC", True),
+        (" Proteomics (logFC — flight vs. pre-flight)", prot_map, "logFC", True),
+        (" CMP Serum Chemistry (post/pre ratio)", cmp_map, "ratio", False),
+        (" Urine Inflammation Panel (post/pre ratio)", urine_map, "ratio", False),
+        (" Metabolomics (logFC — flight vs. pre-flight)", met_map, "logFC", True),
     ]
 
     for section_title, raw_dict, val_label, section_averaged in sections:
-        with st.expander(section_title, expanded=True):
+        with st.expander(section_title, expanded=False):
             if section_averaged:
                 show_averaged_section_warning()
             for name, raw_val in raw_dict.items():
@@ -1459,7 +1493,7 @@ def render_bone_tab(crew_id):
 # ============================================================
 
 def render_cardio_tab(crew_id):
-    st.title("❤️ Cardiotoxicity Safety")
+    st.title(" Cardiotoxicity Safety")
 
     st.warning(
         "⚕️ **Dataset Notice:** The current cohort does not include astronauts taking any "
@@ -1511,12 +1545,12 @@ def render_cardio_tab(crew_id):
     render_cardio_total_score_bar(total_score)
 
     sections = [
-        ("🩸 Cardiac Cytokine / Plasma Panel (post/pre ratio)", cytokine_map, "ratio", False),
-        ("🔬 Proteomics (logFC — flight vs. pre-flight)",        prot_map,    "logFC", True),
+        (" Cardiac Cytokine / Plasma Panel (post/pre ratio)", cytokine_map, "ratio", False),
+        (" Proteomics (logFC — flight vs. pre-flight)",        prot_map,    "logFC", True),
     ]
 
     for section_title, raw_dict, val_label, section_averaged in sections:
-        with st.expander(section_title, expanded=True):
+        with st.expander(section_title, expanded=False):
             if section_averaged:
                 show_averaged_section_warning()
             for name, raw_val in raw_dict.items():
@@ -1536,7 +1570,7 @@ def render_cardio_tab(crew_id):
 # ============================================================
 
 def render_neuro_tab(crew_id):
-    st.title("🧠 Neurological Resilience")
+    st.title(" Neurological Resilience")
 
     st.warning(
         "⚕️ **Dataset Notice:** The current cohort does not include astronauts taking any "
@@ -1594,13 +1628,13 @@ def render_neuro_tab(crew_id):
     render_total_score_bar(total_score, len(NEURO_BIOMARKER_PARAMS), domain_label="Neurological Resilience")
 
     sections = [
-        ("🔬 Proteomics (logFC — flight vs. pre-flight)", prot_map, "logFC", True),
-        ("💧 Urine Inflammation Panel (post/pre ratio)",   urine_map, "ratio", False),
-        ("⚗️ Metabolomics (logFC — flight vs. pre-flight)", met_map, "logFC", True),
+        (" Proteomics (logFC — flight vs. pre-flight)", prot_map, "logFC", True),
+        (" Urine Inflammation Panel (post/pre ratio)",   urine_map, "ratio", False),
+        (" Metabolomics (logFC — flight vs. pre-flight)", met_map, "logFC", True),
     ]
 
     for section_title, raw_dict, val_label, section_averaged in sections:
-        with st.expander(section_title, expanded=True):
+        with st.expander(section_title, expanded=False):
             if section_averaged:
                 show_averaged_section_warning()
             for name, raw_val in raw_dict.items():
@@ -1684,7 +1718,7 @@ def render_crew_card(crew_id):
     col_img, col_info = st.columns([1, 4])
     with col_img:
         if photo and os.path.exists(photo_path):
-            st.image(photo_path, width=110)
+            st.image(photo_path, width=500)
         else:
             st.markdown(
                 f"""
@@ -1725,19 +1759,34 @@ def render_crew_card(crew_id):
 
     st.markdown("<hr style='margin:14px 0 4px 0; border:1px solid #d0d4db;'>", unsafe_allow_html=True)
 
-
 # ============================================================
 # SIDEBAR — MODULE NAVIGATION
 # ============================================================
 
-st.sidebar.title("Astronaut Therapeutic Testing")
+# ── TrinityRx Logo ─────────────────────────────────────────
+_logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "trinityRX.png")
+if os.path.exists(_logo_path):
+    st.sidebar.image(_logo_path, use_container_width=True)
+
+# ── Sidebar Title ──────────────────────────────────────────
+st.sidebar.title("Astronaut Biomarker Therapeutic Testing")
+st.sidebar.markdown("---")
+
+# ── Human body illustration ────────────────────────────────
+_app_dir = os.path.dirname(os.path.abspath(__file__))
+_body_img_path = os.path.join(_app_dir, "human_body.png")
+if os.path.exists(_body_img_path):
+    # Note: We keep this one large as per your previous request
+    st.sidebar.image(_body_img_path, use_container_width=True)
+
+
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 📋 View Module")
 
 module_options = [
-    "🦴 Bone Density Loss Inhibitor Efficacy",
-    "❤️ Cardiotoxicity Safety",
-    "🧠 Neurological Resilience",
+    " Bone Density Loss Inhibitor Efficacy",
+    " Cardiotoxicity Safety",
+    " Neurological Resilience",
 ]
 
 selected_module = st.sidebar.radio(
@@ -1791,9 +1840,9 @@ if not DATA_LOADED:
     st.error("⚠️ Data not loaded. Check the sidebar for details.")
     st.stop()
 
-if selected_module == "🦴 Bone Density Loss Inhibitor Efficacy":
+if selected_module == " Bone Density Loss Inhibitor Efficacy":
     render_bone_tab(crew)
-elif selected_module == "❤️ Cardiotoxicity Safety":
+elif selected_module == " Cardiotoxicity Safety":
     render_cardio_tab(crew)
-elif selected_module == "🧠 Neurological Resilience":
+elif selected_module == " Neurological Resilience":
     render_neuro_tab(crew)
