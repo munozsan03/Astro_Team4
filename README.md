@@ -143,15 +143,19 @@ QR Code
 
 ---
 
+---
+
 ## Additional Documentation
 
-Expanded biomarker rationale, physiological interpretation, pathway relevance, and supporting literature references are available in the supplementary markdown documentation files included within this repository.
+Expanded biomarker rationale, physiological interpretation, scoring methodology, and supporting literature references are available in the supplementary markdown documentation files included within this repository.
 
-These supporting documents provide additional detail regarding biomarker selection methodology, translational significance, and analytical framework development for safety, efficacy, and resilience modeling during long-duration spaceflight.
+These documents provide additional detail regarding biomarker selection methodology, translational significance, and analytical framework development for safety, efficacy, and resilience modeling during long-duration spaceflight.
 
 Please refer to:
 
-- `Efficacy Biomarker Justifications.md`
-- `Safety Scoring Methodology.md`
-- `Resilience Biomarker Framework.md`
-
+- `2. Bone Density Loss Prevention Efficacy Biomarker Justifications.md`
+- `3. Bone Density Loss Prevention Efficacy Scoring Methodology.md`
+- `4. Cardiotoxicity Safety Biomarker Justifications.md`
+- `5. Cardiotoxicity Safety Scoring Methodology.md`
+- `6. Neurobiological Resilience Biomarker Justifications.md`
+- `7. Neurobiological Resilience Scoring Methodology.md`
