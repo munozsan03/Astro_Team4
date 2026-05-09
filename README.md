@@ -5,7 +5,7 @@ Teammates:
 Santiago Munoz, Vy Tran, Giovanni Victorio
 
 
-# Proposal: 1
+## Proposal: 
 
 
 **Problem Background**
@@ -42,12 +42,26 @@ Within each category are two types of graphics:
 Safety graphics will calculate the current risk of each subject based on normal biomarker indications.
 Efficacy graphics will show quantitative results of biomarkers indicative of effective or ineffective treatments.
 
-Sample Visual for Safety:
+## Prototype Visuals
+
+The dashboard prototype visualizes astronaut health risks using biomarker-based safety, efficacy, and resilience scoring. These visuals are intended to demonstrate how mission biomarker data could support future therapeutic monitoring during long-duration spaceflight.
+
 <img width="1895" height="519" alt="image" src="https://github.com/user-attachments/assets/4e30a35f-527e-4da5-b5c1-0f6d451522ed" />
 
-The table below shows the available biomarkers and their relevance to drug efficacy, individual safety, and cross-crew resilience.
+## Current Prototype Biomarker Panel
 
-# Astronaut Drug Trial — Biomarker Panel
+The current prototype focuses on three representative modules: one efficacy module, one safety module, and one resilience module.
+
+| Module | Category | Tests / Samples | Key Biomarkers |
+|--------|----------|-----------------|----------------|
+| **Bone Density Loss Prevention** | Efficacy | Blood Serum CMP, Plasma Proteomics, Urine Inflammation Panel, Plasma Metabolomics | BGLAP, SPARC, SPP1, SOST, Calcium, Alkaline Phosphatase, RANK, RANKL, BMP7, WNT16, FGF23, Ergocalciferol, Cortisol |
+| **Cardiotoxicity** | Safety | Cardiac Cytokine Array, Plasma Proteomics | CRP, Fibrinogen, Haptoglobin, Alpha-2-Macroglobulin, PF4, L-Selectin, Fetuin-A, SAP, VWF, SERPINE1 |
+| **Neurobiological Resilience** | Resilience | Plasma Proteomics, Urine Inflammation Panel, Plasma Metabolomics | BDNF, GFAP, S100B, NRGN, CLU, APOE, NGF, CXCL10, Kynurenine:Tryptophan Ratio, 5-HIAA, N-Acetylaspartic Acid, Cortisol |
+
+
+## Full Biomarker Reference Panel
+
+The table below represents the idealized full biomarker panel for future expansion of the prototype. It includes additional safety, efficacy, and resilience categories that could be incorporated as more datasets and validation methods become available.
 
 | Risk | Category | Tests / Samples | Measured Biomarkers |
 |------|----------|-----------------|---------------------|
@@ -69,3 +83,27 @@ The table below shows the available biomarkers and their relevance to drug effic
 | **Neurological Resilience** | Resilience | Plasma Proteomics, Urine Inflammation Panel, Plasma Metabolomics | **Cross-crew comparison of neuro-inflammatory shift and recovery trajectory — Proteomics:** BDNF, GFAP, S100B, NRGN, CLU, APOE · **Urine Panel:** BDNF, GFAP, NGF, CXCL10 · **Metabolomics:** Kynurenine:Tryptophan Ratio, 5-HIAA, N-Acetylaspartic Acid, Cortisol, Nicotinamide |
 | **Microbiome Resilience** | Resilience | Stool Metagenomics, Skin Metagenomics | **Cross-crew comparison of diversity loss and post-flight recovery rate — Taxonomy:** Alpha diversity (Shannon index), Firmicutes:Bacteroidetes ratio, Lactobacillaceae abundance · **Functional (KEGG):** Butyrate synthesis pathway CPM, short-chain fatty acid biosynthesis · **Beta diversity:** Bray-Curtis dissimilarity from each astronaut's own preflight baseline |
 | **Musculoskeletal Resilience** | Resilience | Blood Serum (CMP), Plasma Proteomics, EVP Proteomics, Plasma Metabolomics | **Cross-crew comparison of muscle and bone marker trajectories — Proteomics:** FST, IGF1, NAMPT, BGLAP, SOST, SPP1, COL1A1/1A2, COMP · **CMP:** Creatinine, BUN:Creatinine Ratio, Calcium, Alkaline Phosphatase · **Metabolomics:** 3-Methylhistidine, Creatine, BCAAs (Leu/Ile/Val), Ergocalciferol (Vit D2), Cortisol |
+
+## Accessing the Dashboard
+
+There are 3 ways to access or run the Astro_team4 Streamlit dashboard
+
+  # Option 1
+Use this option if you want to download the project and run the dashboard on your own computer.
+1. Clone the Github repository: git clone https://github.com/munozsan03/Astro_Team4.git
+2. Move into the project folder: cd Astro_Team4
+
+  # Option 2
+Use this option if the dashboard is deployed online.
+
+Dashboard link
+QR Code
+
+  # Option 3
+Use this option if you already have the project folder on your computer and only need to install Streamlit and run the app.
+1. Install Streamlit using Python
+2. Move into the project folder: cd Astro_Team4
+3. Run the dashboard: python -m streamlit run streamlit_app/app.py
+4. After running the command, Streamlit will show a local URL such as: http://localhost:8501
+
+
