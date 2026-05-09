@@ -57,11 +57,11 @@ Using longitudinal astronaut multi-omics datasets, the dashboard evaluates physi
 
 The framework is organized into three primary analytical categories:
 
-- Safety Monitoring — evaluates biomarkers associated with adverse physiological responses and potential therapeutic toxicity.
-
-- Efficacy Analysis — evaluates biomarkers associated with therapeutic effectiveness and preservation of physiological function.
-
-- Resilience Modeling — evaluates recovery trajectory, adaptive response, and inter-crew physiological variability across mission timepoints.
+| Category | Objective |
+|---|---|
+| **Safety Monitoring** | Evaluates biomarkers associated with adverse physiological responses and potential therapeutic toxicity |
+| **Efficacy Analysis** | Evaluates biomarkers associated with therapeutic effectiveness and preservation of physiological function |
+| **Resilience Modeling** | Evaluates adaptive response, recovery trajectory, and inter-crew physiological variability |
 
 The current prototype focuses on representative modules for bone density loss prevention, cardiotoxicity safety monitoring, and neurobiological resilience analysis while establishing a scalable framework for future biomarker integration.
 
@@ -125,23 +125,25 @@ The table below represents the idealized full biomarker panel for future expansi
 
 There are 3 ways to access or run the Astro_team4 Streamlit dashboard
 
-**Option 1**
+**Option 1 - Run Locally**
 
-Use this option if you want to download the project and run the dashboard on your own computer.
 
 1. Clone the Github repository: git clone https://github.com/munozsan03/Astro_Team4.git
 2. Move into the project folder: cd Astro_Team4
+3. Creater a virtual environment: python -m venv venv
+4. Activate the virtual environment (Windows PowerShell): .\venv\Scripts\Activate.ps1
+5. If PowerShell blocks activation: Set-ExecutionPolicy - Scope Process -ExecutionPolicy Bypass
+6. Install required libraries: python -m pip install -r requirements.txt
+7. Run the Streamlit dashboard: python -m streamlit run streamlit_app/app.py
 
-**Option 2**
+**Option 2 - Hosted Streamlit Deployment**
 
-Use this option if the dashboard is deployed online.
 
 Dashboard link
 QR Code
 
-**Option 3**
+**Option 3 - Offline Streamlit Execution**
 
-Use this option if you already have the project folder on your computer and only need to install Streamlit and run the app.
 
 1. Install Streamlit using Python
 2. Move into the project folder: cd Astro_Team4
