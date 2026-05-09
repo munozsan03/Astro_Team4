@@ -88,18 +88,18 @@ The table below represents the idealized full biomarker panel for future expansi
 
 There are 3 ways to access or run the Astro_team4 Streamlit dashboard
 
-  # Option 1
+   Option 1
 Use this option if you want to download the project and run the dashboard on your own computer.
 1. Clone the Github repository: git clone https://github.com/munozsan03/Astro_Team4.git
 2. Move into the project folder: cd Astro_Team4
 
-  # Option 2
+   Option 2
 Use this option if the dashboard is deployed online.
 
 Dashboard link
 QR Code
 
-  # Option 3
+   Option 3
 Use this option if you already have the project folder on your computer and only need to install Streamlit and run the app.
 1. Install Streamlit using Python
 2. Move into the project folder: cd Astro_Team4
