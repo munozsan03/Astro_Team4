@@ -49,6 +49,15 @@ This creates a major translational gap for future astronaut healthcare and thera
 
 ---
 
+## Hackathon Alignment
+
+This project primarily aligns with **Track 2: Individualized Risk Profiling**, while also incorporating core principles from **Track 3: Communication & Visualization**.
+
+Our platform combines biomarker-driven physiological risk assessment with clinically interpretable visualization tools designed to support transparent and astronaut-readable therapeutic evaluation.
+
+--- 
+
+
 ## Approach 
 
 
